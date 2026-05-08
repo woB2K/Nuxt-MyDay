@@ -624,8 +624,8 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **0.5** Инициализировать Prisma: `pnpm prisma init`, скопировать схему из `CLAUDE.md`, запустить первую миграцию `pnpm prisma migrate dev --name init`
 - [x] **0.6** Создать `server/utils/prisma.ts` (singleton паттерн)
 - [x] **0.7** Создать `.env.example`, подключиться к удалённой БД, проверить `pnpm prisma studio`
-- [ ] **0.8** Создать структуру `shared/types/` и `shared/schemas/` с базовыми Zod-схемами (auth, tasks, finance)
-- [ ] **0.9** *(Claude пишет)* Настроить тестовое окружение: установить `vitest`, `@nuxt/test-utils`, `@vue/test-utils`, `playwright`; создать `vitest.config.ts` и `playwright.config.ts`
+- [x] **0.8** Создать структуру `shared/types/` и `shared/schemas/` с базовыми Zod-схемами (auth, tasks, finance)
+- [x] **0.9** *(Claude пишет)* Настроить тестовое окружение: установить `vitest`, `@nuxt/test-utils`, `@vue/test-utils`, `playwright`; создать `vitest.config.ts` и `playwright.config.ts`
 
 ---
 
