@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MyDay — Personal productivity & finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body, #app {
+      margin: 0; padding: 0; height: 100%; background: #07070A; overflow: hidden;
+      font-family: Inter, -apple-system, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+    body { display: flex; align-items: center; justify-content: center; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* Scrollbar styling — minimal, dark */
+    ::-webkit-scrollbar { width: 0; height: 0; }
+
+    /* Make sure the iframe-bound app fills */
+    #app { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+    /* Subtle ambient glow behind the device */
+    .ambient {
+      position: absolute; width: 800px; height: 800px;
+      border-radius: 9999px; pointer-events: none; z-index: 0;
+      background: radial-gradient(circle, rgba(167,139,250,0.12) 0%, rgba(167,139,250,0) 60%);
+      filter: blur(40px);
+    }
+  </style>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Tokens (plain JS) -->
+  <script src="tokens.js"></script>
+
+  <!-- Starter components -->
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+
+  <!-- App pieces -->
+  <script type="text/babel" src="icons.jsx"></script>
+  <script type="text/babel" src="components.jsx"></script>
+  <script type="text/babel" src="tabbar.jsx"></script>
+  <script type="text/babel" src="screens-today.jsx"></script>
+  <script type="text/babel" src="screens-other.jsx"></script>
+  <script type="text/babel" src="screens-tasks.jsx"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="ambient"></div>
+    <div id="device-mount" style="position:relative; z-index:1;"></div>
+  </div>
+
+  <!-- Mount the device frame and the React app inside it -->
+  <script type="text/babel">
+    // Render the iOS device frame, then mount the React app into a child node
+    function Host() {
+      return (
+        <window.IOSDevice width={390} height={844} dark={true}>
+          <div id="root" style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }} />
+        </window.IOSDevice>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('device-mount')).render(<Host />);
+  </script>
+
+  <!-- App entry -->
+  <script type="text/babel" src="app.jsx"></script>
+
+</body>
+</html>

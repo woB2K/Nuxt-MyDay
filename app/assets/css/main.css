@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+  --c-bg:          #0F0F14;
+  --c-elev1:       #15151C;
+  --c-elev2:       #1C1C25;
+  --c-elev3:       #26262F;
+  --c-hairline:    rgba(255, 255, 255, 0.06);
+  --c-hairline2:   rgba(255, 255, 255, 0.10);
+
+  --c-text:        #F4F4F7;
+  --c-text-dim:    #A1A1AA;
+  --c-text-mute:   #6B6B75;
+  --c-text-ghost:  #3F3F47;
+
+  --c-accent:      #A78BFA;
+  --c-accent-soft: rgba(167, 139, 250, 0.14);
+  --c-accent-ink:  #0F0F14;
+
+  --c-success:     #34D399;
+  --c-warning:     #FBBF24;
+  --c-danger:      #F87171;
+  --c-info:        #60A5FA;
+
+  --c-p-high:      #F87171;
+  --c-p-med:       #FBBF24;
+  --c-p-low:       #60A5FA;
+  --c-p-none:      #6B6B75;
+}
+
+.light {
+  --c-bg:          #F8F8FC;
+  --c-elev1:       #FFFFFF;
+  --c-elev2:       #F0F0F5;
+  --c-elev3:       #E5E5ED;
+  --c-hairline:    rgba(0, 0, 0, 0.06);
+  --c-hairline2:   rgba(0, 0, 0, 0.10);
+
+  --c-text:        #0F0F14;
+  --c-text-dim:    #52525B;
+  --c-text-mute:   #A1A1AA;
+  --c-text-ghost:  #D4D4D8;
+
+  --c-accent-ink:  #FFFFFF;
+}
+
+@theme static {
+  --font-display: -apple-system, "SF Pro Display", "SF Pro", system-ui, sans-serif;
+  --font-sans:    Inter, -apple-system, system-ui, sans-serif;
+  --font-mono:    "SF Mono", ui-monospace, monospace;
+
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+  --radius-2xl:  24px;
+
+  --shadow-sm:    0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md:    0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-lg:    0 12px 36px rgba(0, 0, 0, 0.45);
+  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.4);
+
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --duration-fast:  150ms;
+  --duration-base:  240ms;
+  --duration-slow:  360ms;
+  --duration-sheet: 420ms;
+}
+
+@theme {
+  --color-bg:          var(--c-bg);
+  --color-elev1:       var(--c-elev1);
+  --color-elev2:       var(--c-elev2);
+  --color-elev3:       var(--c-elev3);
+  --color-hairline:    var(--c-hairline);
+  --color-hairline2:   var(--c-hairline2);
+
+  --color-text:        var(--c-text);
+  --color-text-dim:    var(--c-text-dim);
+  --color-text-mute:   var(--c-text-mute);
+  --color-text-ghost:  var(--c-text-ghost);
+
+  --color-accent:      var(--c-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-accent-ink:  var(--c-accent-ink);
+
+  --color-success:     var(--c-success);
+  --color-warning:     var(--c-warning);
+  --color-danger:      var(--c-danger);
+  --color-info:        var(--c-info);
+
+  --color-p-high:      var(--c-p-high);
+  --color-p-med:       var(--c-p-med);
+  --color-p-low:       var(--c-p-low);
+  --color-p-none:      var(--c-p-none);
+}
