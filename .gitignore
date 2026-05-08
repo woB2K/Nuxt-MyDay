@@ -25,3 +25,6 @@ logs
 
 # Prisma generated client
 prisma/.generated/
+
+# Design prototype (reference only, not part of codebase)
+design_handoff_myday/
