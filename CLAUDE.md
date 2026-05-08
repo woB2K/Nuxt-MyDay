@@ -636,7 +636,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **1.1** `server/utils/jwt.ts` — функции `signAccessToken`, `signRefreshToken`, `verifyToken`
 - [x] **1.2** `server/utils/password.ts` — `hashPassword`, `comparePassword` (bcrypt, cost 12)
 - [x] **1.3** `server/middleware/01.auth.ts` — извлечение и верификация Bearer токена, запись `event.context.userId`
-- [ ] **1.4** `POST /api/auth/register` — валидация Zod, создание User + AppSettings + seed Categories (в `prisma.$transaction`)
+- [x] **1.4** `POST /api/auth/register` — валидация Zod, создание User + AppSettings + seed Categories (в `prisma.$transaction`)
 - [ ] **1.5** `POST /api/auth/login` — поиск по email, bcrypt.compare, выдача токенов
 - [ ] **1.6** `POST /api/auth/logout` — удаление RefreshToken из БД, очистка cookie
 - [ ] **1.7** `POST /api/auth/refresh` — ротация refresh токена, выдача нового access токена
@@ -667,7 +667,7 @@ const userId = event.context.userId // проставляет server/middleware/
 
 **Сервер:**
 
-- [ ] **2.1** `prisma/seeds/categories.ts` — seed-функция стандартных категорий (10 штук из дизайна)
+- [x] **2.1** `prisma/seeds/categories.ts` — seed-функция стандартных категорий (10 штук из дизайна)
 - [ ] **2.2** `GET/POST /api/categories` + `PATCH/DELETE /api/categories/[id]`
 - [ ] **2.3** `GET/POST /api/finance/transactions` + `PATCH/DELETE /api/finance/transactions/[id]` (с пагинацией)
 - [ ] **2.4** `GET /api/finance/summary` — агрегация SQL: income, expense, net, breakdown by category
