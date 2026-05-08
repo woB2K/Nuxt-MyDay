@@ -611,7 +611,7 @@ const userId = event.context.userId // проставляет server/middleware/
 
 ## Фазы реализации
 
-Чтобы начать сессию — скажи "приступаем к шагу N". Чтобы завершить — отметь шаг `[x]`.
+Чтобы начать сессию — скажи "приступаем к шагу N". Чтобы завершить шаг — напиши "Идем дальше": Claude отмечает текущий шаг `[x]` и предлагает следующий.
 
 ---
 
@@ -633,9 +633,9 @@ const userId = event.context.userId // проставляет server/middleware/
 
 **Сервер (делать в этом порядке, проверять через curl/Postman):**
 
-- [ ] **1.1** `server/utils/jwt.ts` — функции `signAccessToken`, `signRefreshToken`, `verifyToken`
-- [ ] **1.2** `server/utils/password.ts` — `hashPassword`, `comparePassword` (bcrypt, cost 12)
-- [ ] **1.3** `server/middleware/01.auth.ts` — извлечение и верификация Bearer токена, запись `event.context.userId`
+- [x] **1.1** `server/utils/jwt.ts` — функции `signAccessToken`, `signRefreshToken`, `verifyToken`
+- [x] **1.2** `server/utils/password.ts` — `hashPassword`, `comparePassword` (bcrypt, cost 12)
+- [x] **1.3** `server/middleware/01.auth.ts` — извлечение и верификация Bearer токена, запись `event.context.userId`
 - [ ] **1.4** `POST /api/auth/register` — валидация Zod, создание User + AppSettings + seed Categories (в `prisma.$transaction`)
 - [ ] **1.5** `POST /api/auth/login` — поиск по email, bcrypt.compare, выдача токенов
 - [ ] **1.6** `POST /api/auth/logout` — удаление RefreshToken из БД, очистка cookie
