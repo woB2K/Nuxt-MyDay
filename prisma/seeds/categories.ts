@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '~~/prisma/.generated/prisma'
 
 const DEFAULT_CATEGORIES: Omit<Prisma.CategoryCreateManyInput, 'userId'>[] = [
   { name: 'Food & Drink', icon: '🍔', type: 'EXPENSE' },

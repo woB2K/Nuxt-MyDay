@@ -595,6 +595,31 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 ```
 
+### useApi — авторизованные запросы с клиента
+
+Все клиентские запросы к защищённым эндпоинтам идут через `useApi()`, а не через `$fetch` напрямую. Composable создаёт `$fetch` инстанс с `onRequest` interceptor, который подставляет `Authorization: Bearer <token>` из `useAuthStore`.
+
+```ts
+// app/composables/useApi.ts
+export function useApi() {
+  const authStore = useAuthStore()
+  return $fetch.create({
+    onRequest({ options }) {
+      if (authStore.accessToken) {
+        options.headers = new Headers(options.headers)
+        options.headers.set('Authorization', `Bearer ${authStore.accessToken}`)
+      }
+    }
+  })
+}
+```
+
+**Исключение — `useAuthStore`**: он работает с `$fetch` напрямую, иначе circular dependency (`useApi` → `useAuthStore` → `useApi`).
+
+Создать `useApi` перед написанием первого стора который делает защищённые запросы (tasks, finance).
+
+---
+
 ### Безопасность: userId всегда из контекста
 
 `userId` всегда берётся из JWT (через `event.context.userId`), никогда из query/body запроса.
@@ -647,8 +672,8 @@ const userId = event.context.userId // проставляет server/middleware/
 
 **Клиент:**
 
-- [ ] **1.10** `stores/auth.ts` — `useAuthStore` с `accessToken`, `user`, `init()`, `refresh()`, `logout()`
-- [ ] **1.11** `app/middleware/auth.ts` и `guest.ts`
+- [x] **1.10** `stores/auth.ts` — `useAuthStore` с `accessToken`, `user`, `init()`, `refresh()`, `logout()`
+- [x] **1.11** `app/middleware/auth.ts` и `guest.ts`
 - [ ] **1.12** `layouts/auth.vue` — чистый layout без навигации
 - [ ] **1.13** `pages/auth/welcome.vue` — Welcome screen с Google OAuth + email кнопками
 - [ ] **1.14** `pages/auth/login.vue` — форма Sign In
@@ -678,15 +703,16 @@ const userId = event.context.userId // проставляет server/middleware/
 
 **Клиент:**
 
-- [ ] **2.7** `stores/finance.ts` — `useFinanceStore` с оптимистичными апдейтами
-- [ ] **2.8** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`, `UiStatsCard`
-- [ ] **2.9** `pages/finance/index.vue` — hero баланс + breakdown по категориям + recent транзакции
-- [ ] **2.10** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
-- [ ] **2.11** Раздел Savings в Finance (отдельная карточка/секция)
-- [ ] **2.12** Раздел Budgets (карточки по категориям с прогресс-баром)
-- [ ] **2.13** Управление категориями в Settings (список + создать/редактировать/удалить)
-- [ ] **2.14** *(Claude пишет)* Unit тесты для Zod-схем finance — невалидная сумма (отрицательная, строка), неизвестная категория
-- [ ] **2.15** *(Claude пишет)* Store тесты для `useFinanceStore` — оптимистичный апдейт при удалении транзакции, откат при ошибке сети
+- [ ] **2.7** `composables/useApi.ts` — `$fetch.create()` с `onRequest` interceptor для подстановки `Authorization: Bearer` из `useAuthStore`. Создать до всех защищённых запросов.
+- [ ] **2.8** `stores/finance.ts` — `useFinanceStore` с оптимистичными апдейтами
+- [ ] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`, `UiStatsCard`
+- [ ] **2.10** `pages/finance/index.vue` — hero баланс + breakdown по категориям + recent транзакции
+- [ ] **2.11** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
+- [ ] **2.12** Раздел Savings в Finance (отдельная карточка/секция)
+- [ ] **2.13** Раздел Budgets (карточки по категориям с прогресс-баром)
+- [ ] **2.14** Управление категориями в Settings (список + создать/редактировать/удалить)
+- [ ] **2.15** *(Claude пишет)* Unit тесты для Zod-схем finance — невалидная сумма (отрицательная, строка), неизвестная категория
+- [ ] **2.16** *(Claude пишет)* Store тесты для `useFinanceStore` — оптимистичный апдейт при удалении транзакции, откат при ошибке сети
 
 ---
 
