@@ -76,7 +76,9 @@ myday/
 │   │   │   └── templates.vue
 │   │   ├── finance/
 │   │   │   └── index.vue
-│   │   └── settings.vue
+│   │   ├── settings.vue
+│   │   └── settings/
+│   │       └── categories.vue
 │   └── stores/
 │       ├── auth.ts                   # useAuthStore
 │       ├── tasks.ts                  # useTasksStore
