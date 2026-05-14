@@ -1,4 +1,9 @@
+import { createHash } from 'node:crypto'
 import { jwtVerify, SignJWT } from 'jose'
+
+export function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex')
+}
 
 export async function signAccessToken(userId: string): Promise<string> {
   const config = useRuntimeConfig()

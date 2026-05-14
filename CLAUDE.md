@@ -639,11 +639,11 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **1.2** `server/utils/password.ts` — `hashPassword`, `comparePassword` (bcrypt, cost 12)
 - [x] **1.3** `server/middleware/01.auth.ts` — извлечение и верификация Bearer токена, запись `event.context.userId`
 - [x] **1.4** `POST /api/auth/register` — валидация Zod, создание User + AppSettings + seed Categories (в `prisma.$transaction`)
-- [ ] **1.5** `POST /api/auth/login` — поиск по email, bcrypt.compare, выдача токенов
-- [ ] **1.6** `POST /api/auth/logout` — удаление RefreshToken из БД, очистка cookie
-- [ ] **1.7** `POST /api/auth/refresh` — ротация refresh токена, выдача нового access токена
+- [x] **1.5** `POST /api/auth/login` — поиск по email, bcrypt.compare, выдача токенов
+- [x] **1.6** `POST /api/auth/logout` — удаление RefreshToken из БД, очистка cookie
+- [x] **1.7** `POST /api/auth/refresh` — ротация refresh токена, выдача нового access токена
 - [ ] **1.8** `GET /api/auth/oauth/google` + `GET /api/auth/oauth/google/callback` — Google OAuth flow
-- [ ] **1.9** `GET /api/users/me` — возврат профиля текущего пользователя
+- [x] **1.9** `GET /api/users/me` — возврат профиля текущего пользователя
 
 **Клиент:**
 

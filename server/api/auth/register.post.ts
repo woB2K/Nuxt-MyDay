@@ -1,4 +1,6 @@
 import { seedCategories } from '~~/prisma/seeds/categories'
+import { hashToken } from '~~/server/utils/jwt'
+import { toPublicUser } from '~~/server/utils/mapper'
 import { registerSchema } from '~~/shared/schemas/auth'
 
 export default defineEventHandler(async (event) => {
@@ -23,7 +25,7 @@ export default defineEventHandler(async (event) => {
       }
     })
     await seedCategories(tx, newUser.id)
-    await tx.appSettings.create({
+    const appSettings = await tx.appSettings.create({
       data: {
         userId: newUser.id
       }
@@ -31,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
     const accessToken = await signAccessToken(newUser.id)
     const rawRefreshToken = await signRefreshToken(newUser.id)
-    const tokenHash = await hashPassword(rawRefreshToken)
+    const tokenHash = hashToken(rawRefreshToken)
 
     setCookie(event, 'refreshToken', rawRefreshToken, {
       httpOnly: true,
@@ -49,7 +51,10 @@ export default defineEventHandler(async (event) => {
     })
 
     return {
-      user: newUser,
+      user: toPublicUser({
+        ...newUser,
+        settings: appSettings
+      }),
       accessToken
     }
   })
