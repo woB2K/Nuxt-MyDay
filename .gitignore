@@ -29,3 +29,5 @@ prisma/.generated/
 
 # Design prototype (reference only, not part of codebase)
 design_handoff_myday/
+
+TAILWIND.md
