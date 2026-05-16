@@ -2,6 +2,8 @@
 definePageMeta({
   layout: 'auth'
 })
+const { t } = useI18n()
+
 </script>
 
 <template>
@@ -22,24 +24,24 @@ definePageMeta({
         MyDay
       </p>
       <p class="text-text-dim">
-        Tasks & finances, one place
+        {{ t('welcome.tagline') }}
       </p>
     </div>
 
     <div class="flex flex-col rounded-md bg-elev1 items-center text-center gap-6 w-full p-6">
       <p class="text-text text-xl">
-        Get started
+        {{ t('welcome.getStarted') }}
       </p>
       <UiButton variant="secondary" class="w-full">
         <UIcon name="i-simple-icons-google" />
-        <span>Continue with Google</span>
+        <span>{{ t('welcome.continueGoogle') }}</span>
       </UiButton>
       <UiButton variant="secondary" class="w-full" to="/auth/register">
         <UIcon name="i-heroicons-envelope" class="text-accent" />
-        <span>Continue with email</span>
+        <span>{{ t('welcome.continueEmail') }}</span>
       </UiButton>
-      <span class="text-text">Already have an account?
-        <NuxtLink class="text-accent cursor-pointer" to="/auth/login">Sign in</NuxtLink>
+      <span class="text-text">{{ t('welcome.alreadyHaveAccount') }}
+        <NuxtLink class="text-accent cursor-pointer" to="/auth/login">{{ t('welcome.signIn') }}</NuxtLink>
       </span>
     </div>
   </div>

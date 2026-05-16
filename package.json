@@ -18,6 +18,7 @@
     "@iconify-json/lucide": "^1.2.105",
     "@iconify-json/simple-icons": "^1.2.80",
     "@nuxt/ui": "^4.7.1",
+    "@nuxtjs/i18n": "^10.3.0",
     "@pinia/nuxt": "0.11.3",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",

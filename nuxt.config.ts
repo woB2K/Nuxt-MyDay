@@ -4,14 +4,14 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@pinia/nuxt',
-    '@vite-pwa/nuxt'
+    '@vite-pwa/nuxt',
+    '@nuxtjs/i18n'
   ],
   ssr: false,
 
   devtools: {
     enabled: false
   },
-
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     jwtAccessSecret: '',
@@ -39,6 +39,20 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  i18n: {
+    locales: [
+      { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
+      { code: 'ru', language: 'ru-RU', file: 'ru.json', name: 'Русский' }
+    ],
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_locale',
+      redirectOn: 'root'
     }
   }
 

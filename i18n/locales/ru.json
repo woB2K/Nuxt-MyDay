@@ -1,0 +1,10 @@
+{
+  "welcome": {
+    "tagline": "Ваши задачи и финансы, все в одном месте!",
+    "getStarted": "Начать!",
+    "continueGoogle": "Авторизоваться через Google",
+    "continueEmail": "Авторизоваться через почту",
+    "alreadyHaveAccount": "У вас уже есть аккаунт?",
+    "signIn": "Войти"
+  }
+}

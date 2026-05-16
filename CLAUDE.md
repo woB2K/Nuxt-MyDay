@@ -165,6 +165,11 @@ myday/
 │   └── workflows/
 │       └── ci.yml
 │
+├── i18n/
+│   └── locales/
+│       ├── en.json                       # английские строки
+│       └── ru.json                       # русские строки
+│
 ├── .env.example
 ├── nuxt.config.ts
 ├── tailwind.config.js
@@ -222,24 +227,36 @@ export type CreateTaskInput = z.infer<typeof createTaskSchema>
 ```
 
 ### i18n
-Без `@nuxtjs/i18n` — ручной composable. Достаточно для двух языков без SEO-требований.
 
-```ts
-// app/composables/useI18n.ts
-const STR = { en: { tasks: 'Tasks', ... }, ru: { tasks: 'Задачи', ... } }
+Используем `@nuxtjs/i18n` (v10). Два языка: `en` (default) и `ru`. Файлы переводов: `i18n/locales/en.json` и `i18n/locales/ru.json`.
 
-export function useI18n() {
-  const settings = useSettingsStore()
-  const t = computed(() => STR[settings.lang])
-  return { t }
-}
+**Правило: любой текст видимый пользователю — только через `t()`. Никакого хардкода строк в шаблонах.**
 
-// Использование в компоненте:
-const { t } = useI18n()
-// {{ t.tasks }}
+```vue
+<script setup>
+const { t } = useI18n()  // обязательно в каждом компоненте с текстом
+</script>
+
+<template>
+  <p>{{ t('welcome.tagline') }}</p>
+</template>
 ```
 
-Строки живут в `app/composables/useI18n.ts`. Ключи берутся из объекта `STR` прототипа (`design_handoff_myday/prototype/screens-today.jsx`).
+**Структура ключей — nested по странице/фиче:**
+```json
+{
+  "welcome": { "tagline": "Tasks & finances, one place" },
+  "auth": { "signIn": "Sign in", "register": "Create account" },
+  "tasks": { "empty": "No tasks yet", "add": "Add task" }
+}
+```
+
+**При вёрстке любого компонента с текстом:**
+1. Добавить ключи в `i18n/locales/en.json`
+2. Добавить переводы в `i18n/locales/ru.json`
+3. Использовать `t('key')` в шаблоне
+
+Переключение локали: `const { locale } = useI18n(); locale.value = 'ru'`. Сохранять выбор в `AppSettings` и синхронизировать при старте приложения.
 
 ### Ответы сервера
 ```ts
@@ -749,7 +766,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [ ] **4.5** `pages/settings.vue` — профиль + все настройки (тема, акцент, язык, уведомления)
 - [ ] **4.6** Переключатель темы (Dark / Light / System) → сохранение в `AppSettings`
 - [ ] **4.7** Переключатель акцентного цвета (5 вариантов) → сохранение в `AppSettings`
-- [ ] **4.8** Переключатель языка EN / RU → i18n строки (объект `STR` из дизайна)
+- [ ] **4.8** Переключатель языка EN / RU → сохранение в `AppSettings`, синхронизация `locale.value` при старте приложения
 - [ ] **4.9** Анимации: `UiSwipeRow` жесты, `UiSheet` slide-up/down, `UiTabBar` active indicator
 - [ ] **4.10** Миграция Prisma: добавить `pinEnabled`, `pinHash` в `AppSettings`
 - [ ] **4.11** `pages/auth/pin.vue` — экран ввода PIN: 4-цифровой pad, индикатор попыток, кнопка "Забыл PIN"

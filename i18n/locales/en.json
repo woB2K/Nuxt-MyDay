@@ -1,0 +1,10 @@
+{
+  "welcome": {
+    "tagline": "Tasks & finances, one place",
+    "getStarted": "Get started",
+    "continueGoogle": "Continue with Google",
+    "continueEmail": "Continue with email",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  }
+}
