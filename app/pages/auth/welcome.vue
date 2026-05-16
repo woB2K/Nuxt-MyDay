@@ -2,7 +2,6 @@
 definePageMeta({
   layout: 'auth'
 })
-
 </script>
 
 <template>
@@ -31,25 +30,17 @@ definePageMeta({
       <p class="text-text text-xl">
         Get started
       </p>
-      <NuxtLink
-        to="#"
-        class="flex items-center justify-center gap-2 text-text p-6 border border-hairline rounded-md bg-elev2 w-full cursor-pointer"
-      >
+      <UiButton variant="secondary" class="w-full">
         <UIcon name="i-simple-icons-google" />
         <span>Continue with Google</span>
-      </NuxtLink>
-      <NuxtLink
-        class="flex items-center justify-center gap-2 text-text p-6 border border-hairline rounded-md bg-elev2 w-full cursor-pointer"
-        to="/auth/register"
-      >
+      </UiButton>
+      <UiButton variant="secondary" class="w-full" to="/auth/register">
         <UIcon name="i-heroicons-envelope" class="text-accent" />
         <span>Continue with email</span>
-      </NuxtLink>
+      </UiButton>
       <span class="text-text">Already have an account?
         <NuxtLink class="text-accent cursor-pointer" to="/auth/login">Sign in</NuxtLink>
       </span>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped></style>

@@ -23,5 +23,3 @@ const props = withDefaults(defineProps<Props>(), {
     />
   </svg>
 </template>
-
-<style lang="scss" scoped></style>
