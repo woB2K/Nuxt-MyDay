@@ -698,10 +698,10 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **1.16** `pages/auth/login.vue` — форма Sign In (переписать с `UiButton`, `UiInput`)
 - [x] **1.17** `pages/auth/register.vue` — форма Create Account
 - [x] **1.18** `layouts/default.vue` — TabBar + FAB (использует `UiTabBar`, `UiFab`)
-- [ ] **1.19** *(Claude пишет)* Unit тесты для `jwt.ts` — sign/verify roundtrip, истёкший токен, невалидная подпись
-- [ ] **1.20** *(Claude пишет)* Unit тесты для `password.ts` — hash/compare, неверный пароль
-- [ ] **1.21** *(Claude пишет)* Unit тесты для Zod-схем auth — граничные случаи: пустой email, короткий пароль, лишние поля
-- [ ] **1.22** *(Claude пишет)* Store тесты для `useAuthStore` — `init()` при валидном cookie, `init()` при истёкшем cookie, `logout()` очищает состояние
+- [x] **1.19** *(Claude пишет)* Unit тесты для `jwt.ts` — sign/verify roundtrip, истёкший токен, невалидная подпись
+- [x] **1.20** *(Claude пишет)* Unit тесты для `password.ts` — hash/compare, неверный пароль
+- [x] **1.21** *(Claude пишет)* Unit тесты для Zod-схем auth — граничные случаи: пустой email, короткий пароль, лишние поля
+- [x] **1.22** *(Claude пишет)* Store тесты для `useAuthStore` — `init()` при валидном cookie, `init()` при истёкшем cookie, `logout()` очищает состояние
 - [ ] **1.23** `server/middleware/02.rateLimit.ts` — rate limiting на auth endpoints (`/api/auth/login`, `/api/auth/register`): максимум 10 попыток за 15 минут с одного IP, ответ `429 Too Many Requests`
 - [ ] **1.24** `composables/useToast.ts` + глобальный обработчик ошибок — toast-очередь в `useUiStore`, Nuxt `app:error` hook для непойманных ошибок, компонент `UiToast`
 
