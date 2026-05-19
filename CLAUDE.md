@@ -697,7 +697,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **1.15** Все `components/ui/` лэйаутные: `UiTabBar`, `UiFab`, `UiEmptyState`, `UiSectionHeader`, `UiSheet`
 - [x] **1.16** `pages/auth/login.vue` — форма Sign In (переписать с `UiButton`, `UiInput`)
 - [x] **1.17** `pages/auth/register.vue` — форма Create Account
-- [ ] **1.18** `layouts/default.vue` — TabBar + FAB (использует `UiTabBar`, `UiFab`)
+- [x] **1.18** `layouts/default.vue` — TabBar + FAB (использует `UiTabBar`, `UiFab`)
 - [ ] **1.19** *(Claude пишет)* Unit тесты для `jwt.ts` — sign/verify roundtrip, истёкший токен, невалидная подпись
 - [ ] **1.20** *(Claude пишет)* Unit тесты для `password.ts` — hash/compare, неверный пароль
 - [ ] **1.21** *(Claude пишет)* Unit тесты для Zod-схем auth — граничные случаи: пустой email, короткий пароль, лишние поля
@@ -763,7 +763,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [ ] **4.2** Workbox стратегия: `NetworkFirst` для API, `CacheFirst` для статики
 - [ ] **4.3** Проверить оптимистичные апдейты во всех stores (rollback при ошибке)
 - [ ] **4.4** CSS-переменные светлой темы в `assets/css/main.css` + `useTheme` composable
-- [ ] **4.5** `pages/settings.vue` — профиль + все настройки (тема, акцент, язык, уведомления)
+- [ ] **4.5** `pages/settings.vue` — профиль + все настройки (тема, акцент, язык, уведомления). **Важно:** добавить `definePageMeta({ hideFab: true })` в `settings.vue` и `settings/categories.vue` — FAB не нужен на страницах настроек (условие в `default.vue` читает `route.meta.hideFab`)
 - [ ] **4.6** Переключатель темы (Dark / Light / System) → сохранение в `AppSettings`
 - [ ] **4.7** Переключатель акцентного цвета (5 вариантов) → сохранение в `AppSettings`
 - [ ] **4.8** Переключатель языка EN / RU → сохранение в `AppSettings`, синхронизация `locale.value` при старте приложения
