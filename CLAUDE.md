@@ -694,7 +694,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **1.12** `layouts/auth.vue` — чистый layout без навигации
 - [x] **1.13** `pages/auth/welcome.vue` — Welcome screen с Google OAuth + email кнопками
 - [x] **1.14** Все `components/ui/` базовые компоненты: `UiButton`, `UiInput`, `UiCard`, `UiBadge`, `UiPillSelect`, `UiSwitch`, `UiCheckCircle`, `UiLogoMark`
-- [ ] **1.15** Все `components/ui/` лэйаутные: `UiTabBar`, `UiFab`, `UiEmptyState`, `UiSectionHeader`, `UiSheet`
+- [x] **1.15** Все `components/ui/` лэйаутные: `UiTabBar`, `UiFab`, `UiEmptyState`, `UiSectionHeader`, `UiSheet`
 - [ ] **1.16** `pages/auth/login.vue` — форма Sign In (переписать с `UiButton`, `UiInput`)
 - [ ] **1.17** `pages/auth/register.vue` — форма Create Account
 - [ ] **1.18** `layouts/default.vue` — TabBar + FAB (использует `UiTabBar`, `UiFab`)

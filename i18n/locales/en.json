@@ -6,5 +6,11 @@
     "continueEmail": "Continue with email",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in"
+  },
+  "tabbar": {
+    "today": "Today",
+    "tasks": "Tasks",
+    "finance": "Finance",
+    "settings": "Settings"
   }
 }

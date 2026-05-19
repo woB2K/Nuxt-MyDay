@@ -6,5 +6,11 @@
     "continueEmail": "Авторизоваться через почту",
     "alreadyHaveAccount": "У вас уже есть аккаунт?",
     "signIn": "Войти"
+  },
+  "tabbar": {
+    "today": "Главная",
+    "tasks": "Задачи",
+    "finance": "Финансы",
+    "settings": "Настройки"
   }
 }

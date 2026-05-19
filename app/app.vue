@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UiTabBar from './components/ui/UiTabBar.vue'
 import { useAuthStore } from './stores/auth'
 
 useHead({
@@ -31,5 +32,8 @@ authStore.init()
 <template>
   <NuxtLayout>
     <NuxtPage />
+    <br>
+    <br>
+    <UiTabBar />
   </NuxtLayout>
 </template>
