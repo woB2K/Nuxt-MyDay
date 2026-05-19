@@ -12,5 +12,23 @@
     "tasks": "Задачи",
     "finance": "Финансы",
     "settings": "Настройки"
+  },
+  "auth": {
+    "name": "Имя",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "welcomeBack": "С возвращением!",
+    "loginDescription": "Войти в аккаунт",
+    "forgotPass": "Забыли пароль?",
+    "signIn": "Войти",
+    "registerDescription": "Присоединяйся к MyDay - это бесплатно",
+    "createAccount": "Создать аккаунт",
+    "dontHaveAccount": "Вы не зарегистрированы?",
+    "errorGeneric": "Что-то пошло не так. Попробуйте ещё раз.",
+    "errorInvalidCredentials": "Неверный email или пароль.",
+    "errorInvalidEmail": "Введите корректный email.",
+    "errorShortPassword": "Пароль должен содержать не менее 8 символов.",
+    "errorShortName": "Имя должно содержать не менее 2 символов.",
+    "alreadyHaveAccount": "Уже есть аккаунт?"
   }
 }

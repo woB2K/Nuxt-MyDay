@@ -12,5 +12,23 @@
     "tasks": "Tasks",
     "finance": "Finance",
     "settings": "Settings"
+  },
+  "auth": {
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "welcomeBack": "Welcome back!",
+    "loginDescription": "Sign in to your MyDay account",
+    "forgotPass": "Forgot password?",
+    "signIn": "Sign in",
+    "registerDescription": "Join MyDay — it’s free",
+    "createAccount": "Create account",
+    "dontHaveAccount": "Don’t have an account?",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorInvalidCredentials": "Invalid email or password.",
+    "errorInvalidEmail": "Please enter a valid email address.",
+    "errorShortPassword": "Password must be at least 8 characters.",
+    "errorShortName": "Name must be at least 2 characters.",
+    "alreadyHaveAccount": "Already have an account?"
   }
 }

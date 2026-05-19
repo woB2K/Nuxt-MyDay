@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 interface Props {
-  modelValue?: string
   placeholder?: string
   label?: string
   type?: 'text' | 'password' | 'email' | 'number'
@@ -14,16 +13,7 @@ const props = withDefaults(defineProps<Props>(), {
   rows: 3
 })
 
-// классический паттерн для Vue3, до версии 3.4
-// в компоненте UiSwitch более удобный метод для Vue 3.4+
-const emit = defineEmits<{
-  'update:modelValue': [value: string]
-}>()
-
-const value = computed({
-  get: () => props.modelValue ?? '',
-  set: val => emit('update:modelValue', val)
-})
+const model = defineModel<string>({ default: '' })
 
 const focused = ref<boolean>(false)
 
@@ -48,16 +38,24 @@ const inputType = computed(() => {
       <div v-if="$slots.icon" class="flex items-center" :class="{ 'text-accent': focused }">
         <slot name="icon" />
       </div>
-      <component
-        :is="multiline ? 'textarea' : 'input'"
-        v-model="value"
-        :type="multiline ? undefined : inputType"
-        :rows="multiline ? props.rows : undefined"
-        class="outline-none bg-transparent flex-1"
+      <textarea
+        v-if="multiline"
+        v-model="model"
+        :rows="props.rows"
+        class="outline-none bg-transparent flex-1 resize-none"
         :placeholder="props.placeholder"
         @focus="focused = true"
         @blur="focused = false"
       />
+      <input
+        v-else
+        v-model="model"
+        :type="inputType"
+        class="outline-none bg-transparent flex-1"
+        :placeholder="props.placeholder"
+        @focus="focused = true"
+        @blur="focused = false"
+      >
       <button v-if="props.type === 'password'" type="button" class="flex items-center ml-auto" @click.prevent="showPassword = !showPassword">
         <UIcon :name="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" />
       </button>
