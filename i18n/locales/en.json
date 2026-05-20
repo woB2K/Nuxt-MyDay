@@ -1,4 +1,7 @@
 {
+  "general": {
+    "somethingWrong": "Something went wrong"
+  },
   "welcome": {
     "tagline": "Tasks & finances, one place",
     "getStarted": "Get started",

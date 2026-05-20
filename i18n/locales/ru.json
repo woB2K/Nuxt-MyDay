@@ -1,4 +1,7 @@
 {
+  "general": {
+    "somethingWrong": "Что-то пошло не так"
+  },
   "welcome": {
     "tagline": "Ваши задачи и финансы, все в одном месте!",
     "getStarted": "Начать!",

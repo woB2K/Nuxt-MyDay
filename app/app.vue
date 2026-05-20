@@ -31,5 +31,6 @@ authStore.init()
 <template>
   <NuxtLayout>
     <NuxtPage />
+    <UiToast />
   </NuxtLayout>
 </template>
