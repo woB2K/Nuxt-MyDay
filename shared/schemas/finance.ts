@@ -27,6 +27,8 @@ export const createBudgetSchema = z.object({
   month: z.iso.datetime()
 })
 
+export const updateBudgetSchema = createBudgetSchema.partial()
+
 export const createSavingsSchema = z.object({
   amount: z.number().positive(),
   notes: z.string().optional(),
