@@ -14,7 +14,8 @@ export const updateTransactionSchema = createTransactionSchema.partial()
 
 export const createCategorySchema = z.object({
   name: z.string().min(1),
-  icon: z.string().optional()
+  icon: z.string().optional(),
+  type: transactionTypeEnum
 })
 
 export const updateCategorySchema = createCategorySchema.partial()
