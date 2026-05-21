@@ -7,4 +7,4 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>
-export type createSavingsSchema = z.infer<typeof createBudgetSchema>
+export type CreateSavingsSchema = z.infer<typeof createBudgetSchema>

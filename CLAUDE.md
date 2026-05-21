@@ -898,8 +898,8 @@ const userId = event.context.userId // проставляет server/middleware/
 
 - [x] **2.7** `composables/useApi.ts` — `$fetch.create()` с `onRequest` interceptor для подстановки `Authorization: Bearer` из `useAuthStore`. Создать до всех защищённых запросов.
 - [x] **2.7.5** Установить `@tanstack/vue-query`, создать `plugins/vue-query.ts` (QueryClient с staleTime 5 мин), создать `composables/queryKeys.ts` с централизованными ключами
-- [ ] **2.8** `stores/finance.ts` — `useFinanceStore` (Pinia, **только client state**: `currentMonth`, `activeTab`). Серверные данные — НЕ здесь.
-- [ ] **2.8.5** `composables/useFinance.ts` — все TanStack Query хуки: `useTransactionsQuery`, `useSummaryQuery`, `useSavingsQuery`, `useBudgetsQuery` + мутации с `invalidateQueries`
+- [x] **2.8** `stores/finance.ts` — `useFinanceStore` (Pinia, **только client state**: `currentMonth`, `activeTab`). Серверные данные — НЕ здесь.
+- [x] **2.8.5** `composables/useFinance.ts` — все TanStack Query хуки: `useTransactionsQuery`, `useSummaryQuery`, `useSavingsQuery`, `useBudgetsQuery` + мутации с `invalidateQueries`
 - [ ] **2.8.6** `composables/useCategories.ts` — TanStack Query хуки для CRUD категорий (используется и в Finance и в Settings)
 - [ ] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`, `UiStatsCard`
 - [ ] **2.10** `pages/finance/index.vue` — hero баланс + breakdown по категориям + recent транзакции

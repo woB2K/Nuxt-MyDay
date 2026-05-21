@@ -16,6 +16,58 @@
     "finance": "Финансы",
     "settings": "Настройки"
   },
+  "toast": {
+    "transactions": {
+      "addSuccess": "Транзакция добавлена",
+      "addError": "Не удалось добавить транзакцию",
+      "updateSuccess": "Транзакция обновлена",
+      "updateError": "Не удалось обновить транзакцию",
+      "deleteSuccess": "Транзакция удалена",
+      "deleteError": "Не удалось удалить транзакцию"
+    },
+    "savings": {
+      "addSuccess": "Запись о накоплениях добавлена",
+      "addError": "Не удалось добавить запись о накоплениях",
+      "deleteSuccess": "Запись о накоплениях удалена",
+      "deleteError": "Не удалось удалить запись о накоплениях"
+    },
+    "budgets": {
+      "saveSuccess": "Бюджет сохранён",
+      "saveError": "Не удалось сохранить бюджет"
+    },
+    "categories": {
+      "addSuccess": "Категория создана",
+      "addError": "Не удалось создать категорию",
+      "updateSuccess": "Категория обновлена",
+      "updateError": "Не удалось обновить категорию",
+      "deleteSuccess": "Категория удалена",
+      "deleteError": "Не удалось удалить категорию"
+    },
+    "tasks": {
+      "addSuccess": "Задача добавлена",
+      "addError": "Не удалось добавить задачу",
+      "updateSuccess": "Задача обновлена",
+      "updateError": "Не удалось обновить задачу",
+      "deleteSuccess": "Задача удалена",
+      "deleteError": "Не удалось удалить задачу"
+    },
+    "tags": {
+      "addSuccess": "Тег создан",
+      "addError": "Не удалось создать тег",
+      "updateSuccess": "Тег обновлён",
+      "updateError": "Не удалось обновить тег",
+      "deleteSuccess": "Тег удалён",
+      "deleteError": "Не удалось удалить тег"
+    },
+    "templates": {
+      "addSuccess": "Шаблон создан",
+      "addError": "Не удалось создать шаблон",
+      "updateSuccess": "Шаблон обновлён",
+      "updateError": "Не удалось обновить шаблон",
+      "deleteSuccess": "Шаблон удалён",
+      "deleteError": "Не удалось удалить шаблон"
+    }
+  },
   "auth": {
     "name": "Имя",
     "email": "Электронная почта",
