@@ -713,7 +713,7 @@ const userId = event.context.userId // проставляет server/middleware/
 
 - [x] **2.1** `prisma/seeds/categories.ts` — seed-функция стандартных категорий (10 штук из дизайна)
 - [x] **2.2** `GET/POST /api/categories` + `PATCH/DELETE /api/categories/[id]`
-- [ ] **2.3** `GET/POST /api/finance/transactions` + `PATCH/DELETE /api/finance/transactions/[id]` (с пагинацией)
+- [x] **2.3** `GET/POST /api/finance/transactions` + `PATCH/DELETE /api/finance/transactions/[id]` (с пагинацией)
 - [ ] **2.4** `GET /api/finance/summary` — агрегация SQL: income, expense, net, breakdown by category
 - [ ] **2.5** `GET/POST/DELETE /api/finance/savings` — операции накопительного счёта
 - [ ] **2.6** `GET/POST/PATCH /api/finance/budgets` — бюджеты по категориям

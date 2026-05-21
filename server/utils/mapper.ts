@@ -1,4 +1,4 @@
-import type { AppSettings, Prisma } from '~~/prisma/.generated/prisma'
+import type { AppSettings, Prisma, Transaction } from '~~/prisma/.generated/prisma'
 
 type UserWithSettings = Prisma.UserGetPayload<{
   include: { settings: true }
@@ -23,5 +23,12 @@ export function toPublicUser(user: UserWithSettings) {
     name: user.name,
     email: user.email,
     settings: toPublicSettings(user.settings!)
+  }
+}
+
+export function mapTransaction(tx: Transaction) {
+  return {
+    ...tx,
+    amount: tx.amount.toNumber()
   }
 }
