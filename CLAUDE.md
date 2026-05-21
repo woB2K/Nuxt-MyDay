@@ -4,7 +4,7 @@
 
 **MyDay** — комбинированное приложение: управление задачами + личные финансы.
 
-**Стек:** Nuxt 4 + Vue 3, PostgreSQL + Prisma, Tailwind CSS, Pinia, Zod, OAuth 2 (Google) + JWT (access/refresh), PWA, GitHub Actions.
+**Стек:** Nuxt 4 + Vue 3, PostgreSQL + Prisma, Tailwind CSS, Pinia + TanStack Query, Zod, OAuth 2 (Google) + JWT (access/refresh), PWA, GitHub Actions.
 
 **Дизайн:** мобильный (390×844), iOS-inspired, dark-first с поддержкой светлой темы. Дизайн-токены и компоненты описаны в `DESIGN.md`.
 
@@ -54,10 +54,14 @@ myday/
 │   │       ├── finance/
 │   │       └── settings/
 │   ├── composables/
+│   │   ├── queryKeys.ts              # централизованные ключи TanStack Query
 │   │   ├── useAuth.ts
-│   │   ├── useTasks.ts
-│   │   ├── useFinance.ts
+│   │   ├── useFinance.ts             # TanStack Query хуки: транзакции, summary, savings, budgets
+│   │   ├── useCategories.ts          # TanStack Query хуки: CRUD категорий (finance + settings)
+│   │   ├── useTasks.ts               # TanStack Query хуки: задачи, теги, шаблоны
 │   │   └── useToast.ts
+│   ├── plugins/
+│   │   └── vue-query.ts              # VueQueryPlugin + QueryClient настройка
 │   ├── layouts/
 │   │   ├── default.vue               # TabBar + FAB
 │   │   └── auth.vue                  # чистый layout
@@ -80,10 +84,10 @@ myday/
 │   │   └── settings/
 │   │       └── categories.vue
 │   └── stores/
-│       ├── auth.ts                   # useAuthStore
-│       ├── tasks.ts                  # useTasksStore
-│       ├── finance.ts                # useFinanceStore
-│       └── ui.ts                     # useUiStore (шиты, тосты)
+│       ├── auth.ts                   # useAuthStore — accessToken, user
+│       ├── tasks.ts                  # useTasksStore — searchQuery, activeFilter (client state only)
+│       ├── finance.ts                # useFinanceStore — currentMonth, activeTab (client state only)
+│       └── ui.ts                     # useUiStore — тосты, isLocked
 │
 ├── server/
 │   ├── api/
@@ -206,11 +210,25 @@ DELETE /api/tasks/:id       удалить
 GET    /api/finance/summary агрегация (не CRUD)
 ```
 
+### Разделение состояния: Pinia vs TanStack Query
+
+Ключевое архитектурное решение проекта — два типа состояния живут раздельно:
+
+| Тип | Инструмент | Примеры |
+|-----|-----------|---------|
+| **Client state** — данные которыми владеет UI | Pinia | `accessToken`, `isLocked`, `toasts`, `currentMonth`, `activeFilter`, `searchQuery` |
+| **Server state** — данные с API, кэшируемые | TanStack Query | `transactions`, `summary`, `savings`, `tasks`, `categories`, `tags` |
+
+**Правило:** компоненты вызывают TanStack Query хуки напрямую из `composables/useFinance.ts` и `composables/useTasks.ts`. Pinia-сторы НЕ содержат серверные данные и НЕ вызывают TanStack Query.
+
 ### Pinia stores
 ```ts
 // Всегда composable-стиль, не options-стиль
-export const useTasksStore = defineStore('tasks', () => {
-  // ...
+export const useFinanceStore = defineStore('finance', () => {
+  // ТОЛЬКО client state — UI-фильтры, не данные с сервера
+  const currentMonth = ref('2026-05')
+  const activeTab = ref<'transactions' | 'savings' | 'budgets'>('transactions')
+  return { currentMonth, activeTab }
 })
 ```
 
@@ -638,6 +656,163 @@ export function useApi() {
 
 ---
 
+### TanStack Query — server state
+
+Устанавливается через `@tanstack/vue-query`. Это Vue-адаптация — та же библиотека что TanStack Query для React, но с Vue Composition API.
+
+#### Настройка плагина
+
+```ts
+// app/plugins/vue-query.ts
+import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5,  // данные свежие 5 минут — не рефетчить без нужды
+        retry: 1,                   // 1 повтор при ошибке сети
+      }
+    }
+  })
+  nuxtApp.vueApp.use(VueQueryPlugin, { queryClient })
+})
+```
+
+#### Query Keys — централизованный файл
+
+Ключи — это идентификаторы кэша. Иерархические: `['transactions']` инвалидирует всё включая `['transactions', { month }]`. Хранить в одном месте чтобы не опечататься.
+
+```ts
+// app/composables/queryKeys.ts
+export const queryKeys = {
+  categories:   ()                           => ['categories']              as const,
+  transactions: (month: string)              => ['transactions', { month }] as const,
+  summary:      (month: string)              => ['summary', { month }]      as const,
+  savings:      ()                           => ['savings']                 as const,
+  budgets:      (month: string)              => ['budgets', { month }]      as const,
+  tasks:        (filter: string, search: string) => ['tasks', { filter, search }] as const,
+  tags:         ()                           => ['tags']                    as const,
+  templates:    ()                           => ['templates']               as const,
+}
+```
+
+#### useQuery — чтение данных
+
+```ts
+// app/composables/useFinance.ts
+export function useTransactionsQuery(month: Ref<string>) {
+  const api = useApi()
+  return useQuery({
+    queryKey: computed(() => queryKeys.transactions(month.value)), // реактивный ключ
+    queryFn:  () => api<PaginatedResponse<Transaction>>('/api/finance/transactions', {
+      query: { month: month.value }
+    }),
+  })
+}
+```
+
+В компоненте:
+```ts
+const financeStore = useFinanceStore()
+const { data, isPending, isError } = useTransactionsQuery(
+  toRef(financeStore, 'currentMonth')
+)
+// При financeStore.currentMonth = '2026-04' → новый запрос автоматически
+// Старый результат закэширован — возврат к месяцу = мгновенный ответ
+```
+
+#### useMutation — мутации с инвалидацией кэша
+
+```ts
+export function useAddTransactionMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: CreateTransactionInput) =>
+      api<Transaction>('/api/finance/transactions', { method: 'POST', body: data }),
+    onSuccess: () => {
+      // Инвалидируем все затронутые ресурсы — они перезапросятся автоматически
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['summary'] })
+      // Не нужно вручную пушить в массив или вызывать fetchSummary()
+    },
+    onError: () => useToast().error('Failed to add transaction'),
+  })
+}
+```
+
+#### Оптимистичный апдейт через TanStack Query
+
+Встроенный механизм лучше Pinia-паттерна "сохранить/откатить":
+
+```ts
+export function useDeleteTransactionMutation(month: Ref<string>) {
+  const api = useApi()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api(`/api/finance/transactions/${id}`, { method: 'DELETE' }),
+
+    onMutate: async (id) => {
+      // Отменить незавершённые запросы чтобы они не перезаписали оптимистичный апдейт
+      await queryClient.cancelQueries({ queryKey: queryKeys.transactions(month.value) })
+      // Сохранить текущий кэш для отката
+      const previous = queryClient.getQueryData(queryKeys.transactions(month.value))
+      // Обновить кэш немедленно — UI реагирует до ответа сервера
+      queryClient.setQueryData(queryKeys.transactions(month.value), (old: any) =>
+        old?.data?.filter((tx: Transaction) => tx.id !== id)
+      )
+      return { previous }
+    },
+    onError: (_err, _id, context) => {
+      // Откатить к сохранённому состоянию
+      queryClient.setQueryData(queryKeys.transactions(month.value), context?.previous)
+      useToast().error('Failed to delete transaction')
+    },
+    onSettled: () => {
+      // После успеха ИЛИ ошибки — синхронизировать с сервером
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['summary'] })
+    },
+  })
+}
+```
+
+#### Структура composables с TanStack Query
+
+```ts
+// app/composables/useFinance.ts — все хуки для finance
+export function useTransactionsQuery(month: Ref<string>) { ... }
+export function useSummaryQuery(month: Ref<string>) { ... }
+export function useSavingsQuery() { ... }
+export function useBudgetsQuery(month: Ref<string>) { ... }
+export function useAddTransactionMutation() { ... }
+export function useUpdateTransactionMutation() { ... }
+export function useDeleteTransactionMutation(month: Ref<string>) { ... }
+export function useAddSavingsMutation() { ... }
+export function useDeleteSavingsMutation() { ... }
+export function useUpsertBudgetMutation() { ... }
+
+// app/composables/useCategories.ts — отдельно, используется в Finance И Settings
+export function useCategoriesQuery() { ... }
+export function useAddCategoryMutation() { ... }
+export function useUpdateCategoryMutation() { ... }
+export function useDeleteCategoryMutation() { ... }
+
+// app/composables/useTasks.ts — все хуки для tasks
+export function useTasksQuery(filter: Ref<string>, search: Ref<string>) { ... }
+export function useTagsQuery() { ... }
+export function useTemplatesQuery() { ... }
+export function useAddTaskMutation() { ... }
+export function useToggleTaskMutation() { ... }
+export function useDeleteTaskMutation() { ... }
+```
+
+---
+
 ### Безопасность: userId всегда из контекста
 
 `userId` всегда берётся из JWT (через `event.context.userId`), никогда из query/body запроса.
@@ -721,8 +896,11 @@ const userId = event.context.userId // проставляет server/middleware/
 
 **Клиент:**
 
-- [ ] **2.7** `composables/useApi.ts` — `$fetch.create()` с `onRequest` interceptor для подстановки `Authorization: Bearer` из `useAuthStore`. Создать до всех защищённых запросов.
-- [ ] **2.8** `stores/finance.ts` — `useFinanceStore` с оптимистичными апдейтами
+- [x] **2.7** `composables/useApi.ts` — `$fetch.create()` с `onRequest` interceptor для подстановки `Authorization: Bearer` из `useAuthStore`. Создать до всех защищённых запросов.
+- [x] **2.7.5** Установить `@tanstack/vue-query`, создать `plugins/vue-query.ts` (QueryClient с staleTime 5 мин), создать `composables/queryKeys.ts` с централизованными ключами
+- [ ] **2.8** `stores/finance.ts` — `useFinanceStore` (Pinia, **только client state**: `currentMonth`, `activeTab`). Серверные данные — НЕ здесь.
+- [ ] **2.8.5** `composables/useFinance.ts` — все TanStack Query хуки: `useTransactionsQuery`, `useSummaryQuery`, `useSavingsQuery`, `useBudgetsQuery` + мутации с `invalidateQueries`
+- [ ] **2.8.6** `composables/useCategories.ts` — TanStack Query хуки для CRUD категорий (используется и в Finance и в Settings)
 - [ ] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`, `UiStatsCard`
 - [ ] **2.10** `pages/finance/index.vue` — hero баланс + breakdown по категориям + recent транзакции
 - [ ] **2.11** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
@@ -730,7 +908,8 @@ const userId = event.context.userId // проставляет server/middleware/
 - [ ] **2.13** Раздел Budgets (карточки по категориям с прогресс-баром)
 - [ ] **2.14** Управление категориями в Settings (список + создать/редактировать/удалить)
 - [ ] **2.15** *(Claude пишет)* Unit тесты для Zod-схем finance — невалидная сумма (отрицательная, строка), неизвестная категория
-- [ ] **2.16** *(Claude пишет)* Store тесты для `useFinanceStore` — оптимистичный апдейт при удалении транзакции, откат при ошибке сети
+- [ ] **2.15.5** *(Claude пишет)* Интеграционные тесты для API эндпоинтов Фазы 2 (через `@nuxt/test-utils`, тестовая БД): `GET/POST /api/categories`, `PATCH/DELETE /api/categories/[id]`, `GET/POST /api/finance/transactions`, `PATCH/DELETE /api/finance/transactions/[id]`, `GET /api/finance/summary`, `GET/POST/DELETE /api/finance/savings`, `GET/POST/PATCH /api/finance/budgets` — проверить: `userId` изоляция (нельзя получить чужие данные), валидация входных данных, корректность агрегации в summary
+- [ ] **2.16** *(Claude пишет)* Тесты для TanStack Query хуков из `useFinance.ts` — мутация `useDeleteTransactionMutation`: кэш обновляется до ответа сервера, откатывается при ошибке; `useSummaryQuery` инвалидируется после добавления транзакции
 
 ---
 
@@ -744,7 +923,8 @@ const userId = event.context.userId // проставляет server/middleware/
 
 **Клиент:**
 
-- [ ] **3.4** `stores/tasks.ts` — `useTasksStore` с оптимистичными апдейтами
+- [ ] **3.4** `stores/tasks.ts` — `useTasksStore` (Pinia, **только client state**: `searchQuery`, `activeFilter`). Серверные данные — в `useTasks.ts`.
+- [ ] **3.4.5** `composables/useTasks.ts` — TanStack Query хуки: `useTasksQuery`, `useTagsQuery`, `useTemplatesQuery` + мутации `useToggleTaskMutation`, `useDeleteTaskMutation`, `useAddTaskMutation` с оптимистичными апдейтами и `invalidateQueries`
 - [ ] **3.5** `components/ui/UiTaskRow`, `UiSwipeRow`, `UiDateStrip`, `UiTaskTemplateRow`
 - [ ] **3.6** `components/features/tasks/FocusCard.vue`
 - [ ] **3.7** `pages/today.vue` — greeting + stats cards + focus card + flat task list
@@ -762,7 +942,7 @@ const userId = event.context.userId // проставляет server/middleware/
 
 - [ ] **4.1** Настроить `@vite-pwa/nuxt`: manifest (name, icons, theme_color, start_url `/today`, display `standalone`)
 - [ ] **4.2** Workbox стратегия: `NetworkFirst` для API, `CacheFirst` для статики
-- [ ] **4.3** Проверить оптимистичные апдейты во всех stores (rollback при ошибке)
+- [ ] **4.3** Проверить оптимистичные апдейты во всех TanStack Query мутациях (onMutate → onError rollback → onSettled invalidate)
 - [ ] **4.4** CSS-переменные светлой темы в `assets/css/main.css` + `useTheme` composable
 - [ ] **4.5** `pages/settings.vue` — профиль + все настройки (тема, акцент, язык, уведомления). **Важно:** добавить `definePageMeta({ hideFab: true })` в `settings.vue` и `settings/categories.vue` — FAB не нужен на страницах настроек (условие в `default.vue` читает `route.meta.hideFab`)
 - [ ] **4.6** Переключатель темы (Dark / Light / System) → сохранение в `AppSettings`

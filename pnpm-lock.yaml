@@ -29,6 +29,12 @@ importers:
       '@prisma/client':
         specifier: ^7.8.0
         version: 7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.5.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3))(typescript@6.0.3)
+      '@tanstack/vue-query':
+        specifier: ^5.100.11
+        version: 5.100.11(vue@3.5.33(typescript@6.0.3))
+      '@tanstack/vue-query-devtools':
+        specifier: ^6.1.30
+        version: 6.1.30(@tanstack/vue-query@5.100.11(vue@3.5.33(typescript@6.0.3)))(vue@3.5.33(typescript@6.0.3))
       '@vite-pwa/nuxt':
         specifier: 1.1.1
         version: 1.1.1(magicast@0.5.2)(vite@7.3.2(@types/node@25.6.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3))(workbox-build@7.4.1)(workbox-window@7.4.1)
@@ -2863,12 +2869,37 @@ packages:
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7 || ^8
 
+  '@tanstack/match-sorter-utils@8.19.4':
+    resolution: {integrity: sha512-Wo1iKt2b9OT7d+YGhvEPD3DXvPv2etTusIMhMUoG7fbhmxcXCtIjJDEygy91Y2JFlwGyjqiBPRozme7UD8hoqg==}
+    engines: {node: '>=12'}
+
+  '@tanstack/query-core@5.100.11':
+    resolution: {integrity: sha512-lmE0994apShXPj8CUxgx4ch5yUJhE9k/+tVwihBvPOyerACWdBocfFg24t8+0RhtlTd7tEgchDkhlCxNssvDxw==}
+
+  '@tanstack/query-devtools@5.100.11':
+    resolution: {integrity: sha512-47rVBDuGMW/A4ekt3YQdz+q0JSIwktwGnWCYyQUvSs2/g/Oa+6Fi2/IQk4/Y4vf6u1uwI7hOogHslgMC8f3X/Q==}
+
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
     engines: {node: '>=12'}
 
   '@tanstack/virtual-core@3.14.0':
     resolution: {integrity: sha512-JLANqGy/D6k4Ujmh8Tr25lGimuOXNiaVyXaCAZS0W+1390sADdGnyUdSWNIfd49gebtIxGMij4IktRVzrdr12Q==}
+
+  '@tanstack/vue-query-devtools@6.1.30':
+    resolution: {integrity: sha512-1yZiURcg0hndjHJr7cFyo89Lj3CqvN1FQJDgQNe14saciq80nPmR5d3hZyZeYpEXvHtm0Vkd4x20/zB3SU5jyw==}
+    peerDependencies:
+      '@tanstack/vue-query': ^5.100.11
+      vue: ^3.3.0
+
+  '@tanstack/vue-query@5.100.11':
+    resolution: {integrity: sha512-bU4uz7y/XorQzr7R008hR5+YI885rk5F8t5+UGIVfFEJL8eXeJUJLGZC+YOJR/SdoLjedxOMOPz6D6VH8Gh9Sg==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.2
+      vue: ^2.6.0 || ^3.3.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
 
   '@tanstack/vue-table@8.21.3':
     resolution: {integrity: sha512-rusRyd77c5tDPloPskctMyPLFEQUeBzxdQ+2Eow4F7gDPlPOB1UnnhzfpdvqZ8ZyX2rRNGmqNnQWm87OI2OQPw==}
@@ -6619,6 +6650,9 @@ packages:
 
   remeda@2.33.4:
     resolution: {integrity: sha512-ygHswjlc/opg2VrtiYvUOPLjxjtdKvjGz1/plDhkG66hjNjFr1xmfrs2ClNFo/E6TyUFiwYNh53bKV26oBoMGQ==}
+
+  remove-accents@0.5.0:
+    resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}
 
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
@@ -10664,9 +10698,31 @@ snapshots:
       tailwindcss: 4.2.4
       vite: 7.3.2(@types/node@25.6.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.2)(yaml@2.8.3)
 
+  '@tanstack/match-sorter-utils@8.19.4':
+    dependencies:
+      remove-accents: 0.5.0
+
+  '@tanstack/query-core@5.100.11': {}
+
+  '@tanstack/query-devtools@5.100.11': {}
+
   '@tanstack/table-core@8.21.3': {}
 
   '@tanstack/virtual-core@3.14.0': {}
+
+  '@tanstack/vue-query-devtools@6.1.30(@tanstack/vue-query@5.100.11(vue@3.5.33(typescript@6.0.3)))(vue@3.5.33(typescript@6.0.3))':
+    dependencies:
+      '@tanstack/query-devtools': 5.100.11
+      '@tanstack/vue-query': 5.100.11(vue@3.5.33(typescript@6.0.3))
+      vue: 3.5.33(typescript@6.0.3)
+
+  '@tanstack/vue-query@5.100.11(vue@3.5.33(typescript@6.0.3))':
+    dependencies:
+      '@tanstack/match-sorter-utils': 8.19.4
+      '@tanstack/query-core': 5.100.11
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.33(typescript@6.0.3)
+      vue-demi: 0.14.10(vue@3.5.33(typescript@6.0.3))
 
   '@tanstack/vue-table@8.21.3(vue@3.5.33(typescript@6.0.3))':
     dependencies:
@@ -15158,6 +15214,8 @@ snapshots:
       - '@vue/composition-api'
 
   remeda@2.33.4: {}
+
+  remove-accents@0.5.0: {}
 
   require-from-string@2.0.2: {}
 
