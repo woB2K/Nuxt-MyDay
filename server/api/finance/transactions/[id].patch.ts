@@ -1,4 +1,4 @@
-import { mapTransaction } from '~~/server/utils/mapper'
+import { mapAmount } from '~~/server/utils/mapper'
 import { updateTransactionSchema } from '~~/shared/schemas/finance'
 
 export default defineEventHandler(async (event) => {
@@ -14,5 +14,5 @@ export default defineEventHandler(async (event) => {
     data: { ...body }
   })
 
-  return mapTransaction(transaction)
+  return mapAmount(transaction)
 })

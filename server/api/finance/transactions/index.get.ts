@@ -1,4 +1,4 @@
-import { mapTransaction } from '~~/server/utils/mapper'
+import { mapAmount } from '~~/server/utils/mapper'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
   ])
 
   return {
-    data: items.map(i => mapTransaction(i)),
+    data: items.map(i => mapAmount(i)),
     total,
     page,
     limit

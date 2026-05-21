@@ -1,8 +1,11 @@
-import type { AppSettings, Prisma, Transaction } from '~~/prisma/.generated/prisma'
+import type { AppSettings, Prisma } from '~~/prisma/.generated/prisma'
 
 type UserWithSettings = Prisma.UserGetPayload<{
   include: { settings: true }
 }>
+
+interface WithDecimal { amount: { toNumber: () => number } }
+type Mapped<T extends WithDecimal> = Omit<T, 'amount'> & { amount: number }
 
 export function toPublicSettings(settings: AppSettings) {
   return {
@@ -26,9 +29,6 @@ export function toPublicUser(user: UserWithSettings) {
   }
 }
 
-export function mapTransaction(tx: Transaction) {
-  return {
-    ...tx,
-    amount: tx.amount.toNumber()
-  }
+export function mapAmount<T extends WithDecimal>(obj: T): Mapped<T> {
+  return { ...obj, amount: obj.amount.toNumber() }
 }

@@ -339,7 +339,8 @@ pnpm prisma studio
 | `date` + `createdAt` в Transaction | `date` — когда произошла транзакция (user sets), `createdAt` — когда создана запись. Фильтрация по месяцу всегда по `date` |
 | Категории per-user, сидируются при регистрации | Нет nullable userId, каждый владеет своими категориями, может удалять любые |
 | Tags — отдельная таблица many-to-many | Тег — сущность: можно переименовать, добавить цвет, считать статистику. `Tag.color` nullable — до появления UI цвета старые теги не ломаются |
-| `SavingsEntry` отдельно от `Transaction` | Накопительный счёт не пересекается с основными финансами. Отдельная таблица = чистые запросы |
+| `SavingsEntry` отдельно от `Transaction` | Накопительный счёт не пересекается с основными финансами. Отдельная таблица = чистые запросы. `SavingsEntry` имеет `type: SavingsType (DEPOSIT \| WITHDRAWAL)` и всегда положительный `amount`. Баланс = `SUM(DEPOSIT) - SUM(WITHDRAWAL)`. Это позволяет и пополнять, и снимать с накоплений |
+| Баланс накоплений — всегда total, не по месяцу | Накопления накопительные по природе: если отложил 10к в январе и 5к в феврале — итого 15к, а не 5к. Фильтр по месяцу применяется только к истории записей, не к балансу. `GET /api/finance/savings` возвращает `{ balance, entries }` где `balance` = SUM за всё время |
 | `RefreshToken` в БД с bcrypt-хешем | Инвалидация токенов при logout/смене пароля. Хеш — если БД утечёт, сырые токены не скомпрометированы |
 | `shared/` для типов и Zod | Единственный способ шарить код между client и server в Nuxt без хаков |
 | Агрегация finance на сервере | SQL SUM/GROUP BY быстрее чем JS reduce на 500 записях |
@@ -714,8 +715,8 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **2.1** `prisma/seeds/categories.ts` — seed-функция стандартных категорий (10 штук из дизайна)
 - [x] **2.2** `GET/POST /api/categories` + `PATCH/DELETE /api/categories/[id]`
 - [x] **2.3** `GET/POST /api/finance/transactions` + `PATCH/DELETE /api/finance/transactions/[id]` (с пагинацией)
-- [ ] **2.4** `GET /api/finance/summary` — агрегация SQL: income, expense, net, breakdown by category
-- [ ] **2.5** `GET/POST/DELETE /api/finance/savings` — операции накопительного счёта
+- [x] **2.4** `GET /api/finance/summary` — агрегация SQL: income, expense, net, breakdown by category
+- [x] **2.5** `GET/POST/DELETE /api/finance/savings` — операции накопительного счёта
 - [ ] **2.6** `GET/POST/PATCH /api/finance/budgets` — бюджеты по категориям
 
 **Клиент:**
