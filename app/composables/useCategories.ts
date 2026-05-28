@@ -1,3 +1,4 @@
+import type { Category } from '~~/prisma/.generated/prisma'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
@@ -8,7 +9,7 @@ export function useCategoriesQuery() {
   return useQuery({
     queryKey: queryKeys.categories(),
     queryFn: () => {
-      return api('/api/categories')
+      return api<Category>('/api/categories')
     }
   })
 }
@@ -20,7 +21,7 @@ export function useAddCategoryMutation() {
 
   return useMutation({
     mutationFn: (data: CreateCategoryInput) =>
-      api('/api/categories', { method: 'POST', body: data }),
+      api<Category>('/api/categories', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       useAppToast().success(t('toast.categories.addSuccess'))
@@ -38,7 +39,7 @@ export function useUpdateCategoryMutation() {
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & UpdateCategoryInput) =>
-      api(`/api/categories/${id}`, { method: 'PATCH', body: data }),
+      api<Category>(`/api/categories/${id}`, { method: 'PATCH', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       useAppToast().success(t('toast.categories.updateSuccess'))
@@ -56,7 +57,7 @@ export function useDeleteCategoryMutation() {
 
   return useMutation({
     mutationFn: (id: string) =>
-      api(`/api/categories/${id}`, { method: 'DELETE' }),
+      api<Category>(`/api/categories/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
       useAppToast().success(t('toast.categories.deleteSuccess'))

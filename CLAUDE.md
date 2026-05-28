@@ -901,7 +901,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **2.8** `stores/finance.ts` — `useFinanceStore` (Pinia, **только client state**: `currentMonth`, `activeTab`). Серверные данные — НЕ здесь.
 - [x] **2.8.5** `composables/useFinance.ts` — все TanStack Query хуки: `useTransactionsQuery`, `useSummaryQuery`, `useSavingsQuery`, `useBudgetsQuery` + мутации с `invalidateQueries`
 - [x] **2.8.6** `composables/useCategories.ts` — TanStack Query хуки для CRUD категорий (используется и в Finance и в Settings)
-- [ ] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`, `UiStatsCard`
+- [x] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`
 - [ ] **2.10** `pages/finance/index.vue` — hero баланс + breakdown по категориям + recent транзакции
 - [ ] **2.11** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
 - [ ] **2.12** Раздел Savings в Finance (отдельная карточка/секция)
@@ -925,7 +925,7 @@ const userId = event.context.userId // проставляет server/middleware/
 
 - [ ] **3.4** `stores/tasks.ts` — `useTasksStore` (Pinia, **только client state**: `searchQuery`, `activeFilter`). Серверные данные — в `useTasks.ts`.
 - [ ] **3.4.5** `composables/useTasks.ts` — TanStack Query хуки: `useTasksQuery`, `useTagsQuery`, `useTemplatesQuery` + мутации `useToggleTaskMutation`, `useDeleteTaskMutation`, `useAddTaskMutation` с оптимистичными апдейтами и `invalidateQueries`
-- [ ] **3.5** `components/ui/UiTaskRow`, `UiSwipeRow`, `UiDateStrip`, `UiTaskTemplateRow`
+- [ ] **3.5** `components/ui/UiTaskRow`, `UiSwipeRow`, `UiDateStrip`, `UiTaskTemplateRow`, `UiStatsCard`
 - [ ] **3.6** `components/features/tasks/FocusCard.vue`
 - [ ] **3.7** `pages/today.vue` — greeting + stats cards + focus card + flat task list
 - [ ] **3.8** `components/features/tasks/TaskSheet.vue` — создание/редактирование задачи
