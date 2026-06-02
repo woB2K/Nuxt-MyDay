@@ -1,3 +1,5 @@
+import type { Transaction } from '~~/prisma/.generated/prisma'
+import type { BudgetItem, SavingsResponse, SummaryResponse, TransactionListResponse } from '~~/shared/types/finance'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
@@ -10,9 +12,11 @@ export function useSummaryQuery(month: Ref<Date>) {
       `${month.value.getFullYear()}-${String(month.value.getMonth() + 1).padStart(2, '0')}`
     )),
     queryFn: () => {
-      const from = month.value
-      const to = new Date(month.value.getFullYear(), month.value.getMonth() + 1, 0)
-      return api('/api/finance/summary', { query: { from, to } })
+      const y = month.value.getFullYear()
+      const m = month.value.getMonth()
+      const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10)
+      const to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10)
+      return api<SummaryResponse>('/api/finance/summary', { query: { from, to } })
     }
   })
 }
@@ -22,9 +26,7 @@ export function useTransactionQuery() {
 
   return useQuery({
     queryKey: queryKeys.transactions('all'),
-    queryFn: () => {
-      return api('/api/finance/transactions')
-    }
+    queryFn: () => api<TransactionListResponse>('/api/finance/transactions')
   })
 }
 
@@ -33,9 +35,7 @@ export function useSavingsQuery() {
 
   return useQuery({
     queryKey: queryKeys.savings(),
-    queryFn: () => {
-      return api('/api/finance/savings')
-    }
+    queryFn: () => api<SavingsResponse>('/api/finance/savings')
   })
 }
 
@@ -47,9 +47,11 @@ export function useBudgetQuery(month: Ref<Date>) {
       `${month.value.getFullYear()}-${String(month.value.getMonth() + 1).padStart(2, '0')}`
     )),
     queryFn: () => {
-      const from = month.value
-      const to = new Date(month.value.getFullYear(), month.value.getMonth() + 1, 0)
-      return api('/api/finance/budgets', { query: { from, to } })
+      const y = month.value.getFullYear()
+      const m = month.value.getMonth()
+      const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10)
+      const to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10)
+      return api<BudgetItem[]>('/api/finance/budgets', { query: { from, to } })
     }
   })
 }
@@ -61,7 +63,7 @@ export function useAddTransactionMutation() {
 
   return useMutation({
     mutationFn: (data: CreateTransactionInput) =>
-      api('/api/finance/transactions', { method: 'POST', body: data }),
+      api<Transaction>('/api/finance/transactions', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })

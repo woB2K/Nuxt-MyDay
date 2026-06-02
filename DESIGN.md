@@ -153,7 +153,7 @@ dur-sheet: 420ms   открытие/закрытие bottom sheet
 | 5 | Today | `/today` | default |
 | 6 | All Tasks | `/tasks` | default |
 | 7 | Task Templates | `/tasks/templates` | default (sub-page) |
-| 8 | Finance | `/finance` | default |
+| 8 | Finance | `/finance` | default — hero баланс (всегда) + UiPillSelect (Transactions / Savings / Budgets) + контент активного таба |
 | 9 | Categories | `/settings/categories` | default (sub-page) |
 | 10 | Settings | `/settings` | default |
 | 11 | Task Sheet | modal (любая вкладка) | — |
@@ -184,8 +184,8 @@ dur-sheet: 420ms   открытие/закрытие bottom sheet
 | `UiSheet` | Создание/редактирование любой сущности |
 | `UiToast` | Уведомления success/error/warning/info — всегда через `useToast()` |
 | `UiSkeleton` | Заглушка загрузки — всегда вместо спиннера на уровне элемента |
-| `UiSavingsCard` | Hero-карточка накоплений на Finance экране |
-| `UiBudgetsSection` | Список бюджетов с прогресс-барами на Finance экране |
+| `UiSavingsCard` | Hero-карточка накоплений в табе Savings на Finance экране |
+| `UiBudgetsSection` | Список бюджетов с прогресс-барами в табе Budgets на Finance экране |
 
 ---
 

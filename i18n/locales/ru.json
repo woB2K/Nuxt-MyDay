@@ -68,6 +68,21 @@
       "deleteError": "Не удалось удалить шаблон"
     }
   },
+  "finance": {
+    "tabs": {
+      "transactions": "Транзакции",
+      "savings": "Накопления",
+      "budgets": "Бюджет"
+    },
+    "title": "Финансы",
+    "balance": "Баланс",
+    "income": "Доходы",
+    "expense": "Расходы",
+    "breakdown": "По категориям",
+    "recent": "Последние",
+    "noTransactions": "Транзакций пока нет",
+    "noBreakdown": "Нет данных за этот период"
+  },
   "auth": {
     "name": "Имя",
     "email": "Электронная почта",

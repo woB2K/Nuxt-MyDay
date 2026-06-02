@@ -25,12 +25,12 @@ useSeoMeta({
 })
 
 const authStore = useAuthStore()
-authStore.init()
+await authStore.init()
 </script>
 
 <template>
   <NuxtLayout>
-    <NuxtPage />
+    <NuxtPage class="bg-elev1" />
     <UiToast />
   </NuxtLayout>
 </template>

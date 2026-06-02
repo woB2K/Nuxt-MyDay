@@ -68,6 +68,21 @@
       "deleteError": "Failed to delete template"
     }
   },
+  "finance": {
+    "tabs": {
+      "transactions": "Транзакции",
+      "savings": "Накопления",
+      "budgets": "Бюджет"
+    },
+    "title": "Finance",
+    "balance": "Balance",
+    "income": "Income",
+    "expense": "Expense",
+    "breakdown": "Breakdown",
+    "recent": "Recent",
+    "noTransactions": "No transactions yet",
+    "noBreakdown": "No data for this period"
+  },
   "auth": {
     "name": "Name",
     "email": "Email",

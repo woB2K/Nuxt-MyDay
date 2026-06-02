@@ -1,4 +1,5 @@
 import type { z } from 'zod'
+import type { Budget, SavingsEntry, Transaction } from '~~/prisma/.generated/prisma'
 import type { createBudgetSchema, createCategorySchema, createTransactionSchema, updateBudgetSchema, updateCategorySchema, updateTransactionSchema } from '../schemas/finance'
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>
@@ -8,3 +9,39 @@ export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>
 export type CreateSavingsSchema = z.infer<typeof createBudgetSchema>
+
+// Prisma возвращает amount как Decimal, сервер конвертирует в number через mapAmount
+type WithNumberAmount<T extends { amount: unknown }> = Omit<T, 'amount'> & { amount: number }
+
+export type TransactionItem = WithNumberAmount<Transaction>
+export interface TransactionListResponse {
+  data: TransactionItem[]
+  total: number
+  page: number
+  limit: number
+}
+
+export type SavingsEntryItem = WithNumberAmount<SavingsEntry>
+export interface SavingsResponse {
+  balance: number
+  thisMonth: number
+  entries: SavingsEntryItem[]
+}
+
+export type BudgetItem = WithNumberAmount<Budget>
+
+export interface SummaryBreakdownItem {
+  categoryId: string
+  categoryName: string | undefined
+  categoryIcon: string | undefined
+  color: string | undefined
+  type: string | undefined
+  total: number
+}
+
+export interface SummaryResponse {
+  income: number
+  expense: number
+  networth: number
+  breakdown: SummaryBreakdownItem[]
+}

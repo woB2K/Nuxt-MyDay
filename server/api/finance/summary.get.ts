@@ -16,8 +16,11 @@ export default defineEventHandler(async (event) => {
     }),
     prisma.transaction.groupBy({
       by: ['categoryId'],
-      where: { userId, date: { gte: from, lte: to } },
-      _sum: { amount: true }
+      where: { userId, type: 'EXPENSE', date: { gte: from, lte: to } },
+      _sum: { amount: true },
+      orderBy: {
+        _sum: { amount: 'desc' }
+      }
     })
   ])
 
@@ -41,6 +44,7 @@ export default defineEventHandler(async (event) => {
         categoryName: cat?.name,
         categoryIcon: cat?.icon,
         type: cat?.type,
+        color: cat?.color,
         total: b._sum.amount?.toNumber() ?? 0
       }
     })
