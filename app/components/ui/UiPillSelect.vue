@@ -10,16 +10,17 @@ interface Props {
   modelValue: string
   options: Array<Option>
   full?: boolean
+  bgClass?: string
 }
 
-const props = withDefaults(defineProps<Props>(), { full: false })
+const props = withDefaults(defineProps<Props>(), { full: false, bgClass: 'bg-elev2' })
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 </script>
 
 <template>
   <div
-    class="flex gap-1 p-1 bg-elev2 rounded-full"
-    :class="props.full ? 'w-full' : 'w-fit'"
+    class="flex gap-1 p-1 rounded-full"
+    :class="[props.bgClass, props.full ? 'w-full' : 'w-fit']"
   >
     <button
       v-for="option in props.options"

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import AddTransactionSheet from '~/components/features/finance/AddTransactionSheet.vue'
 import FinanceTransactionsTab from '~/components/features/finance/FinanceTransactionsTab.vue'
 
 const { t, locale } = useI18n()
@@ -26,6 +27,8 @@ const incomePercent = computed(() =>
 const expensePercent = computed(() =>
   total.value > 0 ? (summary.value!.expense / total.value) * 100 : 0
 )
+//
+const sheetOpen = ref(false)
 </script>
 
 <template>
@@ -77,5 +80,14 @@ const expensePercent = computed(() =>
     />
 
     <UiEmptyState v-if="!isTransactionPending" icon="i-heroicons-document" />
+    <!-- DEV: временная кнопка для верстки шита -->
+    <button
+      class="fixed top-4 right-4 z-50 bg-accent text-white px-3 py-1 rounded-lg text-sm"
+      @click="sheetOpen = true"
+    >
+      + TX
+    </button>
+
+    <AddTransactionSheet v-model:open="sheetOpen" />
   </div>
 </template>

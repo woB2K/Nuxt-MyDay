@@ -1,6 +1,7 @@
 {
   "general": {
-    "somethingWrong": "Something went wrong"
+    "somethingWrong": "Something went wrong",
+    "save": "Save"
   },
   "welcome": {
     "tagline": "Tasks & finances, one place",
@@ -81,7 +82,10 @@
     "breakdown": "Breakdown",
     "recent": "Recent transaction",
     "noTransactions": "No transactions yet",
-    "noBreakdown": "No data for this period"
+    "noBreakdown": "No data for this period",
+    "adTransaction": "Add transaction",
+    "amount": "Amount",
+    "note": "Note"
   },
   "auth": {
     "name": "Name",
