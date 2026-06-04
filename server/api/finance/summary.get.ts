@@ -40,12 +40,13 @@ export default defineEventHandler(async (event) => {
     breakdown: breakdown.map((b) => {
       const cat = categories.find(c => c.id === b.categoryId)
       return {
-        categoryId: b.categoryId,
-        categoryName: cat?.name,
-        categoryIcon: cat?.icon,
-        type: cat?.type,
-        color: cat?.color,
-        total: b._sum.amount?.toNumber() ?? 0
+        total: b._sum.amount?.toNumber() ?? 0,
+        category: {
+          id: cat?.id ?? '',
+          name: cat?.name ?? '',
+          icon: cat?.icon ?? '',
+          color: cat?.color ?? ''
+        }
       }
     })
   }

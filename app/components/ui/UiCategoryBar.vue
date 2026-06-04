@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { Category } from '~~/prisma/.generated/prisma'
+import type { CategoryInfo } from '~~/shared/types/finance'
 
 interface Props {
-  category: Category
+  category: CategoryInfo
   amount: number
   maxAmount: number
   totalAmount: number

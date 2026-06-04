@@ -8,31 +8,27 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const { t } = useI18n()
+
 const maxAmount = computed(() =>
   Math.max(...props.summary.breakdown.map(el => el.total))
 )
-const breakdownWithCategory = computed(() =>
-  props.summary.breakdown.map(item => ({
-    ...item,
-    category: props.categories.find(c => c.id === item.categoryId)!
-  }))
-)
-
 </script>
 
 <template>
-  <UiSectionHeader title="По категориям" />
+  <UiSectionHeader :title="t('finance.breakdown')" />
   <UiCard :padding="0" class="overflow-hidden border border-hairline">
     <UiCategoryBar
-      v-for="item in breakdownWithCategory"
-      :key="item.categoryId"
+      v-for="item in props.summary.breakdown"
+      :key="item.category.id"
       :total-amount="summary.expense"
       :max-amount="maxAmount"
       :amount="item.total"
       :category="item.category"
     />
   </UiCard>
-  <UiSectionHeader title="Транзакции" />
+  <UiSectionHeader :title="t('finance.recent')" />
   <UiCard :padding="0" class="overflow-hidden border border-hairline">
     <UiTxRow
       v-for="tx in props.transactions"

@@ -9,7 +9,7 @@ export function useCategoriesQuery() {
   return useQuery({
     queryKey: queryKeys.categories(),
     queryFn: () => {
-      return api<Category>('/api/categories')
+      return api<Category[]>('/api/categories')
     }
   })
 }

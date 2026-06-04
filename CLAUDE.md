@@ -902,7 +902,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **2.8.5** `composables/useFinance.ts` — все TanStack Query хуки: `useTransactionsQuery`, `useSummaryQuery`, `useSavingsQuery`, `useBudgetsQuery` + мутации с `invalidateQueries`
 - [x] **2.8.6** `composables/useCategories.ts` — TanStack Query хуки для CRUD категорий (используется и в Finance и в Settings)
 - [x] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`
-- [ ] **2.10** `pages/finance/index.vue` — hero баланс (всегда) + `UiPillSelect` для переключения табов + `components/features/finance/FinanceTransactionsTab.vue` (breakdown + recent). Структура: hero → pill tabs → контент таба. `financeStore.activeTab` управляет видимостью табов.
+- [x] **2.10** `pages/finance/index.vue` — hero баланс (всегда) + `UiPillSelect` для переключения табов + `components/features/finance/FinanceTransactionsTab.vue` (breakdown + recent). Структура: hero → pill tabs → контент таба. `financeStore.activeTab` управляет видимостью табов.
 - [ ] **2.11** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
 - [ ] **2.12** `components/features/finance/FinanceSavingsTab.vue` — раздел Savings (таб внутри Finance страницы)
 - [ ] **2.13** `components/features/finance/FinanceBudgetsTab.vue` — раздел Budgets (таб внутри Finance страницы, карточки с прогресс-баром)

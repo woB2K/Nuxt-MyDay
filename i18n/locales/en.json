@@ -70,16 +70,16 @@
   },
   "finance": {
     "tabs": {
-      "transactions": "Транзакции",
-      "savings": "Накопления",
-      "budgets": "Бюджет"
+      "transactions": "Transaction",
+      "savings": "Savings",
+      "budgets": "Budgets"
     },
     "title": "Finance",
     "balance": "Balance",
     "income": "Income",
     "expense": "Expense",
     "breakdown": "Breakdown",
-    "recent": "Recent",
+    "recent": "Recent transaction",
     "noTransactions": "No transactions yet",
     "noBreakdown": "No data for this period"
   },

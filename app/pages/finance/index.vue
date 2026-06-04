@@ -4,14 +4,14 @@ import FinanceTransactionsTab from '~/components/features/finance/FinanceTransac
 const { t, locale } = useI18n()
 
 const financeStore = useFinanceStore()
-const mount = toRef(financeStore, 'currentMonth')
+const currentMonth = toRef(financeStore, 'currentMonth')
 const monthLabel = computed(() =>
   new Intl.DateTimeFormat(locale.value, { month: 'long' })
     .format(financeStore.currentMonth)
 )
 
-const { data: summary } = useSummaryQuery(mount)
-const { data: transaction } = useTransactionQuery()
+const { data: summary, isPending: isSummaryPending } = useSummaryQuery(currentMonth)
+const { data: transaction, isPending: isTransactionPending } = useTransactionQuery()
 const { data: categories } = useCategoriesQuery()
 
 const tabOptions = computed(() => [
@@ -35,7 +35,8 @@ const expensePercent = computed(() =>
     </h1>
     <span class="text-xl text-text-dim">{{ monthLabel }}</span>
 
-    <div class="flex flex-col p-4 mb-2 border border-hairline rounded-2xl bg-gradient-to-b from-accent-soft to-elev1 gap-4">
+    <UiSkeletonFinanceHero v-if="isSummaryPending" />
+    <div v-else class="flex flex-col p-4 mb-2 border border-hairline rounded-2xl bg-gradient-to-b from-accent-soft to-elev1 gap-4">
       <span class="text-xs font-semibold uppercase tracking-widest text-text-mute">{{ t('finance.balance') }}</span>
       <span class="text-text text-[52px] font-bold leading-none">{{ formatAmount(summary?.networth ?? 0) }} ₽</span>
 
@@ -64,13 +65,17 @@ const expensePercent = computed(() =>
     </div>
     <UiPillSelect v-model="financeStore.activeTab" :options="tabOptions" full />
 
+    <UiCard v-if="isTransactionPending" :padding="0" class="overflow-hidden border border-hairline">
+      <UiSkeletonRow v-for="n in 10" :key="n" />
+    </UiCard>
+
     <FinanceTransactionsTab
-      v-if="summary && categories && financeStore.activeTab === 'transactions'"
+      v-if="!isTransactionPending && summary && categories && financeStore.activeTab === 'transactions'"
       :summary="summary"
       :transactions="transaction?.data ?? []"
-      :categories="categories"
+      :categories="categories ?? []"
     />
 
-    <UiEmptyState v-else icon="i-heroicons-document" />
+    <UiEmptyState v-if="!isTransactionPending" icon="i-heroicons-document" />
   </div>
 </template>
