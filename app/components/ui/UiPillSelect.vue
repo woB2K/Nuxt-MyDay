@@ -37,6 +37,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
       :style="option.value === props.modelValue && option.color
         ? { backgroundColor: option.color, color: option.inkColor ?? '#0F0F14' }
         : {}"
+      type="button"
       @click="emit('update:modelValue', option.value)"
     >
       {{ option.label }}

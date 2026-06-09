@@ -75,6 +75,10 @@
       "savings": "Savings",
       "budgets": "Budgets"
     },
+    "error": {
+      "amount": "Incorrect amount",
+      "category": "No category selected"
+    },
     "title": "Finance",
     "balance": "Balance",
     "income": "Income",
@@ -83,7 +87,7 @@
     "recent": "Recent transaction",
     "noTransactions": "No transactions yet",
     "noBreakdown": "No data for this period",
-    "adTransaction": "Add transaction",
+    "addTransaction": "Add transaction",
     "amount": "Amount",
     "note": "Note"
   },

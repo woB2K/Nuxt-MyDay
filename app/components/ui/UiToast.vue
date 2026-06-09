@@ -4,7 +4,7 @@ const uiStore = useUiStore()
 
 <template>
   <Teleport to="body">
-    <div class="fixed bottom-28 inset-x-5 z-50 flex flex-col gap-2 pointer-events-none">
+    <div class="fixed bottom-28 inset-x-5 z-[60] flex flex-col gap-2 pointer-events-none">
       <TransitionGroup name="toast">
         <UiToastItem
           v-for="toast in uiStore.queue"

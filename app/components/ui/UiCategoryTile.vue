@@ -15,6 +15,7 @@ const props = defineProps<Props>()
     :style="props.selected
       ? { borderColor: props.category.color, backgroundColor: `${props.category.color}26` }
       : { borderColor: 'transparent' }"
+    type="button"
   >
     <UIcon
       :name="props.category.icon"
