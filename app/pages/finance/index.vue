@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import AddTransactionSheet from '~/components/features/finance/AddTransactionSheet.vue'
-import FinanceTransactionsTab from '~/components/features/finance/FinanceTransactionsTab.vue'
-
 const { t, locale } = useI18n()
 const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
@@ -15,8 +12,6 @@ const financeStore = useFinanceStore()
 const currentMonth = toRef(financeStore, 'currentMonth')
 
 const { data: summary, isPending: isSummaryPending } = useSummaryQuery(currentMonth)
-const { data: transaction, isPending: isTransactionPending } = useTransactionQuery()
-const { data: categories } = useCategoriesQuery()
 
 const balanceFontClass = computed(() => {
   const len = formatAmount(summary.value?.networth ?? 0).length
@@ -89,16 +84,7 @@ onUnmounted(() => register?.(null))
     </div>
     <UiPillSelect v-model="financeStore.activeTab" :options="tabOptions" full />
 
-    <UiCard v-if="isTransactionPending" :padding="0" class="overflow-hidden border border-hairline">
-      <UiSkeletonRow v-for="n in 10" :key="n" />
-    </UiCard>
-
-    <FinanceTransactionsTab
-      v-if="!isTransactionPending && summary && categories && financeStore.activeTab === 'transactions'"
-      :summary="summary"
-      :transactions="transaction?.data ?? []"
-      :categories="categories ?? []"
-    />
+    <FinanceTransactionsTab v-if="financeStore.activeTab === 'transactions'" />
 
     <AddTransactionSheet v-model:open="sheetOpen" />
   </div>

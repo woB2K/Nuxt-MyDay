@@ -1,6 +1,6 @@
 import type { z } from 'zod'
 import type { Budget, SavingsEntry, Transaction } from '~~/prisma/.generated/prisma'
-import type { createBudgetSchema, createCategorySchema, createTransactionSchema, updateBudgetSchema, updateCategorySchema, updateTransactionSchema } from '../schemas/finance'
+import type { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, updateBudgetSchema, updateCategorySchema, updateTransactionSchema } from '../schemas/finance'
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>
@@ -8,7 +8,7 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>
-export type CreateSavingsSchema = z.infer<typeof createBudgetSchema>
+export type CreateSavingsSchema = z.infer<typeof createSavingsSchema>
 
 type WithNumberAmount<T extends { amount: unknown }> = Omit<T, 'amount'> & { amount: number }
 
