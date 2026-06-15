@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createBudgetSchema, createCategorySchema, createTransactionSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
+import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, updateBudgetSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
 
 describe('createTransactionSchema', () => {
   const valid = {
@@ -68,19 +68,61 @@ describe('updateTransactionSchema', () => {
 })
 
 describe('createCategorySchema', () => {
-  it('accepts name only', () => {
-    const result = createCategorySchema.safeParse({ name: 'Food' })
+  it('accepts name and type', () => {
+    const result = createCategorySchema.safeParse({ name: 'Food', type: 'EXPENSE' })
     expect(result.success).toBe(true)
   })
 
-  it('accepts name with icon', () => {
-    const result = createCategorySchema.safeParse({ name: 'Food', icon: '🍔' })
+  it('accepts name, type and icon', () => {
+    const result = createCategorySchema.safeParse({ name: 'Food', type: 'EXPENSE', icon: '🍔' })
     expect(result.success).toBe(true)
   })
 
   it('rejects empty name', () => {
-    const result = createCategorySchema.safeParse({ name: '' })
+    const result = createCategorySchema.safeParse({ name: '', type: 'EXPENSE' })
     expect(result.success).toBe(false)
+  })
+
+  it('rejects missing type', () => {
+    const result = createCategorySchema.safeParse({ name: 'Food' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects invalid type', () => {
+    const result = createCategorySchema.safeParse({ name: 'Food', type: 'TRANSFER' })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('createSavingsSchema', () => {
+  const valid = {
+    amount: 5000,
+    type: 'DEPOSIT'
+  }
+
+  it('accepts valid deposit', () => {
+    const result = createSavingsSchema.safeParse(valid)
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts both DEPOSIT and WITHDRAWAL types', () => {
+    expect(createSavingsSchema.safeParse({ ...valid, type: 'DEPOSIT' }).success).toBe(true)
+    expect(createSavingsSchema.safeParse({ ...valid, type: 'WITHDRAWAL' }).success).toBe(true)
+  })
+
+  it('rejects negative amount', () => {
+    const result = createSavingsSchema.safeParse({ ...valid, amount: -100 })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects invalid savings type', () => {
+    const result = createSavingsSchema.safeParse({ ...valid, type: 'INCOME' })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts optional notes', () => {
+    const result = createSavingsSchema.safeParse({ ...valid, notes: 'Emergency fund' })
+    expect(result.success).toBe(true)
   })
 })
 
@@ -103,6 +145,23 @@ describe('createBudgetSchema', () => {
 
   it('rejects empty categoryId', () => {
     const result = createBudgetSchema.safeParse({ ...valid, categoryId: '' })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('updateBudgetSchema', () => {
+  it('accepts empty object', () => {
+    const result = updateBudgetSchema.safeParse({})
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts partial update of amount only', () => {
+    const result = updateBudgetSchema.safeParse({ amount: 30000 })
+    expect(result.success).toBe(true)
+  })
+
+  it('still rejects invalid amount if provided', () => {
+    const result = updateBudgetSchema.safeParse({ amount: -1 })
     expect(result.success).toBe(false)
   })
 })

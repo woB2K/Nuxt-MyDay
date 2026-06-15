@@ -23,8 +23,8 @@ const mockUser = {
     accent: 'blue',
     lang: 'en',
     pinEnabled: false,
-    pinHash: null,
-  },
+    pinHash: null
+  }
 }
 
 describe('init()', () => {

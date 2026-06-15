@@ -7,7 +7,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   size: 26,
-  color: 'var(--c-accent)',
+  color: 'var(--c-accent)'
 })
 
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()

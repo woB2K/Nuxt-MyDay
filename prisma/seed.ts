@@ -30,8 +30,6 @@ async function main() {
     process.exit(1)
   }
 
-  console.log(`Seeding data for ${user.name} (${user.id})`)
-
   const expenseCategories = user.categories.filter(c => c.type === 'EXPENSE')
   const incomeCategories = user.categories.filter(c => c.type === 'INCOME')
 
@@ -116,7 +114,6 @@ async function main() {
   }
 
   await prisma.transaction.createMany({ data: transactions })
-  console.log(`Created ${transactions.length} transactions`)
 
   // Savings entries
   const savingsData = [
@@ -135,7 +132,6 @@ async function main() {
       data: { userId: user.id, amount: s.amount, type: s.type, notes: s.notes, createdAt }
     })
   }
-  console.log(`Created ${savingsData.length} savings entries`)
 
   // Budgets for current month
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -156,9 +152,11 @@ async function main() {
       create: { userId: user.id, categoryId: category.id, amount, month: monthStart }
     })
   }
-  console.log(`Created ${budgetDefs.length} budgets`)
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1) })
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
   .finally(() => prisma.$disconnect())

@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SignJWT } from 'jose'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken } from '../../../server/utils/jwt'
 
 afterEach(() => {

@@ -906,10 +906,10 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **2.11** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
 - [x] **2.12** `components/features/finance/FinanceSavingsTab.vue` — раздел Savings (таб внутри Finance страницы)
 - [ ] **2.13** `components/features/finance/FinanceBudgetsTab.vue` — раздел Budgets (таб внутри Finance страницы, карточки с прогресс-баром)
-- [ ] **2.14** Управление категориями в Settings (список + создать/редактировать/удалить)
-- [ ] **2.15** *(Claude пишет)* Unit тесты для Zod-схем finance — невалидная сумма (отрицательная, строка), неизвестная категория
-- [ ] **2.15.5** *(Claude пишет)* Интеграционные тесты для API эндпоинтов Фазы 2 (через `@nuxt/test-utils`, тестовая БД): `GET/POST /api/categories`, `PATCH/DELETE /api/categories/[id]`, `GET/POST /api/finance/transactions`, `PATCH/DELETE /api/finance/transactions/[id]`, `GET /api/finance/summary`, `GET/POST/DELETE /api/finance/savings`, `GET/POST/PATCH /api/finance/budgets` — проверить: `userId` изоляция (нельзя получить чужие данные), валидация входных данных, корректность агрегации в summary
-- [ ] **2.16** *(Claude пишет)* Тесты для TanStack Query хуков из `useFinance.ts` — мутация `useDeleteTransactionMutation`: кэш обновляется до ответа сервера, откатывается при ошибке; `useSummaryQuery` инвалидируется после добавления транзакции
+- [~] **2.14** ~~Управление категориями в Settings~~ → перенесено в Фазу 4 (**4.5.1**). Settings делаем целиком одним блоком, чтобы не строить каркас настроек в два захода. Дата-слой (`useCategories.ts`) уже готов.
+- [x] **2.15** *(Claude пишет)* Unit тесты для Zod-схем finance — невалидная сумма (отрицательная, строка), неизвестная категория
+- [x] **2.15.5** *(Claude пишет)* Интеграционные тесты для API эндпоинтов Фазы 2 — `tests/integration/phase2.test.ts` (13 passed, 1 skip). Инфра: `docker-compose.test.yml` (Postgres :5434), `vitest.integration.config.ts`, env из `.env.test`. Запуск: `pnpm test:db:up && pnpm test:integration`. **Нашли баг:** `POST /api/categories` всегда 500 — `createCategorySchema` без `color` и с опциональным `icon`, а в БД оба required (тест заскипан, разблокировать в 4.5.1). (через `@nuxt/test-utils`, тестовая БД): `GET/POST /api/categories`, `PATCH/DELETE /api/categories/[id]`, `GET/POST /api/finance/transactions`, `PATCH/DELETE /api/finance/transactions/[id]`, `GET /api/finance/summary`, `GET/POST/DELETE /api/finance/savings`, `GET/POST/PATCH /api/finance/budgets` — проверить: `userId` изоляция (нельзя получить чужие данные), валидация входных данных, корректность агрегации в summary
+- [x] **2.16** *(Claude пишет)* Тесты для TanStack Query хуков из `useFinance.ts` — `tests/unit/composables/useFinance.test.ts`: инвалидация `transactions`+`summary` в `onSuccess`, тост-ошибка в `onError`, реальный рефетч активного `useSummaryQuery` после добавления транзакции. **Тест на оптимистичный откат → перенесён в 4.3** (в текущем коде мутаций нет `onMutate`/rollback — оптимистика появится в Фазе 4)
 
 ---
 
@@ -942,9 +942,10 @@ const userId = event.context.userId // проставляет server/middleware/
 
 - [ ] **4.1** Настроить `@vite-pwa/nuxt`: manifest (name, icons, theme_color, start_url `/today`, display `standalone`)
 - [ ] **4.2** Workbox стратегия: `NetworkFirst` для API, `CacheFirst` для статики
-- [ ] **4.3** Проверить оптимистичные апдейты во всех TanStack Query мутациях (onMutate → onError rollback → onSettled invalidate)
+- [ ] **4.3** Проверить оптимистичные апдейты во всех TanStack Query мутациях (onMutate → onError rollback → onSettled invalidate). **Сюда же — тест из 2.16**: `useDeleteTransactionMutation` обновляет кэш до ответа сервера и откатывается при ошибке (пишется вместе с реализацией `onMutate`/rollback)
 - [ ] **4.4** CSS-переменные светлой темы в `assets/css/main.css` + `useTheme` composable
 - [ ] **4.5** `pages/settings.vue` — профиль + все настройки (тема, акцент, язык, уведомления). **Важно:** добавить `definePageMeta({ hideFab: true })` в `settings.vue` и `settings/categories.vue` — FAB не нужен на страницах настроек (условие в `default.vue` читает `route.meta.hideFab`)
+- [ ] **4.5.1** `pages/settings/categories.vue` — управление категориями (список + создать/редактировать/удалить). Перенесено из 2.14. Дата-слой `useCategories.ts` готов; нужен только UI + точка входа из хаба настроек. **Сначала починить `POST /api/categories`** (баг из 2.15.5): добавить `color` в `createCategorySchema` и решить судьбу `icon` (required или дефолт в БД), затем разблокировать skip-тест в `tests/integration/phase2.test.ts`
 - [ ] **4.6** Переключатель темы (Dark / Light / System) → сохранение в `AppSettings`
 - [ ] **4.7** Переключатель акцентного цвета (5 вариантов) → сохранение в `AppSettings`
 - [ ] **4.8** Переключатель языка EN / RU → сохранение в `AppSettings`, синхронизация `locale.value` при старте приложения

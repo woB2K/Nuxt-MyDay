@@ -8,13 +8,13 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n'
   ],
   ssr: false,
+  components: [
+    { path: '~/components', pathPrefix: false }
+  ],
 
   devtools: {
     enabled: false
   },
-  components: [
-    { path: '~/components', pathPrefix: false }
-  ],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     jwtAccessSecret: '',
