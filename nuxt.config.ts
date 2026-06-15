@@ -12,6 +12,9 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false
   },
+  components: [
+    { path: '~/components', pathPrefix: false }
+  ],
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     jwtAccessSecret: '',

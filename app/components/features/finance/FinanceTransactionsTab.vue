@@ -4,9 +4,11 @@ const { t } = useI18n()
 const financeStore = useFinanceStore()
 const currentMonth = toRef(financeStore, 'currentMonth')
 
-const { data: summary } = useSummaryQuery(currentMonth)
-const { data: transactions } = useTransactionQuery()
-const { data: categories } = useCategoriesQuery()
+const { data: summary, isPending: isSummaryPending } = useSummaryQuery(currentMonth)
+const { data: transactions, isPending: isTransactionsPending } = useTransactionQuery()
+const { data: categories, isPending: isCategoriesPending } = useCategoriesQuery()
+
+const isPending = computed(() => isSummaryPending.value || isTransactionsPending.value || isCategoriesPending.value)
 
 const maxAmount = computed(() =>
   Math.max(...(summary.value?.breakdown.map(el => el.total) ?? [0]))
@@ -14,7 +16,13 @@ const maxAmount = computed(() =>
 </script>
 
 <template>
-  <template v-if="summary && transactions && categories">
+  <template v-if="isPending">
+    <UiCard :padding="0" class="overflow-hidden border border-hairline">
+      <UiSkeletonRow v-for="n in 8" :key="n" />
+    </UiCard>
+  </template>
+
+  <template v-else-if="summary && transactions && categories">
     <UiSectionHeader :title="t('finance.breakdown')" />
     <UiCard :padding="0" class="overflow-hidden border border-hairline">
       <UiCategoryBar

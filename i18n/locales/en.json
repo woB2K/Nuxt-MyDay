@@ -89,7 +89,17 @@
     "noBreakdown": "No data for this period",
     "addTransaction": "Add transaction",
     "amount": "Amount",
-    "note": "Note"
+    "note": "Note",
+    "savings": {
+      "balance": "Savings",
+      "thisMonth": "This month",
+      "add": "Add",
+      "withdraw": "Withdraw",
+      "history": "History",
+      "noHistory": "No savings entries yet",
+      "deposit": "Deposit",
+      "withdrawal": "Withdrawal"
+    }
   },
   "auth": {
     "name": "Name",

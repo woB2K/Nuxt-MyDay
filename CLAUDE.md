@@ -904,7 +904,7 @@ const userId = event.context.userId // проставляет server/middleware/
 - [x] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`
 - [x] **2.10** `pages/finance/index.vue` — hero баланс (всегда) + `UiPillSelect` для переключения табов + `components/features/finance/FinanceTransactionsTab.vue` (breakdown + recent). Структура: hero → pill tabs → контент таба. `financeStore.activeTab` управляет видимостью табов.
 - [x] **2.11** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
-- [ ] **2.12** `components/features/finance/FinanceSavingsTab.vue` — раздел Savings (таб внутри Finance страницы)
+- [x] **2.12** `components/features/finance/FinanceSavingsTab.vue` — раздел Savings (таб внутри Finance страницы)
 - [ ] **2.13** `components/features/finance/FinanceBudgetsTab.vue` — раздел Budgets (таб внутри Finance страницы, карточки с прогресс-баром)
 - [ ] **2.14** Управление категориями в Settings (список + создать/редактировать/удалить)
 - [ ] **2.15** *(Claude пишет)* Unit тесты для Zod-схем finance — невалидная сумма (отрицательная, строка), неизвестная категория

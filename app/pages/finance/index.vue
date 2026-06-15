@@ -85,6 +85,7 @@ onUnmounted(() => register?.(null))
     <UiPillSelect v-model="financeStore.activeTab" :options="tabOptions" full />
 
     <FinanceTransactionsTab v-if="financeStore.activeTab === 'transactions'" />
+    <FinanceSavingsTab v-if="financeStore.activeTab === 'savings'" />
 
     <AddTransactionSheet v-model:open="sheetOpen" />
   </div>
