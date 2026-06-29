@@ -83,8 +83,8 @@ model TaskTag {
   taskId String
   tagId  String
 
-  task Task @relation(fields: [taskId], references: [id])
-  tag  Tag  @relation(fields: [tagId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([taskId, tagId])
 }
@@ -106,8 +106,8 @@ model TaskTemplateTag {
   templateId String
   tagId      String
 
-  template TaskTemplate @relation(fields: [templateId], references: [id])
-  tag      Tag          @relation(fields: [tagId], references: [id])
+  template TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  tag      Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([templateId, tagId])
 }

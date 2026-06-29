@@ -917,7 +917,7 @@ const userId = event.context.userId // проставляет server/middleware/
 
 **Сервер:**
 
-- [ ] **3.1** `GET/POST /api/tags` + `PATCH/DELETE /api/tags/[id]`
+- [x] **3.1** `GET/POST /api/tags` + `PATCH/DELETE /api/tags/[id]`
 - [ ] **3.2** `GET/POST /api/tasks` + `PATCH/DELETE /api/tasks/[id]` (с поиском и фильтром)
 - [ ] **3.3** `GET/POST /api/templates` + `PATCH/DELETE /api/templates/[id]`
 
