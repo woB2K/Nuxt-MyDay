@@ -31,3 +31,7 @@ prisma/.generated/
 design_handoff_myday/
 
 TAILWIND.md
+
+# Working context / session notes (not part of codebase)
+context/
+.claude/settings.local.json
