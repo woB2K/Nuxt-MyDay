@@ -10,4 +10,6 @@ export const createTaskSchema = z.object({
   tagIds: z.array(z.string()).optional()
 })
 
-export const updateTaskSchema = createTaskSchema.partial()
+export const updateTaskSchema = createTaskSchema.partial().extend({
+  done: z.boolean().optional()
+})
