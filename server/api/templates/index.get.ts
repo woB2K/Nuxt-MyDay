@@ -9,6 +9,9 @@ export default defineEventHandler(async (event) => {
     },
     include: {
       tags: { include: { tag: true } }
+    },
+    orderBy: {
+      createdAt: 'desc'
     }
   })
 
