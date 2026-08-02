@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { registerSchema } from '~~/shared/schemas/auth'
+import { registerSchema } from '~~/shared/schemas'
 
 definePageMeta({ layout: 'auth' })
 

@@ -1,5 +1,5 @@
 import type { Transaction } from '~~/prisma/.generated/prisma'
-import type { BudgetItem, SavingsResponse, SummaryResponse, TransactionListResponse } from '~~/shared/types/finance'
+import type { BudgetItem, SavingsResponse, SummaryResponse, TransactionListResponse } from '~~/shared/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'

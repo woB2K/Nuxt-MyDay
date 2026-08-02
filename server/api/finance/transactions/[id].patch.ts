@@ -1,5 +1,5 @@
 import { mapAmount } from '~~/server/utils/mapper'
-import { updateTransactionSchema } from '~~/shared/schemas/finance'
+import { updateTransactionSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId

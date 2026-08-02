@@ -1,7 +1,7 @@
 import { seedCategories } from '~~/prisma/seeds/categories'
 import { hashToken } from '~~/server/utils/jwt'
 import { toPublicUser } from '~~/server/utils/mapper'
-import { registerSchema } from '~~/shared/schemas/auth'
+import { registerSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const body = registerSchema.parse(await readBody(event))

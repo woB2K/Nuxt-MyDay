@@ -1,4 +1,4 @@
-import { createCategorySchema } from '~~/shared/schemas/finance'
+import { createCategorySchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId

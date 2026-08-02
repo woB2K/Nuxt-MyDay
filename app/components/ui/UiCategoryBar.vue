@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { CategoryInfo } from '~~/shared/types/finance'
+import type { CategoryInfo } from '~~/shared/types'
 
 interface Props {
   category: CategoryInfo

@@ -1,5 +1,5 @@
-import { normalizeTask } from '~~/server/utils/mapper'
-import { updateTaskSchema } from '~~/shared/schemas/task'
+import { normalizeTags } from '~~/server/utils/mapper'
+import { updateTaskSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
         tags: { include: { tag: true } }
       }
     })
-    return normalizeTask(task)
+    return normalizeTags(task)
   } catch (e: any) {
     if (e?.code === 'P2025') {
       throw createError({ statusCode: 404, message: 'Task not found' })

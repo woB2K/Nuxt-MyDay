@@ -1,4 +1,4 @@
-import { createTagSchema } from '~~/shared/schemas/tag'
+import { createTagSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId

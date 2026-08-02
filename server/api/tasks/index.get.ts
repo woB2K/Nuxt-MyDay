@@ -1,5 +1,5 @@
 import type { Prisma } from '~~/prisma/.generated/prisma'
-import { normalizeTask } from '~~/server/utils/mapper'
+import { normalizeTags } from '~~/server/utils/mapper'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
@@ -33,5 +33,5 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  return tasks.map(el => normalizeTask(el))
+  return tasks.map(el => normalizeTags(el))
 })

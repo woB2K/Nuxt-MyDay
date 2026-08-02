@@ -1,6 +1,6 @@
 import { hashToken } from '~~/server/utils/jwt'
 import { toPublicUser } from '~~/server/utils/mapper'
-import { loginSchema } from '~~/shared/schemas/auth'
+import { loginSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const body = loginSchema.parse(await readBody(event))

@@ -4,10 +4,6 @@ type UserWithSettings = Prisma.UserGetPayload<{
   include: { settings: true }
 }>
 
-type TaskWithTags = Prisma.TaskGetPayload<{
-  include: { tags: { include: { tag: true } } }
-}>
-
 interface WithDecimal { amount: { toNumber: () => number } }
 type Mapped<T extends WithDecimal> = Omit<T, 'amount'> & { amount: number }
 
@@ -30,11 +26,10 @@ export function toPublicUser(user: UserWithSettings) {
   }
 }
 
-export function normalizeTask(task: TaskWithTags) {
-  return {
-    ...task,
-    tags: task.tags.map(el => el.tag)
-  }
+export function normalizeTags<TTag, T extends { tags: { tag: TTag }[] }>(
+  obj: T
+): Omit<T, 'tags'> & { tags: TTag[] } {
+  return { ...obj, tags: obj.tags.map(el => el.tag) }
 }
 
 export function mapAmount<T extends WithDecimal>(obj: T): Mapped<T> {

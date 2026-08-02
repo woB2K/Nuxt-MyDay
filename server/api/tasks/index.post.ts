@@ -1,5 +1,5 @@
-import { normalizeTask } from '~~/server/utils/mapper'
-import { createTaskSchema } from '~~/shared/schemas/task'
+import { normalizeTags } from '~~/server/utils/mapper'
+import { createTaskSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
@@ -35,5 +35,5 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  return normalizeTask(task)
+  return normalizeTags(task)
 })

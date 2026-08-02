@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const priorityEnum = z.enum(['HIGH', 'MEDIUM', 'LOW', 'NONE'])
+export const priorityEnum = z.enum(['HIGH', 'MEDIUM', 'LOW', 'NONE'])
 
 export const createTaskSchema = z.object({
   title: z.string().min(1),

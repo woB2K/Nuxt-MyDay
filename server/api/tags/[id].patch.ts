@@ -1,4 +1,4 @@
-import { updateTagSchema } from '~~/shared/schemas/tag'
+import { updateTagSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId

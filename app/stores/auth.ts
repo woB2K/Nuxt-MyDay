@@ -1,4 +1,4 @@
-import type { UserProfile } from '~~/shared/types/auth'
+import type { UserProfile } from '~~/shared/types'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserProfile | null>(null)
