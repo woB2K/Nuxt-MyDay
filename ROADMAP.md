@@ -99,7 +99,7 @@
 
 - [x] **3.1** `GET/POST /api/tags` + `PATCH/DELETE /api/tags/[id]`
 - [x] **3.2** `GET/POST /api/tasks` + `PATCH/DELETE /api/tasks/[id]` (с поиском и фильтром). **Не забыть:** проверка принадлежности `tagIds` (см. `.claude/skills/auth-security-patterns/`)
-- [ ] **3.3** `GET/POST /api/templates` + `PATCH/DELETE /api/templates/[id]`
+- [x] **3.3** `GET/POST /api/templates` + `PATCH/DELETE /api/templates/[id]`
 
 **Клиент:**
 
@@ -111,7 +111,7 @@
 - [ ] **3.8** `components/features/tasks/TaskSheet.vue` — создание/редактирование задачи
 - [ ] **3.9** `pages/tasks/index.vue` — поиск + фильтр All/Open/Done + SwipeRow список
 - [ ] **3.10** `pages/tasks/templates.vue` + `components/features/tasks/TemplateSheet.vue`
-- [ ] **3.11** *(Claude пишет)* Unit тесты для mapper-функции нормализации тегов из Prisma
+- [x] **3.11** *(Claude пишет)* Unit тесты для mapper-функции нормализации тегов из Prisma
 - [ ] **3.12** *(Claude пишет)* Store тесты для `useTasksStore` — `toggleTask` оптимистичный апдейт, `toggleTask` откат при ошибке, `deleteTask` удаляет из локального списка
 - [ ] **3.13** *(Claude пишет)* E2E тест: регистрация → создание задачи → отметить выполненной (Playwright)
 - [ ] **3.14** *(Claude пишет)* E2E тест: логин → добавление транзакции → проверка что баланс обновился
