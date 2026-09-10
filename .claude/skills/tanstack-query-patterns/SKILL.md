@@ -30,51 +30,72 @@ export default defineNuxtPlugin((nuxtApp) => {
 
 ## Query Keys — централизованный файл
 
-Ключи — это идентификаторы кэша. Иерархические: `['transactions']` инвалидирует всё включая `['transactions', { month }]`. Хранить в одном месте чтобы не опечататься.
+Ключи — это идентификаторы кэша. Иерархические: `['transactions']` инвалидирует всё включая `['transactions', { period, filters }]`. Хранить в одном месте чтобы не опечататься.
 
 ```ts
 // app/composables/queryKeys.ts
 export const queryKeys = {
-  categories:   ()                           => ['categories']              as const,
-  transactions: (month: string)              => ['transactions', { month }] as const,
-  summary:      (month: string)              => ['summary', { month }]      as const,
-  savings:      ()                           => ['savings']                 as const,
-  budgets:      (month: string)              => ['budgets', { month }]      as const,
-  tasks:        (filter: string, search: string) => ['tasks', { filter, search }] as const,
-  tags:         ()                           => ['tags']                    as const,
-  templates:    ()                           => ['templates']               as const,
+  categories:       ()                                  => ['categories']                             as const,
+  transactions:     (period: string, filters: string)   => ['transactions', { period, filters }]      as const,
+  transactionPages: (period: string, filters: string)   => ['transactions', 'pages', { period, filters }] as const,
+  summary:          (period: string, filters: string)   => ['summary', { period, filters }]           as const,
+  savings:          ()                                  => ['savings']                                as const,
+  budgets:          (period: string)                    => ['budgets', { period }]                    as const,
+  tasks:            (filter: string, search: string)    => ['tasks', { filter, search }]              as const,
+  tags:             ()                                  => ['tags']                                   as const,
+  templates:        ()                                  => ['templates']                              as const,
 }
 ```
+
+`period` и `filters` — строки из `periodKey()` и `filterKey()` (`app/utils/period.ts`, `app/utils/transactionFilters.ts`), а не сырые объекты: ключ должен быть стабильным и не зависеть от порядка выбранных категорий. Постраничный список живёт под тем же префиксом `['transactions']`, поэтому инвалидация из мутаций достаёт и его.
 
 ## useQuery — чтение данных
 
 ```ts
-// app/composables/useFinance.ts — границы месяца вычисляет клиент (см. «Таймзоны» в ARCHITECTURE.md)
-export function useSummaryQuery(month: Ref<Date>) {
+// app/composables/useFinance.ts — границы периода вычисляет клиент (см. «Таймзоны» в ARCHITECTURE.md)
+export function useSummaryQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) {
   const api = useApi()
   return useQuery({
-    queryKey: computed(() => queryKeys.summary(
-      `${month.value.getFullYear()}-${String(month.value.getMonth() + 1).padStart(2, '0')}`
-    )), // реактивный ключ
-    queryFn: () => {
-      const y = month.value.getFullYear()
-      const m = month.value.getMonth()
-      const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10)
-      const to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10)
-      return api<SummaryResponse>('/api/finance/summary', { query: { from, to } })
-    }
+    queryKey: computed(() => queryKeys.summary(periodKey(period.value), filterKey(filters.value))), // реактивный ключ
+    queryFn: () => api<SummaryResponse>('/api/finance/summary', {
+      query: { ...periodRange(period.value), ...filterQuery(filters.value) }
+    })
   })
 }
 ```
+
+`periodRange()` отдаёт `null` для режима «всё время» — тогда запрос уходит без `from`/`to`. Список транзакций и summary принимают один и тот же набор фильтров (см. `ARCHITECTURE.md`).
 
 В компоненте:
 ```ts
 const financeStore = useFinanceStore()
 const { data, isPending, isError } = useSummaryQuery(
-  toRef(financeStore, 'currentMonth')
+  toRef(financeStore, 'period'),
+  toRef(financeStore, 'filters')
 )
-// При смене financeStore.currentMonth → новый запрос автоматически
-// Старый результат закэширован — возврат к месяцу = мгновенный ответ
+// При смене периода или фильтров → новый запрос автоматически
+// Старый результат закэширован — возврат к периоду = мгновенный ответ
+```
+
+## useInfiniteQuery — постраничные списки
+
+Страница All Transactions читает список порциями: ключ отдельный (`transactionPages`), потому что в кэше лежит `{ pages: [...] }`, а не один ответ.
+
+```ts
+export function useTransactionPagesQuery(period: Ref<Period>, filters: Ref<TransactionFilters>, limit = 30) {
+  const api = useApi()
+  return useInfiniteQuery({
+    queryKey: computed(() => queryKeys.transactionPages(periodKey(period.value), filterKey(filters.value))),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => api<TransactionListResponse>('/api/finance/transactions', {
+      query: { ...periodRange(period.value), ...filterQuery(filters.value), page: pageParam, limit }
+    }),
+    getNextPageParam: lastPage =>
+      lastPage.page * lastPage.limit < lastPage.total ? lastPage.page + 1 : undefined
+  })
+}
+
+// в компоненте: pages.value?.pages.flatMap(p => p.data), hasNextPage, fetchNextPage()
 ```
 
 ## useMutation — мутации с инвалидацией кэша
@@ -103,7 +124,7 @@ export function useAddTransactionMutation() {
 Встроенный механизм лучше Pinia-паттерна "сохранить/откатить" (см. ниже). **Целевой паттерн для 4.3** (`ROADMAP.md`) — в текущем коде часть мутаций пока без `onMutate`/rollback:
 
 ```ts
-export function useDeleteTransactionMutation(month: Ref<string>) {
+export function useDeleteTransactionMutation(key: Ref<ReturnType<typeof queryKeys.transactions>>) {
   const api = useApi()
   const queryClient = useQueryClient()
 
@@ -113,18 +134,18 @@ export function useDeleteTransactionMutation(month: Ref<string>) {
 
     onMutate: async (id) => {
       // Отменить незавершённые запросы чтобы они не перезаписали оптимистичный апдейт
-      await queryClient.cancelQueries({ queryKey: queryKeys.transactions(month.value) })
+      await queryClient.cancelQueries({ queryKey: key.value })
       // Сохранить текущий кэш для отката
-      const previous = queryClient.getQueryData(queryKeys.transactions(month.value))
+      const previous = queryClient.getQueryData(key.value)
       // Обновить кэш немедленно — UI реагирует до ответа сервера
-      queryClient.setQueryData(queryKeys.transactions(month.value), (old: any) =>
+      queryClient.setQueryData(key.value, (old: any) =>
         old?.data?.filter((tx: Transaction) => tx.id !== id)
       )
       return { previous }
     },
     onError: (_err, _id, context) => {
       // Откатить к сохранённому состоянию
-      queryClient.setQueryData(queryKeys.transactions(month.value), context?.previous)
+      queryClient.setQueryData(key.value, context?.previous)
       useAppToast().error('Failed to delete transaction')
     },
     onSettled: () => {
@@ -158,10 +179,11 @@ async function toggleTask(id: string) {
 
 ```ts
 // app/composables/useFinance.ts — все хуки для finance
-export function useTransactionQuery() { ... }             // + from/to после 2.17
-export function useSummaryQuery(month: Ref<Date>) { ... }
-export function useSavingsQuery() { ... }
-export function useBudgetQuery(month: Ref<Date>) { ... }
+export function useTransactionQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) { ... }
+export function useTransactionPagesQuery(period, filters, limit?) { ... }  // All Transactions
+export function useSummaryQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) { ... }
+export function useSavingsQuery() { ... }                 // период появится в 2.23
+export function useBudgetQuery(period: Ref<Period>) { ... }
 export function useAddTransactionMutation() { ... }
 export function useUpdateTransactionMutation() { ... }
 export function useDeleteTransactionMutation() { ... }

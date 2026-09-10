@@ -34,6 +34,10 @@ const maxAmount = computed(() =>
   Math.max(...(summary.value?.breakdown.map(el => el.total) ?? [0]))
 )
 
+const RECENT_LIMIT = 6
+
+const recent = computed(() => transactions.value?.data.slice(0, RECENT_LIMIT) ?? [])
+
 function applyPeriod(next: Period) {
   financeStore.period = next
 }
@@ -125,7 +129,13 @@ function applyCategories(ids: string[]) {
         />
       </UiCard>
 
-      <UiSectionHeader :title="t('finance.recent')" :caption="`${transactions.total}`" />
+      <UiSectionHeader :title="t('finance.recent')" :caption="`${transactions.total}`">
+        <template #action>
+          <NuxtLink to="/finance/transactions" class="text-[13px] font-bold text-accent">
+            {{ t('finance.seeAll') }} →
+          </NuxtLink>
+        </template>
+      </UiSectionHeader>
       <UiEmptyState
         v-if="transactions.data.length === 0"
         :icon="financeStore.filtersActive ? 'i-lucide-search-x' : 'i-lucide-receipt'"
@@ -140,7 +150,7 @@ function applyCategories(ids: string[]) {
       </UiEmptyState>
       <UiCard v-else :padding="0" class="overflow-hidden border border-hairline">
         <UiTxRow
-          v-for="tx in transactions.data"
+          v-for="tx in recent"
           :key="tx.id"
           :category="categories.find(c => c.id === tx.categoryId)!"
           :transaction="tx"

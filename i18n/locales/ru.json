@@ -130,7 +130,13 @@
       "noResults": "Ничего не найдено",
       "noResultsSub": "Расширьте период или снимите фильтры",
       "clearFilters": "Сбросить фильтры"
-    }
+    },
+    "allTransactions": "Операции",
+    "seeAll": "Все",
+    "ops": "{count} операция | {count} операции | {count} операций",
+    "loadMore": "Показать ещё",
+    "today": "Сегодня",
+    "yesterday": "Вчера"
   },
   "auth": {
     "name": "Имя",

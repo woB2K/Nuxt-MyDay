@@ -8,6 +8,10 @@ export function toDateString(date: Date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
+export function toDayKey(value: Date | string): string {
+  return typeof value === 'string' ? value.slice(0, 10) : value.toISOString().slice(0, 10)
+}
+
 export function fromDateString(value: string): Date {
   const [year, month, day] = value.split('-').map(Number)
 

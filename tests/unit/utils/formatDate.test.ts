@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { formatDate, formatDateTime, formatDay, toDateString } from '../../../app/utils/formatDate'
+import { formatDate, formatDateTime, formatDay, toDateString, toDayKey } from '../../../app/utils/formatDate'
 
 afterEach(() => {
   vi.useRealTimers()
@@ -18,6 +18,17 @@ describe('toDateString', () => {
 
     vi.setSystemTime(new Date(2026, 8, 30, 23, 45))
     expect(toDateString()).toBe('2026-09-30')
+  })
+})
+
+describe('toDayKey', () => {
+  it('takes the calendar day out of a server timestamp without shifting it', () => {
+    expect(toDayKey('2026-07-24T00:00:00.000Z')).toBe('2026-07-24')
+    expect(toDayKey('2026-07-24')).toBe('2026-07-24')
+  })
+
+  it('reads a Date as the UTC day — that is how @db.Date materializes', () => {
+    expect(toDayKey(new Date('2026-07-24T00:00:00.000Z'))).toBe('2026-07-24')
   })
 })
 

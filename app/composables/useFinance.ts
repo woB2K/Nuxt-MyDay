@@ -2,7 +2,7 @@ import type { Transaction } from '~~/prisma/.generated/prisma'
 import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse } from '~~/shared/types'
 import type { Period } from '~/utils/period'
 import type { TransactionFilters } from '~/utils/transactionFilters'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { periodKey, periodRange } from '~/utils/period'
 import { filterKey, filterQuery } from '~/utils/transactionFilters'
 import { queryKeys } from './queryKeys'
@@ -31,6 +31,22 @@ export function useTransactionQuery(period: Ref<Period>, filters: Ref<Transactio
     queryFn: () => api<TransactionListResponse>('/api/finance/transactions', {
       query: toQuery(period.value, filters.value)
     })
+  })
+}
+
+export function useTransactionPagesQuery(period: Ref<Period>, filters: Ref<TransactionFilters>, limit = 30) {
+  const api = useApi()
+
+  return useInfiniteQuery({
+    queryKey: computed(() => queryKeys.transactionPages(periodKey(period.value), filterKey(filters.value))),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => api<TransactionListResponse>('/api/finance/transactions', {
+      query: { ...toQuery(period.value, filters.value), page: pageParam, limit }
+    }),
+    getNextPageParam: (lastPage) => {
+      const loaded = lastPage.page * lastPage.limit
+      return loaded < lastPage.total ? lastPage.page + 1 : undefined
+    }
   })
 }
 
