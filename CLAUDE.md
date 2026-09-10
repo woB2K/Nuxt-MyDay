@@ -16,7 +16,7 @@
 | `ARCHITECTURE.md` | Решения по БД, ER-диаграмма, auth-flow, зоны риска, известные баги | Работа с БД/архитектурой, риск-рефакторинг |
 | `ROADMAP.md` | Чеклист фаз реализации | Перед стартом/завершением конкретного шага |
 | `DESIGN.md` | Дизайн-токены, спеки экранов и компонентов | Вёрстка UI |
-| `.claude/skills/*` | Готовые кодовые паттерны проекта (auth, Prisma, TanStack Query, UI feedback) | Подгружаются автоматически, когда релевантны задаче |
+| `.claude/skills/*` | Готовые кодовые паттерны проекта (auth, Prisma, TanStack Query, UI feedback, даты и периоды, инвентарь Ui-компонентов) | Подгружаются автоматически, когда релевантны задаче |
 
 ---
 
@@ -30,7 +30,7 @@
 4. **Отчёт после работы — короткий:** что сделано, какие файлы, что я должен знать (неочевидные решения и что осталось). Без пересказа кода построчно.
 5. **Плохое решение — скажи прямо** и предложи лучшее, но одним абзацем, без лекции. Если я настаиваю — делаем как я сказал.
 6. **Конвенции проекта соблюдаются молча:** pnpm, `userId` из JWT-контекста, Zod-схемы в `shared/`, Pinia только для client state, весь текст через `t()`, скиллы из `.claude/skills/` вместо изобретения паттернов.
-7. **Проверяй себя сам** перед отчётом: `pnpm lint`, релевантные тесты. Упало — починил и сказал, что падало.
+7. **Проверяй себя сам** перед отчётом: `pnpm lint`, `pnpm typecheck`, релевантные тесты. Упало — починил и сказал, что падало. Typecheck обязателен: он ловит то, что lint не видит (несовпадение типов в хуках и шаблонах Vue).
 8. **Комментарии в коде не пишем.** Код должен читаться сам. Если решение неочевидно — скажи об этом в отчёте или, если это архитектурное решение, зафиксируй в `ARCHITECTURE.md`.
 
 **Тесты** пишешь тоже ты. Длинных объяснений не нужно — достаточно строчки, что покрывает тест-файл.
@@ -75,12 +75,12 @@ myday/
 │   ├── middleware/                    # auth.ts, guest.ts
 │   ├── pages/
 │   ├── stores/                        # ТОЛЬКО client state — см. «Pinia vs TanStack» ниже
-│   └── utils/
+│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, routes.ts
 │
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, mapper.ts, rateLimit.ts, prisma.ts
+│   └── utils/                         # jwt.ts, password.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts
 │
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, finance.ts
@@ -141,7 +141,7 @@ GET    /api/finance/summary агрегация (не CRUD)
 
 | Тип | Инструмент | Примеры |
 |-----|-----------|---------|
-| **Client state** — данные которыми владеет UI | Pinia | `accessToken`, `isLocked`, `toasts`, `currentMonth`, `activeFilter`, `searchQuery` |
+| **Client state** — данные которыми владеет UI | Pinia | `accessToken`, `isLocked`, `toasts`, `period`, `filters`, `activeTab` |
 | **Server state** — данные с API, кэшируемые | TanStack Query | `transactions`, `summary`, `savings`, `tasks`, `categories`, `tags` |
 
 **Правило:** компоненты вызывают TanStack Query хуки напрямую из `composables/useFinance.ts` и `composables/useTasks.ts`. Pinia-сторы НЕ содержат серверные данные и НЕ вызывают TanStack Query.
@@ -149,12 +149,15 @@ GET    /api/finance/summary агрегация (не CRUD)
 ```ts
 // Всегда composable-стиль, не options-стиль
 export const useFinanceStore = defineStore('finance', () => {
-  // ТОЛЬКО client state — UI-фильтры, не данные с сервера
-  const currentMonth = ref<Date>(new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+  // ТОЛЬКО client state — выбор периода и фильтры, не данные с сервера
+  const period = ref<Period>(periodPresets.thisMonth())
+  const filters = ref<TransactionFilters>(emptyFilters())
   const activeTab = ref<'transactions' | 'savings' | 'budgets'>('transactions')
-  return { currentMonth, activeTab }
+  return { period, filters, activeTab }
 })
 ```
+
+Сама логика периода и фильтров — чистые функции в `app/utils/` (`period.ts`, `transactionFilters.ts`), стор только хранит выбор. Из них же собираются ключи кэша и query-параметры запроса — см. skill `date-period-patterns`.
 
 Подробные паттерны TanStack Query (query keys, useQuery/useMutation, оптимистичные апдейты) — в `.claude/skills/tanstack-query-patterns/`.
 
