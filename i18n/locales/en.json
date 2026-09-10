@@ -99,6 +99,24 @@
       "noHistory": "No savings entries yet",
       "deposit": "Deposit",
       "withdrawal": "Withdrawal"
+    },
+    "netPeriod": "Net this period",
+    "period": {
+      "title": "Period",
+      "presets": {
+        "thisMonth": "This month",
+        "lastMonth": "Last month",
+        "last3": "Last 3 months",
+        "thisYear": "This year",
+        "all": "All time"
+      },
+      "everything": "Everything",
+      "preset": "Preset",
+      "customRange": "Custom range",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply range",
+      "invalidRange": "The start date must be before the end date"
     }
   },
   "auth": {

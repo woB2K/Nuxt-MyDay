@@ -8,13 +8,16 @@ export function toDateString(date: Date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
+export function fromDateString(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number)
+
+  return new Date(year!, month! - 1, day!)
+}
+
 function toLocalDate(value: Date | string): Date {
   if (typeof value === 'string') {
     const plain = value.slice(0, 10)
-    if (DATE_ONLY.test(plain)) {
-      const [year, month, day] = plain.split('-').map(Number)
-      return new Date(year!, month! - 1, day!)
-    }
+    if (DATE_ONLY.test(plain)) return fromDateString(plain)
   }
 
   return new Date(value)

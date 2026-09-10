@@ -679,11 +679,13 @@ i18n: все строки экранов (en/ru) уже собраны в объ
 ### Модель периода
 
 ```
-period = { mode: 'month' | 'range' | 'all', month?: Date, from?: ISO, to?: ISO, preset?: string }
+period = { mode: 'month' | 'range' | 'all', month?: ISO, from?: ISO, to?: ISO, preset?: string }
 
 Пресеты: thisMonth, lastMonth (mode month) · last3, thisYear (mode range) · all
 periodRange(period) → { from, to } | null (для all)
 ```
+
+Реализовано в `app/utils/period.ts` (шаг 2.19) как размеченное объединение по `mode`, а `month` — date-only строка (первое число месяца), а не `Date`: весь календарный контракт проекта строковый (см. `ARCHITECTURE.md`), объект периода целиком сериализуем и годится в ключ TanStack Query (`periodKey`).
 
 Клиент вычисляет `from`/`to` и передаёт в query; `all` — запрос без параметров. Ровно контракт шага **2.17** из CLAUDE.md. Объект периода живёт в `financeStore` (client state), заменяя `currentMonth`.
 

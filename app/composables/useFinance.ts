@@ -1,32 +1,30 @@
 import type { Transaction } from '~~/prisma/.generated/prisma'
 import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse } from '~~/shared/types'
+import type { Period } from '~/utils/period'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { periodKey, periodRange } from '~/utils/period'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
 
-export function useSummaryQuery(month: Ref<Date>) {
+export function useSummaryQuery(period: Ref<Period>) {
   const api = useApi()
 
   return useQuery({
-    queryKey: computed(() => queryKeys.summary(
-      `${month.value.getFullYear()}-${String(month.value.getMonth() + 1).padStart(2, '0')}`
-    )),
-    queryFn: () => {
-      const y = month.value.getFullYear()
-      const m = month.value.getMonth()
-      const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10)
-      const to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10)
-      return api<SummaryResponse>('/api/finance/summary', { query: { from, to } })
-    }
+    queryKey: computed(() => queryKeys.summary(periodKey(period.value))),
+    queryFn: () => api<SummaryResponse>('/api/finance/summary', {
+      query: periodRange(period.value) ?? {}
+    })
   })
 }
 
-export function useTransactionQuery() {
+export function useTransactionQuery(period: Ref<Period>) {
   const api = useApi()
 
   return useQuery({
-    queryKey: queryKeys.transactions('all'),
-    queryFn: () => api<TransactionListResponse>('/api/finance/transactions')
+    queryKey: computed(() => queryKeys.transactions(periodKey(period.value))),
+    queryFn: () => api<TransactionListResponse>('/api/finance/transactions', {
+      query: periodRange(period.value) ?? {}
+    })
   })
 }
 
@@ -39,20 +37,14 @@ export function useSavingsQuery() {
   })
 }
 
-export function useBudgetQuery(month: Ref<Date>) {
+export function useBudgetQuery(period: Ref<Period>) {
   const api = useApi()
 
   return useQuery({
-    queryKey: computed(() => queryKeys.budgets(
-      `${month.value.getFullYear()}-${String(month.value.getMonth() + 1).padStart(2, '0')}`
-    )),
-    queryFn: () => {
-      const y = month.value.getFullYear()
-      const m = month.value.getMonth()
-      const from = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10)
-      const to = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10)
-      return api<BudgetItem[]>('/api/finance/budgets', { query: { from, to } })
-    }
+    queryKey: computed(() => queryKeys.budgets(periodKey(period.value))),
+    queryFn: () => api<BudgetItem[]>('/api/finance/budgets', {
+      query: periodRange(period.value) ?? {}
+    })
   })
 }
 

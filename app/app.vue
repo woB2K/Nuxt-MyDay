@@ -30,7 +30,7 @@ await authStore.init()
 
 <template>
   <NuxtLayout>
-    <NuxtPage class="bg-elev1" />
+    <NuxtPage />
     <UiToast />
   </NuxtLayout>
 </template>
