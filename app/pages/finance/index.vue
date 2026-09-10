@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { TransactionItem } from '~~/shared/types'
+
 const { t } = useI18n()
 const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
@@ -10,12 +12,14 @@ const tabOptions = computed(() => [
 const financeStore = useFinanceStore()
 
 const sheetOpen = ref(false)
+const editing = ref<TransactionItem | null>(null)
 
-function openSheet() {
+function openSheet(transaction: TransactionItem | null = null) {
+  editing.value = transaction
   sheetOpen.value = true
 }
 
-onMounted(() => register?.(openSheet))
+onMounted(() => register?.(() => openSheet()))
 onUnmounted(() => register?.(null))
 </script>
 
@@ -27,9 +31,9 @@ onUnmounted(() => register?.(null))
 
     <UiPillSelect v-model="financeStore.activeTab" :options="tabOptions" full />
 
-    <FinanceTransactionsTab v-if="financeStore.activeTab === 'transactions'" />
+    <FinanceTransactionsTab v-if="financeStore.activeTab === 'transactions'" @edit="openSheet" />
     <FinanceSavingsTab v-if="financeStore.activeTab === 'savings'" />
 
-    <AddTransactionSheet v-model:open="sheetOpen" />
+    <TransactionEditSheet v-model:open="sheetOpen" :transaction="editing" />
   </div>
 </template>

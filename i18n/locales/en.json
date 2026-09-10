@@ -1,7 +1,8 @@
 {
   "general": {
     "somethingWrong": "Something went wrong",
-    "save": "Save"
+    "save": "Save",
+    "edit": "Edit"
   },
   "welcome": {
     "tagline": "Tasks & finances, one place",
@@ -136,7 +137,11 @@
     "ops": "{count} operation | {count} operations",
     "loadMore": "Load more",
     "today": "Today",
-    "yesterday": "Yesterday"
+    "yesterday": "Yesterday",
+    "editTransaction": "Edit transaction",
+    "deleteTransaction": "Delete transaction",
+    "category": "Category",
+    "date": "Date"
   },
   "auth": {
     "name": "Name",

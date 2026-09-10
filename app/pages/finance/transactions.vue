@@ -27,6 +27,20 @@ const { mutate: deleteTransaction } = useDeleteTransactionMutation()
 
 const periodSheetOpen = ref(false)
 const categoriesSheetOpen = ref(false)
+const editSheetOpen = ref(false)
+const editing = ref<TransactionItem | null>(null)
+
+const editAction = computed(() => ({
+  label: t('general.edit'),
+  icon: 'i-lucide-pencil',
+  gradient: 'linear-gradient(90deg, var(--c-accent) 0%, var(--c-accent-soft) 100%)',
+  inkColor: 'var(--c-accent-ink)'
+}))
+
+function openEdit(transaction: TransactionItem) {
+  editing.value = transaction
+  editSheetOpen.value = true
+}
 
 const transactions = computed(() => pages.value?.pages.flatMap(page => page.data) ?? [])
 const total = computed(() => pages.value?.pages[0]?.total ?? 0)
@@ -137,12 +151,18 @@ function applyCategories(ids: string[]) {
         <div class="overflow-hidden rounded-2xl border border-hairline bg-elev1">
           <template v-for="(tx, index) in group.items" :key="tx.id">
             <div v-if="index > 0" class="h-px ml-[66px] bg-hairline" />
-            <UiSwipeRow @delete="deleteTransaction(tx.id)">
+            <UiSwipeRow
+              :right-action="editAction"
+              @complete="openEdit(tx)"
+              @delete="deleteTransaction(tx.id)"
+            >
               <UiTxRow
                 v-if="categoryOf(tx)"
+                class="cursor-pointer"
                 :category="categoryOf(tx)!"
                 :transaction="tx"
                 :show-date="false"
+                @click="openEdit(tx)"
               />
             </UiSwipeRow>
           </template>
@@ -172,5 +192,7 @@ function applyCategories(ids: string[]) {
       :selected="financeStore.filters.categoryIds"
       @apply="applyCategories"
     />
+
+    <TransactionEditSheet v-model:open="editSheetOpen" :transaction="editing" />
   </div>
 </template>

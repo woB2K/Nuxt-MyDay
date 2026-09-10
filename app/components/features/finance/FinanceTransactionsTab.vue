@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+import type { TransactionItem } from '~~/shared/types'
 import type { Period } from '~/utils/period'
 import type { TransactionFilters } from '~/utils/transactionFilters'
+
+const emit = defineEmits<{ edit: [transaction: TransactionItem] }>()
 
 const { t } = useI18n()
 
@@ -152,8 +155,10 @@ function applyCategories(ids: string[]) {
         <UiTxRow
           v-for="tx in recent"
           :key="tx.id"
+          class="cursor-pointer"
           :category="categories.find(c => c.id === tx.categoryId)!"
           :transaction="tx"
+          @click="emit('edit', tx)"
         />
       </UiCard>
     </template>

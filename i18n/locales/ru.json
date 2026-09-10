@@ -1,7 +1,8 @@
 {
   "general": {
     "somethingWrong": "Что-то пошло не так",
-    "save": "Сохранить"
+    "save": "Сохранить",
+    "edit": "Изменить"
   },
   "welcome": {
     "tagline": "Ваши задачи и финансы, все в одном месте!",
@@ -136,7 +137,11 @@
     "ops": "{count} операция | {count} операции | {count} операций",
     "loadMore": "Показать ещё",
     "today": "Сегодня",
-    "yesterday": "Вчера"
+    "yesterday": "Вчера",
+    "editTransaction": "Операция",
+    "deleteTransaction": "Удалить операцию",
+    "category": "Категория",
+    "date": "Дата"
   },
   "auth": {
     "name": "Имя",
