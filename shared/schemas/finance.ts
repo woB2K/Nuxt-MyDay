@@ -8,7 +8,7 @@ export const createTransactionSchema = z.object({
   amount: z.number().positive(),
   notes: z.string().optional(),
   categoryId: z.string().min(1),
-  date: z.iso.datetime()
+  date: z.iso.date()
 })
 
 export const updateTransactionSchema = createTransactionSchema.partial()
@@ -38,8 +38,9 @@ export const transactionQuerySchema = z.object({
 export type TransactionQuery = z.infer<typeof transactionQuerySchema>
 
 export const createCategorySchema = z.object({
-  name: z.string().min(1),
-  icon: z.string().optional(),
+  name: z.string().min(1).max(60),
+  icon: z.string().min(1),
+  color: z.string().regex(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i),
   type: transactionTypeEnum
 })
 

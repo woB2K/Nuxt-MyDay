@@ -44,7 +44,7 @@ function addTransaction() {
     type: currentTypeCategory.value,
     amount: Number(amount.value),
     categoryId: selectedCategory.value,
-    date: new Date().toISOString(),
+    date: toDateString(),
     notes: note.value ?? ''
   }, {
     onSuccess: () => {

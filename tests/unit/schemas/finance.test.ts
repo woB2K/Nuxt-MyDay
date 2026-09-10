@@ -6,7 +6,7 @@ describe('createTransactionSchema', () => {
     type: 'EXPENSE',
     amount: 150.5,
     categoryId: 'clx123',
-    date: '2026-05-08T00:00:00.000Z'
+    date: '2026-05-08'
   }
 
   it('accepts valid input', () => {
@@ -49,9 +49,14 @@ describe('createTransactionSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('rejects invalid date format', () => {
-    const result = createTransactionSchema.safeParse({ ...valid, date: '2026-05-08' })
+  it('rejects full ISO datetime (contract is date-only)', () => {
+    const result = createTransactionSchema.safeParse({ ...valid, date: '2026-05-08T00:00:00.000Z' })
     expect(result.success).toBe(false)
+  })
+
+  it('rejects invalid date format', () => {
+    expect(createTransactionSchema.safeParse({ ...valid, date: '08.05.2026' }).success).toBe(false)
+    expect(createTransactionSchema.safeParse({ ...valid, date: '2026-13-01' }).success).toBe(false)
   })
 })
 
@@ -179,29 +184,47 @@ describe('transactionQuerySchema', () => {
 })
 
 describe('createCategorySchema', () => {
-  it('accepts name and type', () => {
-    const result = createCategorySchema.safeParse({ name: 'Food', type: 'EXPENSE' })
-    expect(result.success).toBe(true)
+  const valid = {
+    name: 'Food',
+    type: 'EXPENSE',
+    icon: 'i-lucide-utensils',
+    color: '#FB923C'
+  }
+
+  it('accepts valid input', () => {
+    expect(createCategorySchema.safeParse(valid).success).toBe(true)
   })
 
-  it('accepts name, type and icon', () => {
-    const result = createCategorySchema.safeParse({ name: 'Food', type: 'EXPENSE', icon: '🍔' })
-    expect(result.success).toBe(true)
+  it('accepts short hex color', () => {
+    expect(createCategorySchema.safeParse({ ...valid, color: '#fff' }).success).toBe(true)
   })
 
   it('rejects empty name', () => {
-    const result = createCategorySchema.safeParse({ name: '', type: 'EXPENSE' })
-    expect(result.success).toBe(false)
+    expect(createCategorySchema.safeParse({ ...valid, name: '' }).success).toBe(false)
   })
 
   it('rejects missing type', () => {
-    const result = createCategorySchema.safeParse({ name: 'Food' })
-    expect(result.success).toBe(false)
+    const { type, ...withoutType } = valid
+    expect(type).toBe('EXPENSE')
+    expect(createCategorySchema.safeParse(withoutType).success).toBe(false)
   })
 
   it('rejects invalid type', () => {
-    const result = createCategorySchema.safeParse({ name: 'Food', type: 'TRANSFER' })
-    expect(result.success).toBe(false)
+    expect(createCategorySchema.safeParse({ ...valid, type: 'TRANSFER' }).success).toBe(false)
+  })
+
+  it('requires icon and color (both NOT NULL in the db)', () => {
+    const { icon, ...withoutIcon } = valid
+    const { color, ...withoutColor } = valid
+    expect(icon).toBeTruthy()
+    expect(color).toBeTruthy()
+    expect(createCategorySchema.safeParse(withoutIcon).success).toBe(false)
+    expect(createCategorySchema.safeParse(withoutColor).success).toBe(false)
+  })
+
+  it('rejects a non-hex color', () => {
+    expect(createCategorySchema.safeParse({ ...valid, color: 'orange' }).success).toBe(false)
+    expect(createCategorySchema.safeParse({ ...valid, color: '#12345' }).success).toBe(false)
   })
 })
 

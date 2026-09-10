@@ -4,8 +4,7 @@ const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
 const tabOptions = computed(() => [
   { value: 'transactions', label: t('finance.tabs.transactions') },
-  { value: 'savings', label: t('finance.tabs.savings') },
-  { value: 'budgets', label: t('finance.tabs.budgets') }
+  { value: 'savings', label: t('finance.tabs.savings') }
 ])
 
 const financeStore = useFinanceStore()

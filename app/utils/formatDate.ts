@@ -1,7 +1,29 @@
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
+
+export function toDateString(date: Date = new Date()): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function toLocalDate(value: Date | string): Date {
+  if (typeof value === 'string') {
+    const plain = value.slice(0, 10)
+    if (DATE_ONLY.test(plain)) {
+      const [year, month, day] = plain.split('-').map(Number)
+      return new Date(year!, month! - 1, day!)
+    }
+  }
+
+  return new Date(value)
+}
+
 export function formatDate(dateString?: Date | string): string {
   if (!dateString) return ''
 
-  const date = new Date(dateString)
+  const date = toLocalDate(dateString)
 
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -13,7 +35,7 @@ export function formatDate(dateString?: Date | string): string {
 export function formatDay(dateString?: Date | string): string {
   if (!dateString) return ''
 
-  const date = new Date(dateString)
+  const date = toLocalDate(dateString)
 
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')

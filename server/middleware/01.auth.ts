@@ -5,6 +5,8 @@ export default defineEventHandler(async (event) => {
 
   if (path.includes('/api/auth/')) return
 
+  if (path.startsWith('/api/_nuxt_icon')) return
+
   const token = getHeader(event, 'Authorization')?.replace('Bearer ', '')
 
   if (!token) throw createError({ statusCode: 401, message: 'Unauthorized' })

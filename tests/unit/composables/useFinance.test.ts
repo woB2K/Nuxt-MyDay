@@ -50,7 +50,7 @@ const validTx = {
   type: 'EXPENSE' as const,
   amount: 150,
   categoryId: 'cat-1',
-  date: '2026-05-08T00:00:00.000Z'
+  date: '2026-05-08'
 }
 
 beforeEach(() => {

@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       where,
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: { date: 'desc' }
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }]
     }),
     prisma.transaction.count({ where })
   ])

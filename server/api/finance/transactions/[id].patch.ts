@@ -4,14 +4,14 @@ import { updateTransactionSchema } from '~~/shared/schemas'
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
   const transactionId = getRouterParam(event, 'id')
-  const body = await readValidatedBody(event, updateTransactionSchema.parse)
+  const { date, ...rest } = await readValidatedBody(event, updateTransactionSchema.parse)
 
   const transaction = await prisma.transaction.update({
     where: {
       id: transactionId,
       userId
     },
-    data: { ...body }
+    data: { ...rest, ...(date && { date: new Date(date) }) }
   })
 
   return mapAmount(transaction)

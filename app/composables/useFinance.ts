@@ -1,5 +1,5 @@
 import type { Transaction } from '~~/prisma/.generated/prisma'
-import type { BudgetItem, SavingsResponse, SummaryResponse, TransactionListResponse } from '~~/shared/types'
+import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse } from '~~/shared/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
@@ -82,7 +82,7 @@ export function useUpdateTransactionMutation() {
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & UpdateTransactionInput) =>
-      api(`/api/finance/transactions/${id}`, { method: 'PATCH', body: data }),
+      api<TransactionItem>(`/api/finance/transactions/${id}`, { method: 'PATCH', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })
@@ -101,7 +101,7 @@ export function useDeleteTransactionMutation() {
 
   return useMutation({
     mutationFn: (id: string) =>
-      api(`/api/finance/transactions/${id}`, { method: 'DELETE' }),
+      api<TransactionItem>(`/api/finance/transactions/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })
@@ -120,7 +120,7 @@ export function useAddSavingsMutation() {
 
   return useMutation({
     mutationFn: (data: CreateSavingsSchema) =>
-      api('/api/finance/savings', { method: 'POST', body: data }),
+      api<SavingsEntryItem>('/api/finance/savings', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['savings'] })
       useAppToast().success(t('toast.savings.addSuccess'))
@@ -138,7 +138,7 @@ export function useDeleteSavingsMutation() {
 
   return useMutation({
     mutationFn: (id: string) =>
-      api(`/api/finance/savings/${id}`, { method: 'DELETE' }),
+      api<SavingsEntryItem>(`/api/finance/savings/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['savings'] })
       useAppToast().success(t('toast.savings.deleteSuccess'))
@@ -156,7 +156,7 @@ export function useUpsertBudgetMutation() {
 
   return useMutation({
     mutationFn: (body: UpdateBudgetInput) =>
-      api('/api/finance/budgets/', { method: 'POST', body }),
+      api<BudgetItem>('/api/finance/budgets', { method: 'POST', body }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] })
       useAppToast().success(t('toast.budgets.saveSuccess'))

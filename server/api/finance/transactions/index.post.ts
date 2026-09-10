@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, createTransactionSchema.parse)
 
   const transaction = await prisma.transaction.create({
-    data: { ...body, userId }
+    data: { ...body, date: new Date(body.date), userId }
   })
 
   return mapAmount(transaction)

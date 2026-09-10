@@ -28,11 +28,7 @@ describe('phase 2 api', async () => {
   })
 
   describe('categories', () => {
-    // ⚠️ BLOCKED: POST /api/categories сейчас всегда 500 — createCategorySchema
-    // не содержит `color` и делает `icon` опциональным, а в БД оба поля required
-    // без дефолта. Эндпоинт не покрыт UI (категории = 4.5.1), поэтому баг и дожил.
-    // Разблокировать после фикса схемы/эндпоинта.
-    it.skip('creates a category for the caller', async () => {
+    it('creates a category for the caller', async () => {
       const { token, userId } = await registerUser()
 
       const created = await $fetch<Category>('/api/categories', {
@@ -51,7 +47,25 @@ describe('phase 2 api', async () => {
       await expect($fetch('/api/categories', {
         method: 'POST',
         headers: authHeaders(token),
-        body: { name: '', type: 'EXPENSE' }
+        body: { name: '', type: 'EXPENSE', icon: 'i-lucide-dog', color: '#FFFFFF' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a body without icon or color with 400', async () => {
+      const { token } = await registerUser()
+      await expect($fetch('/api/categories', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { name: 'Pets', type: 'EXPENSE' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a malformed color with 400', async () => {
+      const { token } = await registerUser()
+      await expect($fetch('/api/categories', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { name: 'Pets', type: 'EXPENSE', icon: 'i-lucide-dog', color: 'orange' }
       })).rejects.toMatchObject({ statusCode: 400 })
     })
 
@@ -93,10 +107,54 @@ describe('phase 2 api', async () => {
       const tx = await $fetch<Tx>('/api/finance/transactions', {
         method: 'POST',
         headers: authHeaders(token),
-        body: { type: 'EXPENSE', amount: 150.5, categoryId: catId, date: '2026-05-15T00:00:00.000Z' }
+        body: { type: 'EXPENSE', amount: 150.5, categoryId: catId, date: '2026-05-15' }
       })
       expect(typeof tx.amount).toBe('number')
       expect(tx.amount).toBe(150.5)
+    })
+
+    it('stores the calendar day it was given, without timezone shift', async () => {
+      const { token } = await registerUser()
+      const catId = await categoryId(token, 'EXPENSE')
+
+      const tx = await $fetch<Tx>('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: catId, date: '2026-09-01' }
+      })
+
+      const stored = await prisma.transaction.findUnique({ where: { id: tx.id } })
+      expect(stored!.date.toISOString().slice(0, 10)).toBe('2026-09-01')
+    })
+
+    it('rejects a full ISO datetime date with 400', async () => {
+      const { token } = await registerUser()
+      const catId = await categoryId(token, 'EXPENSE')
+
+      await expect($fetch('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: catId, date: '2026-09-01T21:00:00.000Z' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('keeps the stored day when PATCH changes the date', async () => {
+      const { token } = await registerUser()
+      const catId = await categoryId(token, 'EXPENSE')
+      const tx = await $fetch<Tx>('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: catId, date: '2026-09-01' }
+      })
+
+      await $fetch(`/api/finance/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: authHeaders(token),
+        body: { date: '2026-10-31' }
+      })
+
+      const stored = await prisma.transaction.findUnique({ where: { id: tx.id } })
+      expect(stored!.date.toISOString().slice(0, 10)).toBe('2026-10-31')
     })
 
     it('returns paginated shape with own transactions', async () => {
@@ -105,7 +163,7 @@ describe('phase 2 api', async () => {
       await $fetch('/api/finance/transactions', {
         method: 'POST',
         headers: authHeaders(token),
-        body: { type: 'EXPENSE', amount: 10, categoryId: catId, date: '2026-05-15T00:00:00.000Z' }
+        body: { type: 'EXPENSE', amount: 10, categoryId: catId, date: '2026-05-15' }
       })
 
       const res = await $fetch<{ data: Tx[], total: number, page: number, limit: number }>(
@@ -123,7 +181,7 @@ describe('phase 2 api', async () => {
       await expect($fetch('/api/finance/transactions', {
         method: 'POST',
         headers: authHeaders(token),
-        body: { type: 'EXPENSE', amount: -50, categoryId: catId, date: '2026-05-15T00:00:00.000Z' }
+        body: { type: 'EXPENSE', amount: -50, categoryId: catId, date: '2026-05-15' }
       })).rejects.toMatchObject({ statusCode: 400 })
     })
 
@@ -133,7 +191,7 @@ describe('phase 2 api', async () => {
       const tx = await $fetch<Tx>('/api/finance/transactions', {
         method: 'POST',
         headers: authHeaders(token),
-        body: { type: 'EXPENSE', amount: 10, categoryId: catId, date: '2026-05-15T00:00:00.000Z' }
+        body: { type: 'EXPENSE', amount: 10, categoryId: catId, date: '2026-05-15' }
       })
 
       await $fetch(`/api/finance/transactions/${tx.id}`, { method: 'DELETE', headers: authHeaders(token) })
@@ -147,7 +205,7 @@ describe('phase 2 api', async () => {
       await $fetch('/api/finance/transactions', {
         method: 'POST',
         headers: authHeaders(userA.token),
-        body: { type: 'EXPENSE', amount: 99, categoryId: aCat, date: '2026-05-15T00:00:00.000Z' }
+        body: { type: 'EXPENSE', amount: 99, categoryId: aCat, date: '2026-05-15' }
       })
 
       const res = await $fetch<{ total: number }>('/api/finance/transactions', { headers: authHeaders(userB.token) })
@@ -169,11 +227,11 @@ describe('phase 2 api', async () => {
       const salary = cats.find(c => c.type === 'INCOME')!.id
 
       const fixtures = [
-        { type: 'EXPENSE', amount: 100, categoryId: food, date: '2026-08-20T00:00:00.000Z', notes: 'August lunch' },
-        { type: 'EXPENSE', amount: 200, categoryId: food, date: '2026-09-05T00:00:00.000Z', notes: 'September LUNCH' },
-        { type: 'EXPENSE', amount: 300, categoryId: transport, date: '2026-09-10T00:00:00.000Z', notes: 'Taxi' },
-        { type: 'INCOME', amount: 5000, categoryId: salary, date: '2026-09-01T00:00:00.000Z', notes: 'Payday' },
-        { type: 'EXPENSE', amount: 400, categoryId: food, date: '2026-10-02T00:00:00.000Z', notes: 'October dinner' }
+        { type: 'EXPENSE', amount: 100, categoryId: food, date: '2026-08-20', notes: 'August lunch' },
+        { type: 'EXPENSE', amount: 200, categoryId: food, date: '2026-09-05', notes: 'September LUNCH' },
+        { type: 'EXPENSE', amount: 300, categoryId: transport, date: '2026-09-10', notes: 'Taxi' },
+        { type: 'INCOME', amount: 5000, categoryId: salary, date: '2026-09-01', notes: 'Payday' },
+        { type: 'EXPENSE', amount: 400, categoryId: food, date: '2026-10-02', notes: 'October dinner' }
       ]
 
       for (const body of fixtures) {
@@ -282,6 +340,24 @@ describe('phase 2 api', async () => {
       expect(page2.page).toBe(2)
     })
 
+    it('paginates without repeating rows that share the same date', async () => {
+      const { token } = await registerUser()
+      const catId = await categoryId(token, 'EXPENSE')
+      for (const amount of [1, 2, 3, 4]) {
+        await $fetch('/api/finance/transactions', {
+          method: 'POST',
+          headers: authHeaders(token),
+          body: { type: 'EXPENSE', amount, categoryId: catId, date: '2026-09-10' }
+        })
+      }
+
+      const page1 = await listTx(token, '?limit=2&page=1')
+      const page2 = await listTx(token, '?limit=2&page=2')
+      const ids = [...page1.data, ...page2.data].map(t => t.id)
+
+      expect(new Set(ids).size).toBe(4)
+    })
+
     it('rejects from later than to with 400', async () => {
       const { token } = await registerUser()
       await expect(listTx(token, '?from=2026-09-30&to=2026-09-01'))
@@ -319,9 +395,9 @@ describe('phase 2 api', async () => {
       const post = (body: object) => $fetch('/api/finance/transactions', {
         method: 'POST', headers: authHeaders(token), body
       })
-      await post({ type: 'INCOME', amount: 1000, categoryId: incomeCat, date: '2026-05-10T00:00:00.000Z' })
-      await post({ type: 'EXPENSE', amount: 300, categoryId: expenseCat, date: '2026-05-12T00:00:00.000Z' })
-      await post({ type: 'EXPENSE', amount: 200, categoryId: secondExpense, date: '2026-05-14T00:00:00.000Z' })
+      await post({ type: 'INCOME', amount: 1000, categoryId: incomeCat, date: '2026-05-10' })
+      await post({ type: 'EXPENSE', amount: 300, categoryId: expenseCat, date: '2026-05-12' })
+      await post({ type: 'EXPENSE', amount: 200, categoryId: secondExpense, date: '2026-05-14' })
 
       const summary = await $fetch<{
         income: number
@@ -347,7 +423,7 @@ describe('phase 2 api', async () => {
       const expenseCat = await categoryId(token, 'EXPENSE')
       await $fetch('/api/finance/transactions', {
         method: 'POST', headers: authHeaders(token),
-        body: { type: 'EXPENSE', amount: 777, categoryId: expenseCat, date: '2026-04-15T00:00:00.000Z' }
+        body: { type: 'EXPENSE', amount: 777, categoryId: expenseCat, date: '2026-04-15' }
       })
 
       const summary = await $fetch<{ expense: number }>('/api/finance/summary', {
@@ -365,8 +441,8 @@ describe('phase 2 api', async () => {
         headers: authHeaders(token),
         body: { type: 'EXPENSE', amount: 100, categoryId: expenseCat, date }
       })
-      await post('2025-01-15T00:00:00.000Z')
-      await post('2026-09-15T00:00:00.000Z')
+      await post('2025-01-15')
+      await post('2026-09-15')
 
       const summary = await $fetch<{ expense: number }>('/api/finance/summary', {
         headers: authHeaders(token)
