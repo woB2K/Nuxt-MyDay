@@ -1,3 +1,4 @@
+import { orNotFound } from '~~/server/utils/dbError'
 import { updateCategorySchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -7,11 +8,14 @@ export default defineEventHandler(async (event) => {
 
   const body = await readValidatedBody(event, updateCategorySchema.parse)
 
-  return prisma.category.update({
-    where: {
-      id: categoryId,
-      userId
-    },
-    data: { ...body }
-  })
+  return orNotFound(
+    prisma.category.update({
+      where: {
+        id: categoryId,
+        userId
+      },
+      data: { ...body }
+    }),
+    'Category not found'
+  )
 })

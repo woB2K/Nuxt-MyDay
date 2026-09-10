@@ -1,3 +1,4 @@
+import { orNotFound } from '~~/server/utils/dbError'
 import { normalizeTags } from '~~/server/utils/mapper'
 import { updateTaskSchema } from '~~/shared/schemas'
 
@@ -15,8 +16,8 @@ export default defineEventHandler(async (event) => {
     if (uniqueTagIds.length !== count) throw createError({ statusCode: 400, message: 'Invalid tag IDs' })
   }
 
-  try {
-    const task = await prisma.task.update({
+  const task = await orNotFound(
+    prisma.task.update({
       where: {
         id,
         userId
@@ -36,12 +37,9 @@ export default defineEventHandler(async (event) => {
       include: {
         tags: { include: { tag: true } }
       }
-    })
-    return normalizeTags(task)
-  } catch (e: any) {
-    if (e?.code === 'P2025') {
-      throw createError({ statusCode: 404, message: 'Task not found' })
-    }
-    throw e
-  }
+    }),
+    'Task not found'
+  )
+
+  return normalizeTags(task)
 })

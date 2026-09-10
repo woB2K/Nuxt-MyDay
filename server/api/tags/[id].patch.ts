@@ -1,3 +1,4 @@
+import { orConflict, orNotFound } from '~~/server/utils/dbError'
 import { updateTagSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -7,18 +8,17 @@ export default defineEventHandler(async (event) => {
 
   const body = await readValidatedBody(event, updateTagSchema.parse)
 
-  try {
-    return await prisma.tag.update({
-      where: {
-        id: tagId,
-        userId
-      },
-      data: { ...body }
-    })
-  } catch (e: any) {
-    if (e?.code === 'P2002') {
-      throw createError({ statusCode: 409, message: 'Tag already exists' })
-    }
-    throw e
-  }
+  return await orConflict(
+    orNotFound(
+      prisma.tag.update({
+        where: {
+          id: tagId,
+          userId
+        },
+        data: { ...body }
+      }),
+      'Tag not found'
+    ),
+    'Tag already exists'
+  )
 })

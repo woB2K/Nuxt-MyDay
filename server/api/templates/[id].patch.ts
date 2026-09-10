@@ -1,3 +1,4 @@
+import { orNotFound } from '~~/server/utils/dbError'
 import { normalizeTags } from '~~/server/utils/mapper'
 import { updateTemplateSchema } from '~~/shared/schemas'
 
@@ -16,8 +17,8 @@ export default defineEventHandler(async (event) => {
     if (uniqueTagIds.length !== count) throw createError({ statusCode: 400, message: 'Invalid tag IDs' })
   }
 
-  try {
-    const template = await prisma.taskTemplate.update({
+  const template = await orNotFound(
+    prisma.taskTemplate.update({
       where: {
         id,
         userId
@@ -34,12 +35,9 @@ export default defineEventHandler(async (event) => {
       include: {
         tags: { include: { tag: true } }
       }
-    })
-    return normalizeTags(template)
-  } catch (e: any) {
-    if (e?.code === 'P2025') {
-      throw createError({ statusCode: 404, message: 'Template not found' })
-    }
-    throw e
-  }
+    }),
+    'Template not found'
+  )
+
+  return normalizeTags(template)
 })

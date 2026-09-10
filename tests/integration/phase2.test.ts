@@ -94,8 +94,23 @@ describe('phase 2 api', async () => {
       await expect($fetch(`/api/categories/${aCatId}`, {
         method: 'DELETE',
         headers: authHeaders(userB.token)
-      })).rejects.toThrow()
+      })).rejects.toMatchObject({ statusCode: 404 })
       expect(await prisma.category.findUnique({ where: { id: aCatId } })).not.toBeNull()
+    })
+
+    it('answers 404 for PATCH and DELETE of a missing category', async () => {
+      const { token } = await registerUser()
+
+      await expect($fetch('/api/categories/clxmissing', {
+        method: 'PATCH',
+        headers: authHeaders(token),
+        body: { name: 'Nope' }
+      })).rejects.toMatchObject({ statusCode: 404 })
+
+      await expect($fetch('/api/categories/clxmissing', {
+        method: 'DELETE',
+        headers: authHeaders(token)
+      })).rejects.toMatchObject({ statusCode: 404 })
     })
   })
 
@@ -196,6 +211,123 @@ describe('phase 2 api', async () => {
 
       await $fetch(`/api/finance/transactions/${tx.id}`, { method: 'DELETE', headers: authHeaders(token) })
       expect(await prisma.transaction.findUnique({ where: { id: tx.id } })).toBeNull()
+    })
+
+    it('rejects an unknown categoryId with 400', async () => {
+      const { token } = await registerUser()
+      await expect($fetch('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: 'clxdoesnotexist', date: '2026-05-15' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects another users categoryId with 400', async () => {
+      const userA = await registerUser()
+      const userB = await registerUser()
+      const aCat = await categoryId(userA.token, 'EXPENSE')
+
+      await expect($fetch('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(userB.token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: aCat, date: '2026-05-15' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a category whose type does not match the transaction', async () => {
+      const { token } = await registerUser()
+      const incomeCat = await categoryId(token, 'INCOME')
+
+      await expect($fetch('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: incomeCat, date: '2026-05-15' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a PATCH moving a transaction to another users category', async () => {
+      const userA = await registerUser()
+      const userB = await registerUser()
+      const aCat = await categoryId(userA.token, 'EXPENSE')
+      const bCat = await categoryId(userB.token, 'EXPENSE')
+
+      const tx = await $fetch<Tx>('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(userB.token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: bCat, date: '2026-05-15' }
+      })
+
+      await expect($fetch(`/api/finance/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: authHeaders(userB.token),
+        body: { categoryId: aCat }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a PATCH that leaves type and category mismatched', async () => {
+      const { token } = await registerUser()
+      const expenseCat = await categoryId(token, 'EXPENSE')
+      const tx = await $fetch<Tx>('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: expenseCat, date: '2026-05-15' }
+      })
+
+      await expect($fetch(`/api/finance/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: authHeaders(token),
+        body: { type: 'INCOME' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('allows a PATCH that switches type and category together', async () => {
+      const { token } = await registerUser()
+      const expenseCat = await categoryId(token, 'EXPENSE')
+      const incomeCat = await categoryId(token, 'INCOME')
+      const tx = await $fetch<Tx>('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: expenseCat, date: '2026-05-15' }
+      })
+
+      const updated = await $fetch<Tx>(`/api/finance/transactions/${tx.id}`, {
+        method: 'PATCH',
+        headers: authHeaders(token),
+        body: { type: 'INCOME', categoryId: incomeCat }
+      })
+      expect(updated.type).toBe('INCOME')
+    })
+
+    it('answers 404 for PATCH and DELETE of a missing transaction', async () => {
+      const { token } = await registerUser()
+
+      await expect($fetch('/api/finance/transactions/clxmissing', {
+        method: 'PATCH',
+        headers: authHeaders(token),
+        body: { amount: 5 }
+      })).rejects.toMatchObject({ statusCode: 404 })
+
+      await expect($fetch('/api/finance/transactions/clxmissing', {
+        method: 'DELETE',
+        headers: authHeaders(token)
+      })).rejects.toMatchObject({ statusCode: 404 })
+    })
+
+    it('answers 404 when touching another users transaction', async () => {
+      const userA = await registerUser()
+      const userB = await registerUser()
+      const aCat = await categoryId(userA.token, 'EXPENSE')
+      const tx = await $fetch<Tx>('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(userA.token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: aCat, date: '2026-05-15' }
+      })
+
+      await expect($fetch(`/api/finance/transactions/${tx.id}`, {
+        method: 'DELETE',
+        headers: authHeaders(userB.token)
+      })).rejects.toMatchObject({ statusCode: 404 })
+      expect(await prisma.transaction.findUnique({ where: { id: tx.id } })).not.toBeNull()
     })
 
     it('isolation: user B does not see user A transactions', async () => {
@@ -494,6 +626,19 @@ describe('phase 2 api', async () => {
       const res = await $fetch<{ balance: number }>('/api/finance/savings', { headers: authHeaders(token) })
       expect(res.balance).toBe(0)
     })
+
+    it('answers 404 when deleting another users entry', async () => {
+      const userA = await registerUser()
+      const userB = await registerUser()
+      const entry = await $fetch<{ id: string }>('/api/finance/savings', {
+        method: 'POST', headers: authHeaders(userA.token), body: { amount: 8000, type: 'DEPOSIT' }
+      })
+
+      await expect($fetch(`/api/finance/savings/${entry.id}`, {
+        method: 'DELETE', headers: authHeaders(userB.token)
+      })).rejects.toMatchObject({ statusCode: 404 })
+      expect(await prisma.savingsEntry.findUnique({ where: { id: entry.id } })).not.toBeNull()
+    })
   })
 
   describe('budgets', () => {
@@ -503,6 +648,28 @@ describe('phase 2 api', async () => {
 
     const listBudgets = (token: string, query?: Record<string, string>) =>
       $fetch<Array<{ amount: number }>>('/api/finance/budgets', { headers: authHeaders(token), query })
+
+    it('rejects another users categoryId with 400', async () => {
+      const userA = await registerUser()
+      const userB = await registerUser()
+      const aCat = await categoryId(userA.token, 'EXPENSE')
+
+      await expect(postBudget(userB.token, {
+        amount: 20000,
+        categoryId: aCat,
+        month: '2026-05-01T00:00:00.000Z'
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects an unknown categoryId with 400', async () => {
+      const { token } = await registerUser()
+
+      await expect(postBudget(token, {
+        amount: 20000,
+        categoryId: 'clxdoesnotexist',
+        month: '2026-05-01T00:00:00.000Z'
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
 
     it('upserts: second POST for same category+month updates amount', async () => {
       const { token } = await registerUser()
