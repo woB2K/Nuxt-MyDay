@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, transactionQuerySchema, updateBudgetSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
+import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
 
 describe('createTransactionSchema', () => {
   const valid = {
@@ -180,6 +180,39 @@ describe('transactionQuerySchema', () => {
 
   it('rejects an invalid type', () => {
     expect(transactionQuerySchema.safeParse({ type: 'TRANSFER' }).success).toBe(false)
+  })
+})
+
+describe('transactionFilterQuerySchema', () => {
+  it('accepts an empty query — summary without filters', () => {
+    expect(transactionFilterQuerySchema.safeParse({}).success).toBe(true)
+  })
+
+  it('shares the filter contract with transactionQuerySchema', () => {
+    const result = transactionFilterQuerySchema.parse({
+      from: '2026-09-01',
+      to: '2026-09-30',
+      type: 'EXPENSE',
+      categoryIds: 'clx1, clx2',
+      search: '  lunch  '
+    })
+
+    expect(result).toEqual({
+      from: '2026-09-01',
+      to: '2026-09-30',
+      type: 'EXPENSE',
+      categoryIds: ['clx1', 'clx2'],
+      search: 'lunch'
+    })
+  })
+
+  it('rejects a reversed range and a full ISO datetime', () => {
+    expect(transactionFilterQuerySchema.safeParse({ from: '2026-09-30', to: '2026-09-01' }).success).toBe(false)
+    expect(transactionFilterQuerySchema.safeParse({ from: '2026-09-01T00:00:00.000Z' }).success).toBe(false)
+  })
+
+  it('does not accept pagination — that is the list endpoint only', () => {
+    expect(transactionFilterQuerySchema.parse({ page: '2' })).not.toHaveProperty('page')
   })
 })
 

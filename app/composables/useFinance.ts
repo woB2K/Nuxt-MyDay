@@ -1,29 +1,35 @@
 import type { Transaction } from '~~/prisma/.generated/prisma'
 import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse } from '~~/shared/types'
 import type { Period } from '~/utils/period'
+import type { TransactionFilters } from '~/utils/transactionFilters'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { periodKey, periodRange } from '~/utils/period'
+import { filterKey, filterQuery } from '~/utils/transactionFilters'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
 
-export function useSummaryQuery(period: Ref<Period>) {
+function toQuery(period: Period, filters: TransactionFilters): Record<string, string> {
+  return { ...periodRange(period), ...filterQuery(filters) }
+}
+
+export function useSummaryQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) {
   const api = useApi()
 
   return useQuery({
-    queryKey: computed(() => queryKeys.summary(periodKey(period.value))),
+    queryKey: computed(() => queryKeys.summary(periodKey(period.value), filterKey(filters.value))),
     queryFn: () => api<SummaryResponse>('/api/finance/summary', {
-      query: periodRange(period.value) ?? {}
+      query: toQuery(period.value, filters.value)
     })
   })
 }
 
-export function useTransactionQuery(period: Ref<Period>) {
+export function useTransactionQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) {
   const api = useApi()
 
   return useQuery({
-    queryKey: computed(() => queryKeys.transactions(periodKey(period.value))),
+    queryKey: computed(() => queryKeys.transactions(periodKey(period.value), filterKey(filters.value))),
     queryFn: () => api<TransactionListResponse>('/api/finance/transactions', {
-      query: periodRange(period.value) ?? {}
+      query: toQuery(period.value, filters.value)
     })
   })
 }

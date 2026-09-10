@@ -1,18 +1,21 @@
 <script lang="ts" setup>
 import type { Period } from '~/utils/period'
+import type { TransactionFilters } from '~/utils/transactionFilters'
 
 const { t } = useI18n()
 
 const financeStore = useFinanceStore()
 const period = toRef(financeStore, 'period')
+const filters = toRef(financeStore, 'filters')
 
-const { data: summary, isPending: isSummaryPending } = useSummaryQuery(period)
-const { data: transactions, isPending: isTransactionsPending } = useTransactionQuery(period)
+const { data: summary, isPending: isSummaryPending } = useSummaryQuery(period, filters)
+const { data: transactions, isPending: isTransactionsPending } = useTransactionQuery(period, filters)
 const { data: categories, isPending: isCategoriesPending } = useCategoriesQuery()
 
 const isPending = computed(() => isTransactionsPending.value || isCategoriesPending.value)
 
 const periodSheetOpen = ref(false)
+const categoriesSheetOpen = ref(false)
 
 const net = computed(() => summary.value?.networth ?? 0)
 
@@ -33,6 +36,14 @@ const maxAmount = computed(() =>
 
 function applyPeriod(next: Period) {
   financeStore.period = next
+}
+
+function applyFilters(next: TransactionFilters) {
+  financeStore.filters = next
+}
+
+function applyCategories(ids: string[]) {
+  financeStore.filters = { ...financeStore.filters, categoryIds: ids }
 }
 </script>
 
@@ -84,6 +95,12 @@ function applyPeriod(next: Period) {
       </div>
     </div>
 
+    <FilterBar
+      :filters="financeStore.filters"
+      @update:filters="applyFilters"
+      @open-categories="categoriesSheetOpen = true"
+    />
+
     <template v-if="isPending">
       <UiCard :padding="0" class="overflow-hidden border border-hairline">
         <UiSkeletonRow v-for="n in 8" :key="n" />
@@ -108,12 +125,19 @@ function applyPeriod(next: Period) {
         />
       </UiCard>
 
-      <UiSectionHeader :title="t('finance.recent')" />
+      <UiSectionHeader :title="t('finance.recent')" :caption="`${transactions.total}`" />
       <UiEmptyState
         v-if="transactions.data.length === 0"
-        icon="i-lucide-receipt"
-        :title="t('finance.noTransactions')"
-      />
+        :icon="financeStore.filtersActive ? 'i-lucide-search-x' : 'i-lucide-receipt'"
+        :title="financeStore.filtersActive ? t('finance.filters.noResults') : t('finance.noTransactions')"
+        :subtitle="financeStore.filtersActive ? t('finance.filters.noResultsSub') : undefined"
+      >
+        <template v-if="financeStore.filtersActive" #action>
+          <UiButton size="sm" variant="secondary" @click="financeStore.resetFilters()">
+            {{ t('finance.filters.clearFilters') }}
+          </UiButton>
+        </template>
+      </UiEmptyState>
       <UiCard v-else :padding="0" class="overflow-hidden border border-hairline">
         <UiTxRow
           v-for="tx in transactions.data"
@@ -128,6 +152,12 @@ function applyPeriod(next: Period) {
       v-model:open="periodSheetOpen"
       :period="financeStore.period"
       @apply="applyPeriod"
+    />
+
+    <CategoryFilterSheet
+      v-model:open="categoriesSheetOpen"
+      :selected="financeStore.filters.categoryIds"
+      @apply="applyCategories"
     />
   </div>
 </template>

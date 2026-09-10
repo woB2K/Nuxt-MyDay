@@ -117,6 +117,19 @@
       "to": "To",
       "apply": "Apply range",
       "invalidRange": "The start date must be before the end date"
+    },
+    "filters": {
+      "all": "All",
+      "categories": "Categories",
+      "search": "Search",
+      "searchPlaceholder": "Search notes",
+      "reset": "Reset",
+      "clear": "Clear",
+      "show": "Show",
+      "showAll": "Show all",
+      "noResults": "Nothing matches",
+      "noResultsSub": "Try a wider period or fewer filters",
+      "clearFilters": "Clear filters"
     }
   },
   "auth": {

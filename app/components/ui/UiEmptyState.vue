@@ -23,5 +23,6 @@ withDefaults(defineProps<Props>(), {
         {{ subtitle }}
       </p>
     </div>
+    <slot name="action" />
   </div>
 </template>

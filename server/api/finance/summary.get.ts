@@ -1,37 +1,33 @@
-import type { Prisma } from '~~/prisma/.generated/prisma'
-import { dateRangeQuerySchema } from '~~/shared/schemas'
+import { transactionWhere } from '~~/server/utils/transactionWhere'
+import { transactionFilterQuerySchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
 
-  const { from, to } = await getValidatedQuery(event, dateRangeQuerySchema.parse)
+  const filters = await getValidatedQuery(event, transactionFilterQuerySchema.parse)
 
-  const where: Prisma.TransactionWhereInput = { userId }
+  const where = transactionWhere(userId, filters)
 
-  if (from || to) {
-    where.date = {
-      ...(from && { gte: new Date(from) }),
-      ...(to && { lte: new Date(to) })
-    }
-  }
+  const withIncome = filters.type !== 'EXPENSE'
+  const withExpense = filters.type !== 'INCOME'
 
   const [incomeAgg, expenseAgg, breakdown] = await Promise.all([
-    prisma.transaction.aggregate({
-      where: { ...where, type: 'INCOME' },
-      _sum: { amount: true }
-    }),
-    prisma.transaction.aggregate({
-      where: { ...where, type: 'EXPENSE' },
-      _sum: { amount: true }
-    }),
-    prisma.transaction.groupBy({
-      by: ['categoryId'],
-      where: { ...where, type: 'EXPENSE' },
-      _sum: { amount: true },
-      orderBy: {
-        _sum: { amount: 'desc' }
-      }
-    })
+    withIncome
+      ? prisma.transaction.aggregate({ where: { ...where, type: 'INCOME' }, _sum: { amount: true } })
+      : null,
+    withExpense
+      ? prisma.transaction.aggregate({ where: { ...where, type: 'EXPENSE' }, _sum: { amount: true } })
+      : null,
+    withExpense
+      ? prisma.transaction.groupBy({
+          by: ['categoryId'],
+          where: { ...where, type: 'EXPENSE' },
+          _sum: { amount: true },
+          orderBy: {
+            _sum: { amount: 'desc' }
+          }
+        })
+      : []
   ])
 
   const categoryIds = breakdown.map(b => b.categoryId)
@@ -42,12 +38,13 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  const networth = (incomeAgg._sum.amount?.toNumber() ?? 0) - (expenseAgg._sum.amount?.toNumber() ?? 0)
+  const income = incomeAgg?._sum.amount?.toNumber() ?? 0
+  const expense = expenseAgg?._sum.amount?.toNumber() ?? 0
 
   return {
-    income: incomeAgg._sum.amount?.toNumber() ?? 0,
-    expense: expenseAgg._sum.amount?.toNumber() ?? 0,
-    networth,
+    income,
+    expense,
+    networth: income - expense,
     breakdown: breakdown.map((b) => {
       const cat = categories.find(c => c.id === b.categoryId)
       return {

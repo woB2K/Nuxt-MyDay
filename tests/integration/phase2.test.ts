@@ -597,6 +597,98 @@ describe('phase 2 api', async () => {
         query: { from: '2026-05-01T00:00:00.000Z' }
       })).rejects.toMatchObject({ statusCode: 400 })
     })
+
+    // 2.20: hero и breakdown считаются по тому же отфильтрованному набору,
+    // что и список — значит summary принимает те же type/categoryIds/search.
+    describe('filters', () => {
+      interface Summary {
+        income: number
+        expense: number
+        networth: number
+        breakdown: Array<{ total: number, category: { id: string } }>
+      }
+
+      async function seed() {
+        const { token } = await registerUser()
+        const cats = await getCategories(token)
+        const expenseCat = cats.find(c => c.type === 'EXPENSE')!.id
+        const secondExpense = cats.filter(c => c.type === 'EXPENSE')[1]!.id
+        const incomeCat = cats.find(c => c.type === 'INCOME')!.id
+
+        const post = (body: object) => $fetch('/api/finance/transactions', {
+          method: 'POST', headers: authHeaders(token), body
+        })
+        await post({ type: 'INCOME', amount: 1000, categoryId: incomeCat, date: '2026-05-10', notes: 'Payroll' })
+        await post({ type: 'EXPENSE', amount: 300, categoryId: expenseCat, date: '2026-05-12', notes: 'Groceries' })
+        await post({ type: 'EXPENSE', amount: 200, categoryId: secondExpense, date: '2026-05-14', notes: 'Taxi home' })
+
+        const summary = (query: object) => $fetch<Summary>('/api/finance/summary', {
+          headers: authHeaders(token),
+          query
+        })
+
+        return { token, expenseCat, secondExpense, incomeCat, summary }
+      }
+
+      it('zeroes income and keeps the breakdown when type=EXPENSE', async () => {
+        const { summary } = await seed()
+
+        const result = await summary({ type: 'EXPENSE' })
+
+        expect(result.income).toBe(0)
+        expect(result.expense).toBe(500)
+        expect(result.networth).toBe(-500)
+        expect(result.breakdown).toHaveLength(2)
+      })
+
+      it('empties expense and breakdown when type=INCOME — breakdown is spend by category', async () => {
+        const { summary } = await seed()
+
+        const result = await summary({ type: 'INCOME' })
+
+        expect(result.income).toBe(1000)
+        expect(result.expense).toBe(0)
+        expect(result.networth).toBe(1000)
+        expect(result.breakdown).toEqual([])
+      })
+
+      it('narrows totals to the selected categories', async () => {
+        const { expenseCat, summary } = await seed()
+
+        const result = await summary({ categoryIds: expenseCat })
+
+        expect(result.expense).toBe(300)
+        expect(result.income).toBe(0)
+        expect(result.breakdown).toHaveLength(1)
+        expect(result.breakdown[0]!.category.id).toBe(expenseCat)
+      })
+
+      it('accepts several categories as a CSV list', async () => {
+        const { expenseCat, secondExpense, summary } = await seed()
+
+        const result = await summary({ categoryIds: `${expenseCat},${secondExpense}` })
+
+        expect(result.expense).toBe(500)
+        expect(result.breakdown).toHaveLength(2)
+      })
+
+      it('filters by notes, case-insensitively', async () => {
+        const { summary } = await seed()
+
+        const result = await summary({ search: 'taxi' })
+
+        expect(result.expense).toBe(200)
+        expect(result.income).toBe(0)
+      })
+
+      it('combines filters with the period', async () => {
+        const { summary } = await seed()
+
+        const result = await summary({ from: '2026-05-13', to: '2026-05-31', type: 'EXPENSE' })
+
+        expect(result.expense).toBe(200)
+      })
+    })
   })
 
   describe('savings', () => {

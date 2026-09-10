@@ -9,6 +9,7 @@ import {
   useSummaryQuery
 } from '../../../app/composables/useFinance'
 import { monthPeriod } from '../../../app/utils/period'
+import { emptyFilters } from '../../../app/utils/transactionFilters'
 
 // Хуки дёргают эти Nuxt auto-import'ы. Мокаем их, чтобы тест не тащил
 // реальный $fetch, стор тостов и i18n-конфиг. vi.hoisted — потому что
@@ -114,7 +115,7 @@ describe('useSummaryQuery инвалидация после добавления
       {
         setup() {
           // Запрос нужен лишь как активный наблюдатель — ссылка не используется.
-          useSummaryQuery(ref(monthPeriod('2026-05-01')))
+          useSummaryQuery(ref(monthPeriod('2026-05-01')), ref(emptyFilters()))
           add = useAddTransactionMutation()
           return () => h('div')
         }

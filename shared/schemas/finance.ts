@@ -25,12 +25,20 @@ export const dateRangeQuerySchema = z.object(dateRangeShape).refine(isOrderedRan
 
 export type DateRangeQuery = z.infer<typeof dateRangeQuerySchema>
 
-export const transactionQuerySchema = z.object({
+const transactionFilterShape = {
   ...dateRangeShape,
   type: transactionTypeEnum.optional(),
   search: z.string().max(100).optional().transform(s => s?.trim() || undefined),
   categoryIds: z.string().optional()
-    .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean)),
+    .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean))
+}
+
+export const transactionFilterQuerySchema = z.object(transactionFilterShape).refine(isOrderedRange, orderedRangeError)
+
+export type TransactionFilterQuery = z.infer<typeof transactionFilterQuerySchema>
+
+export const transactionQuerySchema = z.object({
+  ...transactionFilterShape,
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20)
 }).refine(isOrderedRange, orderedRangeError)
