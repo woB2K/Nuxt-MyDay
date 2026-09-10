@@ -1,24 +1,38 @@
+import type { Prisma } from '~~/prisma/.generated/prisma'
 import { mapAmount } from '~~/server/utils/mapper'
+import { transactionQuerySchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
 
-  const query = getQuery(event)
+  const { type, from, to, search, categoryIds, page, limit } = await getValidatedQuery(
+    event,
+    transactionQuerySchema.parse
+  )
 
-  const page = Number(query.page ?? 1)
-  const limit = Number(query.limit ?? 20)
-  const skip = (page - 1) * limit
+  const where: Prisma.TransactionWhereInput = { userId }
+
+  if (type) where.type = type
+
+  if (from || to) {
+    where.date = {
+      ...(from && { gte: new Date(from) }),
+      ...(to && { lte: new Date(to) })
+    }
+  }
+
+  if (categoryIds?.length) where.categoryId = { in: categoryIds }
+
+  if (search) where.notes = { contains: search, mode: 'insensitive' }
 
   const [items, total] = await Promise.all([
     prisma.transaction.findMany({
-      where: {
-        userId
-      },
-      skip,
+      where,
+      skip: (page - 1) * limit,
       take: limit,
       orderBy: { date: 'desc' }
     }),
-    prisma.transaction.count({ where: { userId } })
+    prisma.transaction.count({ where })
   ])
 
   return {

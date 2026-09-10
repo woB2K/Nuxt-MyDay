@@ -1,22 +1,32 @@
+import type { Prisma } from '~~/prisma/.generated/prisma'
+import { dateRangeQuerySchema } from '~~/shared/schemas'
+
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
 
-  const query = getQuery(event)
-  const from = query.from ? new Date(query.from as string) : new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-  const to = query.to ? new Date(query.to as string) : new Date()
+  const { from, to } = await getValidatedQuery(event, dateRangeQuerySchema.parse)
+
+  const where: Prisma.TransactionWhereInput = { userId }
+
+  if (from || to) {
+    where.date = {
+      ...(from && { gte: new Date(from) }),
+      ...(to && { lte: new Date(to) })
+    }
+  }
 
   const [incomeAgg, expenseAgg, breakdown] = await Promise.all([
     prisma.transaction.aggregate({
-      where: { userId, type: 'INCOME', date: { gte: from, lte: to } },
+      where: { ...where, type: 'INCOME' },
       _sum: { amount: true }
     }),
     prisma.transaction.aggregate({
-      where: { userId, type: 'EXPENSE', date: { gte: from, lte: to } },
+      where: { ...where, type: 'EXPENSE' },
       _sum: { amount: true }
     }),
     prisma.transaction.groupBy({
       by: ['categoryId'],
-      where: { userId, type: 'EXPENSE', date: { gte: from, lte: to } },
+      where: { ...where, type: 'EXPENSE' },
       _sum: { amount: true },
       orderBy: {
         _sum: { amount: 'desc' }
@@ -27,7 +37,8 @@ export default defineEventHandler(async (event) => {
   const categoryIds = breakdown.map(b => b.categoryId)
   const categories = await prisma.category.findMany({
     where: {
-      id: { in: categoryIds }
+      id: { in: categoryIds },
+      userId
     }
   })
 

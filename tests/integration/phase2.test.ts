@@ -155,6 +155,159 @@ describe('phase 2 api', async () => {
     })
   })
 
+  describe('transaction filters', () => {
+    interface TxList { data: (Tx & { notes: string | null, categoryId: string })[], total: number, page: number, limit: number }
+
+    async function listTx(token: string, query = '') {
+      return $fetch<TxList>(`/api/finance/transactions${query}`, { headers: authHeaders(token) })
+    }
+
+    async function seedTransactions(token: string) {
+      const cats = await getCategories(token)
+      const food = cats.find(c => c.name === 'Food & Drink')!.id
+      const transport = cats.find(c => c.name === 'Transport')!.id
+      const salary = cats.find(c => c.type === 'INCOME')!.id
+
+      const fixtures = [
+        { type: 'EXPENSE', amount: 100, categoryId: food, date: '2026-08-20T00:00:00.000Z', notes: 'August lunch' },
+        { type: 'EXPENSE', amount: 200, categoryId: food, date: '2026-09-05T00:00:00.000Z', notes: 'September LUNCH' },
+        { type: 'EXPENSE', amount: 300, categoryId: transport, date: '2026-09-10T00:00:00.000Z', notes: 'Taxi' },
+        { type: 'INCOME', amount: 5000, categoryId: salary, date: '2026-09-01T00:00:00.000Z', notes: 'Payday' },
+        { type: 'EXPENSE', amount: 400, categoryId: food, date: '2026-10-02T00:00:00.000Z', notes: 'October dinner' }
+      ]
+
+      for (const body of fixtures) {
+        await $fetch('/api/finance/transactions', { method: 'POST', headers: authHeaders(token), body })
+      }
+
+      return { food, transport, salary }
+    }
+
+    it('returns everything when from/to are omitted (mode "all")', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const res = await listTx(token)
+      expect(res.total).toBe(5)
+    })
+
+    it('filters by date range inclusively on both bounds', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const res = await listTx(token, '?from=2026-09-01&to=2026-09-30')
+      expect(res.total).toBe(3)
+      expect(res.data.map(t => t.amount).sort((a, b) => a - b)).toEqual([200, 300, 5000])
+    })
+
+    it('accepts an open-ended range (from only)', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const res = await listTx(token, '?from=2026-09-01')
+      expect(res.total).toBe(4)
+    })
+
+    it('filters by type', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const res = await listTx(token, '?type=INCOME')
+      expect(res.total).toBe(1)
+      expect(res.data[0]!.amount).toBe(5000)
+    })
+
+    it('filters by a single category', async () => {
+      const { token } = await registerUser()
+      const { transport } = await seedTransactions(token)
+
+      const res = await listTx(token, `?categoryIds=${transport}`)
+      expect(res.total).toBe(1)
+      expect(res.data[0]!.categoryId).toBe(transport)
+    })
+
+    it('filters by several categories', async () => {
+      const { token } = await registerUser()
+      const { food, transport } = await seedTransactions(token)
+
+      const res = await listTx(token, `?categoryIds=${food},${transport}`)
+      expect(res.total).toBe(4)
+    })
+
+    it('ignores an empty categoryIds value instead of matching nothing', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const res = await listTx(token, '?categoryIds=')
+      expect(res.total).toBe(5)
+    })
+
+    it('searches notes case-insensitively', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const res = await listTx(token, '?search=lunch')
+      expect(res.total).toBe(2)
+    })
+
+    it('combines filters', async () => {
+      const { token } = await registerUser()
+      const { food } = await seedTransactions(token)
+
+      const res = await listTx(
+        token,
+        `?type=EXPENSE&categoryIds=${food}&search=lunch&from=2026-09-01&to=2026-09-30`
+      )
+      expect(res.total).toBe(1)
+      expect(res.data[0]!.amount).toBe(200)
+    })
+
+    it('counts total over the filtered set, not the whole table', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const res = await listTx(token, '?type=EXPENSE&limit=2')
+      expect(res.total).toBe(4)
+      expect(res.data).toHaveLength(2)
+      expect(res.limit).toBe(2)
+    })
+
+    it('paginates the filtered set', async () => {
+      const { token } = await registerUser()
+      await seedTransactions(token)
+
+      const page2 = await listTx(token, '?type=EXPENSE&limit=2&page=2')
+      expect(page2.total).toBe(4)
+      expect(page2.data).toHaveLength(2)
+      expect(page2.page).toBe(2)
+    })
+
+    it('rejects from later than to with 400', async () => {
+      const { token } = await registerUser()
+      await expect(listTx(token, '?from=2026-09-30&to=2026-09-01'))
+        .rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a bad limit with 400', async () => {
+      const { token } = await registerUser()
+      await expect(listTx(token, '?limit=500')).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a full ISO datetime from with 400', async () => {
+      const { token } = await registerUser()
+      await expect(listTx(token, '?from=2026-09-01T00:00:00.000Z')).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('isolation: filters never reach another users transactions', async () => {
+      const userA = await registerUser()
+      const userB = await registerUser()
+      const { food } = await seedTransactions(userA.token)
+
+      const res = await listTx(userB.token, `?categoryIds=${food}`)
+      expect(res.total).toBe(0)
+    })
+  })
+
   describe('summary aggregation', () => {
     it('computes income, expense, networth and sorted breakdown', async () => {
       const { token } = await registerUser()
@@ -203,6 +356,39 @@ describe('phase 2 api', async () => {
       })
       expect(summary.expense).toBe(0)
     })
+
+    it('covers all time when from/to are omitted', async () => {
+      const { token } = await registerUser()
+      const expenseCat = await categoryId(token, 'EXPENSE')
+      const post = (date: string) => $fetch('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { type: 'EXPENSE', amount: 100, categoryId: expenseCat, date }
+      })
+      await post('2025-01-15T00:00:00.000Z')
+      await post('2026-09-15T00:00:00.000Z')
+
+      const summary = await $fetch<{ expense: number }>('/api/finance/summary', {
+        headers: authHeaders(token)
+      })
+      expect(summary.expense).toBe(200)
+    })
+
+    it('rejects an inverted range with 400', async () => {
+      const { token } = await registerUser()
+      await expect($fetch('/api/finance/summary', {
+        headers: authHeaders(token),
+        query: { from: '2026-05-31', to: '2026-05-01' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('rejects a full ISO datetime range with 400', async () => {
+      const { token } = await registerUser()
+      await expect($fetch('/api/finance/summary', {
+        headers: authHeaders(token),
+        query: { from: '2026-05-01T00:00:00.000Z' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
   })
 
   describe('savings', () => {
@@ -235,23 +421,56 @@ describe('phase 2 api', async () => {
   })
 
   describe('budgets', () => {
+    const postBudget = (token: string, body: object) => $fetch('/api/finance/budgets', {
+      method: 'POST', headers: authHeaders(token), body
+    })
+
+    const listBudgets = (token: string, query?: Record<string, string>) =>
+      $fetch<Array<{ amount: number }>>('/api/finance/budgets', { headers: authHeaders(token), query })
+
     it('upserts: second POST for same category+month updates amount', async () => {
       const { token } = await registerUser()
       const catId = await categoryId(token, 'EXPENSE')
       const month = '2026-05-01T00:00:00.000Z'
 
-      await $fetch('/api/finance/budgets', {
-        method: 'POST', headers: authHeaders(token), body: { amount: 20000, categoryId: catId, month }
-      })
-      await $fetch('/api/finance/budgets', {
-        method: 'POST', headers: authHeaders(token), body: { amount: 25000, categoryId: catId, month }
-      })
+      await postBudget(token, { amount: 20000, categoryId: catId, month })
+      await postBudget(token, { amount: 25000, categoryId: catId, month })
 
-      const budgets = await $fetch<Array<{ amount: number }>>('/api/finance/budgets', {
-        headers: authHeaders(token), query: { month }
-      })
+      const budgets = await listBudgets(token, { from: '2026-05-01', to: '2026-05-31' })
       expect(budgets).toHaveLength(1)
-      expect(budgets[0].amount).toBe(25000)
+      expect(budgets[0]!.amount).toBe(25000)
+    })
+
+    it('filters by the requested month instead of the servers current month', async () => {
+      const { token } = await registerUser()
+      const catId = await categoryId(token, 'EXPENSE')
+
+      await postBudget(token, { amount: 20000, categoryId: catId, month: '2026-05-01T00:00:00.000Z' })
+      await postBudget(token, { amount: 30000, categoryId: catId, month: '2026-06-01T00:00:00.000Z' })
+
+      const may = await listBudgets(token, { from: '2026-05-01', to: '2026-05-31' })
+      expect(may).toHaveLength(1)
+      expect(may[0]!.amount).toBe(20000)
+
+      const june = await listBudgets(token, { from: '2026-06-01', to: '2026-06-30' })
+      expect(june).toHaveLength(1)
+      expect(june[0]!.amount).toBe(30000)
+    })
+
+    it('returns every month when from/to are omitted', async () => {
+      const { token } = await registerUser()
+      const catId = await categoryId(token, 'EXPENSE')
+
+      await postBudget(token, { amount: 20000, categoryId: catId, month: '2026-05-01T00:00:00.000Z' })
+      await postBudget(token, { amount: 30000, categoryId: catId, month: '2026-06-01T00:00:00.000Z' })
+
+      expect(await listBudgets(token)).toHaveLength(2)
+    })
+
+    it('rejects an inverted range with 400', async () => {
+      const { token } = await registerUser()
+      await expect(listBudgets(token, { from: '2026-06-01', to: '2026-05-01' }))
+        .rejects.toMatchObject({ statusCode: 400 })
     })
   })
 })
