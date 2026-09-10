@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 interface Props {
   balance: number
-  monthlyDelta: number
+  delta: number
 }
 
 const props = defineProps<Props>()
@@ -31,16 +31,16 @@ const { t } = useI18n()
       </div>
 
       <span
-        v-if="props.monthlyDelta !== 0"
+        v-if="props.delta !== 0"
         class="mt-1 shrink-0 px-2.5 py-1 rounded-full text-sm font-semibold"
-        :class="props.monthlyDelta > 0 ? 'bg-success/14 text-success' : 'bg-danger/14 text-danger'"
+        :class="props.delta > 0 ? 'bg-success/14 text-success' : 'bg-danger/14 text-danger'"
       >
-        {{ props.monthlyDelta > 0 ? '+' : '' }}{{ formatAmount(props.monthlyDelta) }} ₽
+        {{ props.delta > 0 ? '+' : '−' }}{{ formatAmount(Math.abs(props.delta)) }} ₽
       </span>
     </div>
 
     <p class="text-xs text-text-mute -mt-2">
-      {{ t('finance.savings.thisMonth') }}
+      {{ t('finance.savings.forPeriod') }}
     </p>
 
     <div class="flex gap-2">

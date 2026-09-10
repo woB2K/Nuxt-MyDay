@@ -23,8 +23,11 @@ export interface TransactionListResponse {
 export type SavingsEntryItem = WithNumberAmount<SavingsEntry>
 export interface SavingsResponse {
   balance: number
-  thisMonth: number
+  delta: number
   entries: SavingsEntryItem[]
+  total: number
+  page: number
+  limit: number
 }
 
 export type BudgetItem = WithNumberAmount<Budget>

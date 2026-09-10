@@ -1,44 +1,52 @@
+import type { Prisma } from '~~/prisma/.generated/prisma'
+import { timestampRange } from '~~/server/utils/dateRange'
 import { mapAmount } from '~~/server/utils/mapper'
+import { savingsQuerySchema } from '~~/shared/schemas'
+
+function net(rows: Array<{ type: string, _sum: { amount: Prisma.Decimal | null } }>): number {
+  const sum = (type: string) => rows.find(row => row.type === type)?._sum.amount?.toNumber() ?? 0
+
+  return sum('DEPOSIT') - sum('WITHDRAWAL')
+}
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
 
-  const query = getQuery(event)
-  const page = Number(query.page ?? 1)
-  const limit = Number(query.limit ?? 20)
-  const skip = (page - 1) * limit
+  const { from, to, page, limit } = await getValidatedQuery(event, savingsQuerySchema.parse)
 
-  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+  const createdAt = timestampRange(from, to)
+  const where: Prisma.SavingsEntryWhereInput = { userId, ...(createdAt && { createdAt }) }
 
-  const [allTime, thisMonthByType, entries] = await Promise.all([
+  const [allTime, inPeriod, entries, total] = await Promise.all([
     prisma.savingsEntry.groupBy({
       by: ['type'],
       where: { userId },
       _sum: { amount: true }
     }),
-    prisma.savingsEntry.groupBy({
-      by: ['type'],
-      where: { userId, createdAt: { gte: monthStart } },
-      _sum: { amount: true }
-    }),
+    createdAt
+      ? prisma.savingsEntry.groupBy({
+          by: ['type'],
+          where,
+          _sum: { amount: true }
+        })
+      : null,
     prisma.savingsEntry.findMany({
-      where: { userId },
-      skip,
+      where,
+      skip: (page - 1) * limit,
       take: limit,
       orderBy: { createdAt: 'desc' }
-    })
+    }),
+    prisma.savingsEntry.count({ where })
   ])
 
-  const dep = allTime.find(r => r.type === 'DEPOSIT')?._sum.amount?.toNumber() ?? 0
-  const wit = allTime.find(r => r.type === 'WITHDRAWAL')?._sum.amount?.toNumber() ?? 0
-  const balance = dep - wit
-
-  const thisMonthDep = thisMonthByType.find(r => r.type === 'DEPOSIT')?._sum.amount?.toNumber() ?? 0
-  const thisMonthWit = thisMonthByType.find(r => r.type === 'WITHDRAWAL')?._sum.amount?.toNumber() ?? 0
+  const balance = net(allTime)
 
   return {
     balance,
-    thisMonth: thisMonthDep - thisMonthWit,
-    entries: entries.map(e => mapAmount(e))
+    delta: inPeriod ? net(inPeriod) : balance,
+    entries: entries.map(e => mapAmount(e)),
+    total,
+    page,
+    limit
   }
 })

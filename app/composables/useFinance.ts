@@ -50,12 +50,19 @@ export function useTransactionPagesQuery(period: Ref<Period>, filters: Ref<Trans
   })
 }
 
-export function useSavingsQuery() {
+export function useSavingsQuery(period: Ref<Period>, limit = 20) {
   const api = useApi()
 
-  return useQuery({
-    queryKey: queryKeys.savings(),
-    queryFn: () => api<SavingsResponse>('/api/finance/savings')
+  return useInfiniteQuery({
+    queryKey: computed(() => queryKeys.savings(periodKey(period.value))),
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => api<SavingsResponse>('/api/finance/savings', {
+      query: { ...periodRange(period.value), page: pageParam, limit }
+    }),
+    getNextPageParam: (lastPage) => {
+      const loaded = lastPage.page * lastPage.limit
+      return loaded < lastPage.total ? lastPage.page + 1 : undefined
+    }
   })
 }
 

@@ -37,13 +37,24 @@ export const transactionFilterQuerySchema = z.object(transactionFilterShape).ref
 
 export type TransactionFilterQuery = z.infer<typeof transactionFilterQuerySchema>
 
-export const transactionQuerySchema = z.object({
-  ...transactionFilterShape,
+const paginationShape = {
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20)
+}
+
+export const transactionQuerySchema = z.object({
+  ...transactionFilterShape,
+  ...paginationShape
 }).refine(isOrderedRange, orderedRangeError)
 
 export type TransactionQuery = z.infer<typeof transactionQuerySchema>
+
+export const savingsQuerySchema = z.object({
+  ...dateRangeShape,
+  ...paginationShape
+}).refine(isOrderedRange, orderedRangeError)
+
+export type SavingsQuery = z.infer<typeof savingsQuerySchema>
 
 export const createCategorySchema = z.object({
   name: z.string().min(1).max(60),

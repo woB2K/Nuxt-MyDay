@@ -93,13 +93,17 @@
     "note": "Note",
     "savings": {
       "balance": "Savings",
-      "thisMonth": "This month",
       "add": "Add",
       "withdraw": "Withdraw",
       "history": "History",
       "noHistory": "No savings entries yet",
       "deposit": "Deposit",
-      "withdrawal": "Withdrawal"
+      "withdrawal": "Withdrawal",
+      "forPeriod": "For the selected period",
+      "addTitle": "Add to savings",
+      "withdrawTitle": "Withdraw from savings",
+      "available": "Available",
+      "notEnough": "Not enough in savings"
     },
     "netPeriod": "Net this period",
     "period": {

@@ -93,13 +93,17 @@
     "note": "Описание",
     "savings": {
       "balance": "Накопления",
-      "thisMonth": "В этом месяце",
       "add": "Пополнить",
       "withdraw": "Снять",
       "history": "История",
       "noHistory": "Записей о накоплениях пока нет",
       "deposit": "Пополнение",
-      "withdrawal": "Снятие"
+      "withdrawal": "Снятие",
+      "forPeriod": "За выбранный период",
+      "addTitle": "Пополнить копилку",
+      "withdrawTitle": "Снять с копилки",
+      "available": "Доступно",
+      "notEnough": "В копилке столько нет"
     },
     "netPeriod": "Итог за период",
     "period": {

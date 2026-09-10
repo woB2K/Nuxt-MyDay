@@ -39,7 +39,7 @@ export const queryKeys = {
   transactions:     (period: string, filters: string)   => ['transactions', { period, filters }]      as const,
   transactionPages: (period: string, filters: string)   => ['transactions', 'pages', { period, filters }] as const,
   summary:          (period: string, filters: string)   => ['summary', { period, filters }]           as const,
-  savings:          ()                                  => ['savings']                                as const,
+  savings:          (period: string)                    => ['savings', 'pages', { period }]           as const,
   budgets:          (period: string)                    => ['budgets', { period }]                    as const,
   tasks:            (filter: string, search: string)    => ['tasks', { filter, search }]              as const,
   tags:             ()                                  => ['tags']                                   as const,
@@ -182,7 +182,7 @@ async function toggleTask(id: string) {
 export function useTransactionQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) { ... }
 export function useTransactionPagesQuery(period, filters, limit?) { ... }  // All Transactions
 export function useSummaryQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) { ... }
-export function useSavingsQuery() { ... }                 // период появится в 2.23
+export function useSavingsQuery(period: Ref<Period>, limit?) { ... }      // тоже постраничный
 export function useBudgetQuery(period: Ref<Period>) { ... }
 export function useAddTransactionMutation() { ... }
 export function useUpdateTransactionMutation() { ... }

@@ -731,6 +731,91 @@ describe('phase 2 api', async () => {
       })).rejects.toMatchObject({ statusCode: 404 })
       expect(await prisma.savingsEntry.findUnique({ where: { id: entry.id } })).not.toBeNull()
     })
+
+    // 2.23: период приходит от клиента, сервер больше не берёт «этот месяц» из своих часов.
+    describe('period and pagination', () => {
+      interface Savings {
+        balance: number
+        delta: number
+        entries: Array<{ id: string }>
+        total: number
+        page: number
+        limit: number
+      }
+
+      const get = (token: string, query: object = {}) =>
+        $fetch<Savings>('/api/finance/savings', { headers: authHeaders(token), query })
+
+      async function seed() {
+        const { token, userId } = await registerUser()
+
+        const old = await prisma.savingsEntry.create({
+          data: { userId, amount: 4000, type: 'DEPOSIT' }
+        })
+        await prisma.savingsEntry.update({
+          where: { id: old.id },
+          data: { createdAt: new Date('2026-04-10T12:00:00.000Z') }
+        })
+
+        await $fetch('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body: { amount: 1000, type: 'DEPOSIT' }
+        })
+        await $fetch('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body: { amount: 250, type: 'WITHDRAWAL' }
+        })
+
+        return { token }
+      }
+
+      it('keeps the balance over all time but scopes history and delta to the period', async () => {
+        const { token } = await seed()
+
+        const res = await get(token, { from: '2026-04-01', to: '2026-04-30' })
+
+        expect(res.balance).toBe(4750)
+        expect(res.delta).toBe(4000)
+        expect(res.total).toBe(1)
+        expect(res.entries).toHaveLength(1)
+      })
+
+      it('includes an entry created on the last day of the range', async () => {
+        const { token } = await seed()
+
+        const res = await get(token, { from: '2026-04-10', to: '2026-04-10' })
+
+        expect(res.total).toBe(1)
+      })
+
+      it('falls back to all time without from/to — delta equals balance', async () => {
+        const { token } = await seed()
+
+        const res = await get(token)
+
+        expect(res.total).toBe(3)
+        expect(res.delta).toBe(res.balance)
+      })
+
+      it('paginates the history', async () => {
+        const { token } = await seed()
+
+        const first = await get(token, { page: 1, limit: 2 })
+        const second = await get(token, { page: 2, limit: 2 })
+
+        expect(first.entries).toHaveLength(2)
+        expect(second.entries).toHaveLength(1)
+        expect(first.total).toBe(3)
+        expect(second.page).toBe(2)
+        expect(new Set([...first.entries, ...second.entries].map(e => e.id)).size).toBe(3)
+      })
+
+      it('rejects a broken page instead of answering 500', async () => {
+        const { token } = await registerUser()
+
+        await expect(get(token, { page: 'abc' })).rejects.toMatchObject({ statusCode: 400 })
+        await expect(get(token, { limit: '0' })).rejects.toMatchObject({ statusCode: 400 })
+        await expect(get(token, { from: '2026-04-30', to: '2026-04-01' })).rejects.toMatchObject({ statusCode: 400 })
+      })
+    })
   })
 
   describe('budgets', () => {

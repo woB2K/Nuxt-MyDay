@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
+import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, savingsQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
 
 describe('createTransactionSchema', () => {
   const valid = {
@@ -213,6 +213,25 @@ describe('transactionFilterQuerySchema', () => {
 
   it('does not accept pagination — that is the list endpoint only', () => {
     expect(transactionFilterQuerySchema.parse({ page: '2' })).not.toHaveProperty('page')
+  })
+})
+
+describe('savingsQuerySchema', () => {
+  it('defaults to the first page without a range', () => {
+    expect(savingsQuerySchema.parse({})).toEqual({ page: 1, limit: 20 })
+  })
+
+  it('coerces pagination and rejects a broken page', () => {
+    expect(savingsQuerySchema.parse({ page: '2', limit: '50' })).toMatchObject({ page: 2, limit: 50 })
+    expect(savingsQuerySchema.safeParse({ page: 'abc' }).success).toBe(false)
+    expect(savingsQuerySchema.safeParse({ limit: '0' }).success).toBe(false)
+    expect(savingsQuerySchema.safeParse({ limit: '101' }).success).toBe(false)
+  })
+
+  it('takes a date-only range and rejects a reversed one', () => {
+    expect(savingsQuerySchema.safeParse({ from: '2026-04-01', to: '2026-04-30' }).success).toBe(true)
+    expect(savingsQuerySchema.safeParse({ from: '2026-04-30', to: '2026-04-01' }).success).toBe(false)
+    expect(savingsQuerySchema.safeParse({ from: '2026-04-01T00:00:00.000Z' }).success).toBe(false)
   })
 })
 
