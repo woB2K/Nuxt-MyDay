@@ -8,7 +8,7 @@
 
 ---
 
-### Фаза 0 — Фундамент
+## Фаза 0 — Фундамент
 
 - [x] **0.1** Создать Nuxt 4 проект: `pnpm dlx nuxi@latest init myday`, выбрать `ui` template
 - [x] **0.2** Настроить `nuxt.config.ts`: `compatibilityVersion: 4`, `ssr: false` (SPA режим — все страницы за авторизацией, SSR не нужен), модули (`@pinia/nuxt`, `@vite-pwa/nuxt`), `runtimeConfig` с секретами
@@ -22,7 +22,7 @@
 
 ---
 
-### Фаза 1 — Auth & Shell
+## Фаза 1 — Auth & Shell
 
 **Сервер (делать в этом порядке, проверять через curl/Postman):**
 
@@ -56,7 +56,7 @@
 
 ---
 
-### Фаза 2 — Finance Core
+## Фаза 2 — Finance Core
 
 **Сервер:**
 
@@ -93,7 +93,7 @@
 
 ---
 
-### Фаза 3 — Tasks Core
+## Фаза 3 — Tasks Core
 
 **Сервер:**
 
@@ -118,7 +118,7 @@
 
 ---
 
-### Фаза 4 — PWA + Polish
+## Фаза 4 — PWA + Polish
 
 - [ ] **4.1** Настроить `@vite-pwa/nuxt`: manifest (name, icons, theme_color, start_url `/today`, display `standalone`)
 - [ ] **4.2** Workbox стратегия: `NetworkFirst` для API, `CacheFirst` для статики
@@ -140,7 +140,7 @@
 
 ---
 
-### Фаза 5 — CI/CD
+## Фаза 5 — CI/CD
 
 - [x] **5.1** `.github/workflows/ci.yml` — pipeline: `lint → typecheck → build`
 - [ ] **5.1.1** Добавить прогон тестов в CI: шаг `pnpm test` (unit) перед build
@@ -149,7 +149,7 @@
 
 ---
 
-### Фаза 6 — Docker + Деплой
+## Фаза 6 — Docker + Деплой
 
 - [ ] **6.1** `Dockerfile` — multi-stage build (deps → build → production)
 - [ ] **6.2** `docker-compose.yml` — app + postgres сервисы
@@ -157,7 +157,7 @@
 
 ---
 
-### Фаза 7 — v2 (после MVP)
+## Фаза 7 — v2 (после MVP)
 
 Budgets и Notifications осознанно вынесены за MVP (решение 28.07.2026). Что уже проложено и что нельзя ломать: модель `Budget` + `GET/POST /api/finance/budgets` + `useBudgetQuery`/`useUpsertBudgetMutation` + queryKey `budgets`; утилиты периода из 2.19 (переиспользуются бюджетами); `UiChip`/`UiRoundBtn`/`PeriodBar`; спеки UI в DESIGN.md → Finance v3 (BudgetsTab, BudgetEditSheet).
 
