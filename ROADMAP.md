@@ -103,7 +103,7 @@
 
 **Клиент:**
 
-- [ ] **3.4** `stores/tasks.ts` — `useTasksStore` (Pinia, **только client state**: `searchQuery`, `activeFilter`). Серверные данные — в `useTasks.ts`.
+- [x] **3.4** `stores/tasks.ts` — `useTasksStore` (Pinia, **только client state**: `searchQuery`, `activeFilter`). Серверные данные — в `useTasks.ts`. **Сверх пункта:** логика фильтров вынесена в `app/utils/taskFilters.ts` (`TaskFilter`, `taskFilterKeys`, `hasActiveTaskFilters`, `taskQuery`) — как в финансах, стор только хранит выбор, а query-параметры и ключ кэша собираются из чистых функций; `filtersActive` + `resetFilters()` понадобятся пустому состоянию списка в 3.9 («Сбросить фильтры»)
 - [ ] **3.4.5** `composables/useTasks.ts` — TanStack Query хуки: `useTasksQuery`, `useTagsQuery`, `useTemplatesQuery` + мутации `useToggleTaskMutation`, `useDeleteTaskMutation`, `useAddTaskMutation` с оптимистичными апдейтами и `invalidateQueries`
 - [ ] **3.5** `components/ui/UiTaskRow`, `UiDateStrip`, `UiTaskTemplateRow`, `UiStatsCard`. `UiSwipeRow` уже написан в 2.21 (порог 90px, `rightAction`, блокировка оси по вертикали) — здесь только переиспользование: задачам нужен правый свайп «Done ✓» (`completable`), он же дефолтный вариант правого слоя
 - [ ] **3.6** `components/features/tasks/FocusCard.vue`
@@ -112,7 +112,7 @@
 - [ ] **3.9** `pages/tasks/index.vue` — поиск + фильтр All/Open/Done + SwipeRow список
 - [ ] **3.10** `pages/tasks/templates.vue` + `components/features/tasks/TemplateSheet.vue`
 - [x] **3.11** *(Claude пишет)* Unit тесты для mapper-функции нормализации тегов из Prisma
-- [ ] **3.12** *(Claude пишет)* Store тесты для `useTasksStore` — `toggleTask` оптимистичный апдейт, `toggleTask` откат при ошибке, `deleteTask` удаляет из локального списка
+- [x] **3.12** *(Claude пишет)* Store тесты для `useTasksStore` — написаны вместе с 3.4 (стартовое состояние, `filtersActive`, `resetFilters`) + тесты `taskFilters`. **Формулировка пункта устарела:** после разделения Pinia / TanStack Query стор не содержит мутаций, поэтому оптимистичный `toggleTask` и откат при ошибке проверяются на мутациях — 3.4.5 и 4.3
 - [ ] **3.13** *(Claude пишет)* E2E тест: регистрация → создание задачи → отметить выполненной (Playwright)
 - [ ] **3.14** *(Claude пишет)* E2E тест: логин → добавление транзакции → проверка что баланс обновился
 
