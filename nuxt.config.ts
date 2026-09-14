@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import process from 'node:process'
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -34,6 +36,11 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-01-15',
+  hooks: {
+    close: (nuxt) => {
+      if (!nuxt.options.dev && !nuxt.options.test) process.exit(process.exitCode ?? 0)
+    }
+  },
 
   eslint: {
     config: {
