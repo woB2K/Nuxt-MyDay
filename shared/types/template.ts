@@ -1,5 +1,8 @@
 import type { z } from 'zod'
+import type { Tag, TaskTemplate } from '~~/prisma/.generated/prisma'
 import type { createTemplateSchema, updateTemplateSchema } from '../schemas/template'
 
 export type CreateTemplateInput = z.infer<typeof createTemplateSchema>
 export type UpdateTemplateInput = z.infer<typeof updateTemplateSchema>
+
+export type TemplateItem = TaskTemplate & { tags: Tag[] }

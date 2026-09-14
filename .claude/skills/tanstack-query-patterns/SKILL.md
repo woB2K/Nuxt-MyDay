@@ -121,7 +121,7 @@ export function useAddTransactionMutation() {
 
 ## Оптимистичный апдейт через TanStack Query
 
-Встроенный механизм лучше Pinia-паттерна "сохранить/откатить" (см. ниже). **Целевой паттерн для 4.3** (`ROADMAP.md`) — в текущем коде часть мутаций пока без `onMutate`/rollback:
+Встроенный механизм лучше Pinia-паттерна "сохранить/откатить" (см. ниже). **Целевой паттерн для 4.3** (`ROADMAP.md`) — в финансах часть мутаций пока без `onMutate`/rollback, в задачах он уже сделан (`useToggleTaskMutation`, `useDeleteTaskMutation`):
 
 ```ts
 export function useDeleteTransactionMutation(key: Ref<ReturnType<typeof queryKeys.transactions>>) {
@@ -156,6 +156,29 @@ export function useDeleteTransactionMutation(key: Ref<ReturnType<typeof queryKey
   })
 }
 ```
+
+### Один ресурс — несколько закэшированных списков
+
+Пример выше правит один ключ. Списки задач лежат в кэше по каждому набору (фильтр, поиск), поэтому править нужно все сразу — иначе вкладка, открытая с другим фильтром, останется со старой копией. `app/composables/useTasks.ts`:
+
+```ts
+async function snapshotTasks(queryClient: QueryClient) {
+  await queryClient.cancelQueries({ queryKey: ['tasks'] })
+  return queryClient.getQueriesData<TaskItem[]>({ queryKey: ['tasks'] })   // [ключ, данные][]
+}
+
+function patchTaskLists(queryClient: QueryClient, patch: (tasks: TaskItem[]) => TaskItem[]) {
+  queryClient.setQueriesData<TaskItem[]>({ queryKey: ['tasks'] }, tasks => tasks && patch(tasks))
+}
+
+function restoreTaskLists(queryClient: QueryClient, snapshot: TaskListSnapshot = []) {
+  snapshot.forEach(([key, tasks]) => queryClient.setQueryData(key, tasks))
+}
+```
+
+`onMutate` берёт снапшот и применяет `patch`, `onError` восстанавливает его, `onSettled` инвалидирует префикс. Отметка «выполнено» меняет задачу на месте (зачёркивание), а не выбрасывает её из списка `open` — уборку делает рефетч после инвалидации.
+
+Тост на успех — не для каждой мутации: `toggle` срабатывает на каждый тап по чекбоксу, поэтому у него только тост ошибки.
 
 ## Оптимистичные апдейты в Pinia (client state, не TanStack)
 
@@ -198,12 +221,13 @@ export function useUpdateCategoryMutation() { ... }
 export function useDeleteCategoryMutation() { ... }
 
 // app/composables/useTasks.ts — все хуки для tasks
-export function useTasksQuery(filter: Ref<string>, search: Ref<string>) { ... }
+export function useTasksQuery(filter: Ref<TaskFilter>, search: Ref<string>) { ... }
 export function useTagsQuery() { ... }
 export function useTemplatesQuery() { ... }
 export function useAddTaskMutation() { ... }
-export function useToggleTaskMutation() { ... }
-export function useDeleteTaskMutation() { ... }
+export function useUpdateTaskMutation() { ... }
+export function useToggleTaskMutation() { ... }   // оптимистичный
+export function useDeleteTaskMutation() { ... }   // оптимистичный
 ```
 
 ## useApi — авторизованные запросы с клиента

@@ -114,5 +114,6 @@ sequenceDiagram
 ### Известные баги
 
 - `createBudgetSchema.month` — полный ISO datetime, тогда как GET-фильтр бюджетов date-only. Привести к общему контракту в **Фазе 7** (бюджеты отложены; ломать рабочий write-путь сейчас незачем)
+- `Task.dueDate` — timestamp (`DateTime?`), а `createTaskSchema.dueDate` требует полный ISO datetime, тогда как дедлайн по смыслу календарный день и `UiDateStrip` отдаёт `YYYY-MM-DD`. Решается в **3.8** вместе с формой задачи: либо миграция на `@db.Date` + `z.iso.date()` (как `Transaction.date`), либо осознанно остаётся timestamp
 
 Хронология обсуждений — в `context/` (gitignored).

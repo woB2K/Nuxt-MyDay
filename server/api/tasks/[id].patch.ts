@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
       data: {
         ...taskData,
         ...(done !== undefined && {
+          done,
           doneAt: done ? new Date() : null
         }),
         ...(rawTagIds !== undefined && {
