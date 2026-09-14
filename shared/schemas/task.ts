@@ -6,10 +6,11 @@ export const createTaskSchema = z.object({
   title: z.string().min(1),
   notes: z.string().optional(),
   priority: priorityEnum.default('NONE'),
-  dueDate: z.iso.datetime().optional(),
+  dueDate: z.iso.date().optional(),
   tagIds: z.array(z.string()).optional()
 })
 
 export const updateTaskSchema = createTaskSchema.partial().extend({
-  done: z.boolean().optional()
+  done: z.boolean().optional(),
+  dueDate: z.iso.date().nullable().optional()
 })

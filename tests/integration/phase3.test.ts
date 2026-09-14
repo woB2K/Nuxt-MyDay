@@ -100,6 +100,43 @@ describe('phase 3 api', async () => {
     })
   })
 
+  describe('due date', () => {
+    it('stores a calendar day, not a UTC instant', async () => {
+      const { token } = await registerUser()
+
+      const created = await $fetch<TaskDto & { dueDate: string }>('/api/tasks', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { title: 'Renew the passport', dueDate: '2026-09-20' }
+      })
+
+      expect(created.dueDate).toBe('2026-09-20T00:00:00.000Z')
+    })
+
+    it('rejects a full ISO datetime with 400', async () => {
+      const { token } = await registerUser()
+
+      await expect($fetch('/api/tasks', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { title: 'Renew the passport', dueDate: '2026-09-20T21:00:00.000Z' }
+      })).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('clears the deadline when dueDate comes as null', async () => {
+      const { token } = await registerUser()
+      const created = await $fetch<TaskDto>('/api/tasks', {
+        method: 'POST',
+        headers: authHeaders(token),
+        body: { title: 'Renew the passport', dueDate: '2026-09-20' }
+      })
+
+      const cleared = await patchTask(token, created.id, { dueDate: null })
+
+      expect(cleared).toMatchObject({ dueDate: null })
+    })
+  })
+
   describe('tags', () => {
     it('rejects a task with a tag of another user', async () => {
       const owner = await registerUser()

@@ -35,16 +35,16 @@ describe('createTaskSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('accepts valid ISO datetime for dueDate', () => {
+  it('accepts a calendar day for dueDate', () => {
+    const result = createTaskSchema.safeParse({ title: 'Task', dueDate: '2026-05-08' })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a full ISO datetime for dueDate', () => {
     const result = createTaskSchema.safeParse({
       title: 'Task',
       dueDate: '2026-05-08T00:00:00.000Z'
     })
-    expect(result.success).toBe(true)
-  })
-
-  it('rejects invalid dueDate format', () => {
-    const result = createTaskSchema.safeParse({ title: 'Task', dueDate: '2026-05-08' })
     expect(result.success).toBe(false)
   })
 
@@ -77,5 +77,10 @@ describe('updateTaskSchema', () => {
   it('still rejects empty title if provided', () => {
     const result = updateTaskSchema.safeParse({ title: '' })
     expect(result.success).toBe(false)
+  })
+
+  it('accepts null dueDate — that is how a deadline gets cleared', () => {
+    const result = updateTaskSchema.safeParse({ dueDate: null })
+    expect(result.success).toBe(true)
   })
 })

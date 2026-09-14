@@ -157,18 +157,31 @@
     "focus": "Focus",
     "empty": "Nothing for today",
     "emptySub": "Add a task and it shows up here",
+    "add": "New task",
+    "edit": "Edit task",
+    "title": "Title",
+    "priorityLabel": "Priority",
     "priority": {
       "HIGH": "High",
       "MEDIUM": "Medium",
       "LOW": "Low",
-      "NONE": "No priority"
+      "NONE": "None"
     },
+    "dueDate": "Due date",
+    "clearDate": "Clear",
+    "tags": "Tags",
+    "newTag": "New tag",
+    "notes": "Notes",
+    "delete": "Delete task",
     "stats": {
       "streak": "day streak | days streak",
       "done": "Done today"
     },
     "templates": {
       "use": "Use"
+    },
+    "error": {
+      "title": "Give the task a title"
     }
   },
   "auth": {

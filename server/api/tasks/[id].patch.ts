@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
 
   const body = await readValidatedBody(event, updateTaskSchema.parse)
-  const { tagIds: rawTagIds, done, ...taskData } = body
+  const { tagIds: rawTagIds, done, dueDate, ...taskData } = body
 
   if (rawTagIds !== undefined) {
     const uniqueTagIds = [...new Set(rawTagIds)]
@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
       },
       data: {
         ...taskData,
+        ...(dueDate !== undefined && { dueDate: dueDate ? new Date(dueDate) : null }),
         ...(done !== undefined && {
           done,
           doneAt: done ? new Date() : null

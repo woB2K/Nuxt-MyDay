@@ -17,11 +17,12 @@ export default defineEventHandler(async (event) => {
 
   if (tagIds.length !== userTagIds) throw createError({ statusCode: 400, message: 'Invalid tag IDs' })
 
-  const { tagIds: _, ...taskData } = body
+  const { tagIds: _, dueDate, ...taskData } = body
 
   const task = await prisma.task.create({
     data: {
       ...taskData, userId,
+      ...(dueDate && { dueDate: new Date(dueDate) }),
       tags: {
         create: tagIds.map(tagId => ({ tagId }))
       }

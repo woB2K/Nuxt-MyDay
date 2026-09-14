@@ -33,9 +33,9 @@ formatDateTime(entry.createdAt)       // → только для настоящ�
 
 | Что | Тип в БД | Как фильтровать |
 |---|---|---|
-| `Transaction.date`, `Budget.month` | `DateTime @db.Date` | `gte: new Date(from)`, `lte: new Date(to)` — границы совпадают с днями |
+| `Transaction.date`, `Budget.month`, `Task.dueDate` | `DateTime @db.Date` | `gte: new Date(from)`, `lte: new Date(to)` — границы совпадают с днями |
 | `SavingsEntry.createdAt` (у копилки своей даты нет) | `DateTime` (timestamp) | `timestampRange(from, to)` из `server/utils/dateRange.ts`: `>= from 00:00Z`, `< to + 1 день`. Иначе записи, сделанные днём `to`, выпадут из выборки |
-| `Task.dueDate` и прочее из Фазы 3 | смотреть `schema.prisma` перед фильтрацией | по типу колонки, см. две строки выше |
+| Новые поля дат | смотреть `schema.prisma` перед фильтрацией | по типу колонки, см. две строки выше. Календарный день заводим как `@db.Date` + `z.iso.date()`, nullable-поле в update-схеме делаем `.nullable()` — иначе дату нельзя снять |
 
 ## Период — объект, а не месяц
 

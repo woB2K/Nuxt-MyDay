@@ -9,11 +9,10 @@ import {
   todayTasks
 } from '~/utils/taskStats'
 
-definePageMeta({ hideFab: true })
-
 const { t, locale } = useI18n()
 
 const authStore = useAuthStore()
+const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
 const filter = ref<TaskFilter>('all')
 const search = ref('')
@@ -48,6 +47,17 @@ const dateLabel = computed(() => {
 function toggle(task: TaskItem, done = !task.done) {
   toggleTask({ id: task.id, done })
 }
+
+const sheetOpen = ref(false)
+const editing = ref<TaskItem | null>(null)
+
+function openSheet(task: TaskItem | null = null) {
+  editing.value = task
+  sheetOpen.value = true
+}
+
+onMounted(() => register?.(() => openSheet()))
+onUnmounted(() => register?.(null))
 </script>
 
 <template>
@@ -77,6 +87,7 @@ function toggle(task: TaskItem, done = !task.done) {
         :task="focus"
         class="mt-1"
         @toggle="done => toggle(focus!, done)"
+        @open="openSheet(focus)"
       />
 
       <UiSectionHeader :title="t('tasks.today')" :caption="`${openCount}`" />
@@ -97,10 +108,17 @@ function toggle(task: TaskItem, done = !task.done) {
             @complete="toggle(task)"
             @delete="deleteTask(task.id)"
           >
-            <UiTaskRow :task="task" @toggle="done => toggle(task, done)" />
+            <UiTaskRow
+              :task="task"
+              class="cursor-pointer"
+              @toggle="done => toggle(task, done)"
+              @open="openSheet(task)"
+            />
           </UiSwipeRow>
         </template>
       </UiCard>
     </template>
+
+    <TaskSheet v-model:open="sheetOpen" :task="editing" />
   </div>
 </template>

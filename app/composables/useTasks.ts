@@ -1,6 +1,6 @@
 import type { QueryClient, QueryKey } from '@tanstack/vue-query'
 import type { Tag, Task } from '~~/prisma/.generated/prisma'
-import type { CreateTaskInput, TaskItem, TemplateItem, UpdateTaskInput } from '~~/shared/types'
+import type { CreateTagInput, CreateTaskInput, TaskItem, TemplateItem, UpdateTaskInput } from '~~/shared/types'
 import type { TaskFilter } from '~/utils/taskFilters'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { taskQuery } from '~/utils/taskFilters'
@@ -49,6 +49,23 @@ export function useTemplatesQuery() {
   return useQuery({
     queryKey: queryKeys.templates(),
     queryFn: () => api<TemplateItem[]>('/api/templates')
+  })
+}
+
+export function useAddTagMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+
+  return useMutation({
+    mutationFn: (data: CreateTagInput) =>
+      api<Tag>('/api/tags', { method: 'POST', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] })
+    },
+    onError: () => {
+      useAppToast().error(t('toast.tags.addError'))
+    }
   })
 }
 
