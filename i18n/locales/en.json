@@ -154,9 +154,22 @@
       "evening": "Good evening"
     },
     "today": "Today",
+    "allTasks": "All tasks",
+    "count": "{count} task | {count} tasks",
     "focus": "Focus",
     "empty": "Nothing for today",
     "emptySub": "Add a task and it shows up here",
+    "emptyAll": "No tasks yet",
+    "emptyAllSub": "Tap + to add the first one",
+    "filters": {
+      "all": "All",
+      "open": "Open",
+      "done": "Done",
+      "searchPlaceholder": "Search tasks",
+      "noResults": "Nothing found",
+      "noResultsSub": "Try another search or filter",
+      "clearFilters": "Clear filters"
+    },
     "add": "New task",
     "edit": "Edit task",
     "title": "Title",
