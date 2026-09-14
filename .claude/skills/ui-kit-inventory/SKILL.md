@@ -1,11 +1,11 @@
 ---
 name: ui-kit-inventory
-description: Что уже есть в app/components/ui/ проекта MyDay и с какими пропсами — UiButton, UiInput, UiSheet, UiPillSelect, UiSwipeRow, UiChip, UiRoundBtn, UiEmptyState, UiCheckCircle, UiTxRow, UiCategoryTile, UiSectionHeader, скелетоны. Используй перед вёрсткой любого экрана или компонента, чтобы переиспользовать готовое, а не писать второй такой же.
+description: Что уже есть в app/components/ui/ проекта MyDay и с какими пропсами — UiButton, UiInput, UiSheet, UiPillSelect, UiSwipeRow, UiChip, UiRoundBtn, UiEmptyState, UiCheckCircle, UiTxRow, UiTaskRow, UiDateStrip, UiStatsCard, UiTaskTemplateRow, UiCategoryTile, UiSectionHeader, скелетоны. Используй перед вёрсткой любого экрана или компонента, чтобы переиспользовать готовое, а не писать второй такой же.
 ---
 
 # Инвентарь Ui-компонентов — MyDay
 
-Список актуален на закрытие Фазы 2 (11.09.2026). Если сомневаешься — `ls app/components/ui/` и открой файл: пропсы там на виду, это дешевле, чем угадывать.
+Список актуален на шаг 3.5 (14.09.2026). Если сомневаешься — `ls app/components/ui/` и открой файл: пропсы там на виду, это дешевле, чем угадывать.
 
 Все `Ui*` — без бизнес-логики и без запросов; данные приходят пропсами, наружу идут события. Спеки внешнего вида — в `DESIGN.md`, здесь только API.
 
@@ -16,6 +16,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | `UiButton` | `size` sm/md/lg (по умолчанию lg), `variant` primary/secondary/ghost/danger, `loading`, `disabled`, `to` | С `to` рендерится `NuxtLink`. `loading` показывает спиннер вместо слота |
 | `UiInput` | `v-model`, `label`, `placeholder`, `type` text/password/email/number, `multiline` + `rows`, `error`; слоты `icon`, `trailing` | Для `password` сам рисует кнопку показа. Поля даты — не сюда: нужен нативный `input[type=date]` с `[color-scheme:dark]` |
 | `UiPillSelect` | `v-model`, `options: { value, label, color?, inkColor? }[]`, `full`, `bgClass` | `color` красит активную пилюлю (расход — danger, доход — success) |
+| `UiDateStrip` | `v-model` (`YYYY-MM-DD` или `''`), `days` (7) | Семь дней от сегодня, горизонтальный скролл. Повторный тап по выбранному дню снимает дату. Отдаёт календарный день строкой, не `Date` |
 | `UiSwitch` | `v-model` (boolean) | iOS-стиль, 51×31 |
 | `UiChip` | `label`, `count`, `active`, `icon`, `trailingIcon` | Фильтры, быстрые суммы. Счётчик рисуется только при `count > 0` |
 | `UiRoundBtn` | `size` (36), `disabled` | Круглая кнопка: назад, стрелки периода, «+» в заголовке секции |
@@ -28,6 +29,9 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 |---|---|---|
 | `UiSwipeRow` | `rightAction?: { label, icon, gradient, inkColor }`, `completable`, `deletable` (true), `completed`; события `complete`, `delete` | Порог 90px, ось лочится на первом движении (вертикаль отдаётся скроллу). Правый слой рисуется только при `rightAction` или `completable`. Денежные строки — accent «Edit», зелёный «Done ✓» зарезервирован за задачами |
 | `UiTxRow` | `transaction`, `category`, `showDate` (true) | В сгруппированном по дням списке дату выключать. Собственный `border-b` пропадает, если строка — единственный ребёнок обёртки: разделители в таких списках рисуй сам |
+| `UiTaskRow` | `task` (с плоскими `tags`), `showDate` (true); события `toggle(done)`, `open` | Строка кликабельна целиком (`open`), чекбокс обёрнут в `@click.stop`. Просроченный дедлайн красится danger. Полоска приоритета справа — цвет из `priorityBarClass` |
+| `UiTaskTemplateRow` | `template`; события `use`, `edit` | Тап по строке — `edit`, кнопка «Применить» — `use` (со `@click.stop`) |
+| `UiStatsCard` | `type` streak/progress, `value`, `total` (progress) | Подписи свои, через `t('tasks.stats.*')`; стрик плюрализуется. Прогресс не уходит за 100% и не делит на ноль |
 | `UiCategoryTile` | `category`, `selected` | Плитка сетки категорий 4 в ряд |
 | `UiCategoryBar` | `category`, `amount`, `maxAmount`, `totalAmount` | Строка разбивки расходов с полосой и процентом |
 | `UiSavingsCard` | `balance`, `delta`; события `add`, `withdraw` | `balance` — всегда за всё время, `delta` — за выбранный период |
@@ -51,4 +55,5 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 - Переиспользуемое без бизнес-логики → `app/components/ui/UiX.vue`.
 - Экранное, знает про запросы и стор → `app/components/features/{finance,tasks,auth,settings}/X.vue` без префикса.
 - Автоимпорт настроен с `pathPrefix: false`, поэтому имя файла = имя тега: `PeriodBar.vue` → `<PeriodBar />`.
-- Ещё нет, но по `ROADMAP.md` понадобятся в Фазе 3: `UiTaskRow`, `UiDateStrip`, `UiTaskTemplateRow`, `UiStatsCard`.
+- Цвета приоритета задач не хардкодим: `priorityBarClass` / `priorityTextClass` из `app/utils/priority.ts`.
+- Ещё нет, но по `ROADMAP.md` понадобятся в Фазе 3: `FocusCard`, `TaskSheet`, `TemplateSheet` (это feature-компоненты, не `Ui*`) и скелетон `UiSkeletonTaskRow`.

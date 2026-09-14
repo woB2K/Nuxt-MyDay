@@ -18,7 +18,7 @@ export function fromDateString(value: string): Date {
   return new Date(year!, month! - 1, day!)
 }
 
-function toLocalDate(value: Date | string): Date {
+export function toLocalDate(value: Date | string): Date {
   if (typeof value === 'string') {
     const plain = value.slice(0, 10)
     if (DATE_ONLY.test(plain)) return fromDateString(plain)

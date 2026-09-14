@@ -147,6 +147,15 @@
     "category": "Category",
     "date": "Date"
   },
+  "tasks": {
+    "stats": {
+      "streak": "day streak | days streak",
+      "done": "Done today"
+    },
+    "templates": {
+      "use": "Use"
+    }
+  },
   "auth": {
     "name": "Name",
     "email": "Email",
