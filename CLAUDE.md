@@ -238,12 +238,17 @@ pnpm test
 # Тесты с покрытием
 pnpm test:coverage
 
-# E2E тесты (Playwright)
-pnpm test:e2e
+# Интеграционные тесты API (нужен контейнер тестовой БД)
+pnpm test:db:up && pnpm test:integration
+
+# E2E тесты (Playwright) — тоже против тестовой БД, свой дев-сервер на :3100
+pnpm test:db:up && pnpm test:e2e
 
 # E2E с UI (удобно при разработке)
 pnpm test:e2e --ui
 ```
+
+E2E поднимает собственный `nuxt dev --dotenv .env.test --port 3100`, поэтому не конфликтует с твоим `pnpm dev` на :3000 и никогда не пишет в dev-базу. Браузер ставится один раз: `pnpm exec playwright install chromium`.
 
 Необходимые переменные окружения (скопируй `.env.example` → `.env`):
 

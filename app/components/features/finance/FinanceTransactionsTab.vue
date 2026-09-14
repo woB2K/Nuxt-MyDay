@@ -74,6 +74,7 @@ function applyCategories(ids: string[]) {
         <span
           class="font-bold leading-none"
           :class="[netFontClass, net < 0 ? 'text-danger' : 'text-text']"
+          data-testid="finance-net"
         >{{ net < 0 ? '−' : '' }}{{ formatAmount(Math.abs(net)) }} ₽</span>
 
         <div class="h-2.5 flex rounded-full overflow-hidden gap-0.5 bg-white/6">

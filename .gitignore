@@ -27,6 +27,10 @@ logs
 # Prisma generated client
 prisma/.generated/
 
+# Playwright artifacts
+test-results/
+playwright-report/
+
 # Design prototype (reference only, not part of codebase)
 design_handoff_myday/
 
