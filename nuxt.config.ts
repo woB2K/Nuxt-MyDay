@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import process from 'node:process'
+import { apiCacheName } from './app/utils/swCache'
 
 export default defineNuxtConfig({
   modules: [
@@ -103,6 +104,35 @@ export default defineNuxtConfig({
         { src: '/maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
       ]
     },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,json}'],
+      navigateFallback: '/',
+      navigateFallbackDenylist: [/^\/api\//],
+      cleanupOutdatedCaches: true,
+      runtimeCaching: [
+        {
+          urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/'),
+          handler: 'NetworkFirst',
+          method: 'GET',
+          options: {
+            cacheName: apiCacheName,
+            networkTimeoutSeconds: 5,
+            expiration: { maxEntries: 64, maxAgeSeconds: 60 * 60 * 24 },
+            cacheableResponse: { statuses: [200] }
+          }
+        },
+        {
+          urlPattern: ({ request, sameOrigin }) => sameOrigin && (request.destination === 'image' || request.destination === 'font'),
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'myday-static',
+            expiration: { maxEntries: 96, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            cacheableResponse: { statuses: [0, 200] }
+          }
+        }
+      ]
+    },
+
     devOptions: {
       enabled: false
     }

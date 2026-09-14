@@ -71,6 +71,20 @@ describe('logout()', () => {
     expect(store.isAuthenticated).toBe(false)
   })
 
+  it('purges cached api responses so the next account cannot read them', async () => {
+    const remove = vi.fn().mockResolvedValue(true)
+    vi.stubGlobal('caches', { delete: remove })
+    mockFetch.mockResolvedValueOnce({})
+
+    const store = useAuthStore()
+    store.accessToken = 'some-token'
+    store.user = mockUser
+
+    await store.logout()
+
+    expect(remove).toHaveBeenCalledWith('myday-api')
+  })
+
   it('sends logout request to the correct endpoint', async () => {
     mockFetch.mockResolvedValueOnce({})
 

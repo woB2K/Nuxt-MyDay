@@ -59,6 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
     })
     user.value = null
     accessToken.value = null
+    await clearApiCache()
   }
 
   return {
