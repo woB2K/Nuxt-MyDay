@@ -5,24 +5,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import TaskSheet from '../../../app/components/features/tasks/TaskSheet.vue'
 
-const { state, addMutate, updateMutate, deleteMutate, tagMutate, toastError } = vi.hoisted(() => ({
-  state: {
-    tags: { value: [{ id: 'tag-1', name: 'дом' }, { id: 'tag-2', name: 'работа' }] }
-  },
+const { addMutate, updateMutate, deleteMutate, toastError } = vi.hoisted(() => ({
   addMutate: vi.fn(),
   updateMutate: vi.fn(),
   deleteMutate: vi.fn(),
-  tagMutate: vi.fn(),
   toastError: vi.fn()
 }))
 
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
 mockNuxtImport('useAppToast', () => () => ({ success: () => {}, error: toastError, info: () => {} }))
-mockNuxtImport('useTagsQuery', () => () => ({ data: state.tags }))
 mockNuxtImport('useAddTaskMutation', () => () => ({ mutate: addMutate, isPending: ref(false) }))
 mockNuxtImport('useUpdateTaskMutation', () => () => ({ mutate: updateMutate, isPending: ref(false) }))
 mockNuxtImport('useDeleteTaskMutation', () => () => ({ mutate: deleteMutate, isPending: ref(false) }))
-mockNuxtImport('useAddTagMutation', () => () => ({ mutate: tagMutate, isPending: ref(false) }))
 
 const existing: TaskItem = {
   id: 'task-1',
@@ -53,9 +47,8 @@ function mountSheet(task: TaskItem | null = null) {
         UiSheet: { template: '<div><slot /></div>' },
         UiPillSelect: true,
         UiDateStrip: true,
-        UiChip: true,
+        TagPicker: true,
         UiInput: true,
-        UiRoundBtn: { name: 'UiRoundBtn', template: '<button type="button"><slot /></button>' },
         UiButton: { template: '<button type="submit"><slot /></button>' },
         UIcon: true
       }
@@ -71,7 +64,6 @@ beforeEach(() => {
   addMutate.mockReset()
   updateMutate.mockReset()
   deleteMutate.mockReset()
-  tagMutate.mockReset()
   toastError.mockReset()
 })
 
@@ -139,21 +131,8 @@ describe('taskSheet', () => {
     expect(updateMutate.mock.calls[0]![0]).toMatchObject({ tagIds: ['tag-1'] })
   })
 
-  it('новый тег сразу попадает в выбранные', async () => {
-    tagMutate.mockImplementation((_body, options) => options.onSuccess({ id: 'tag-3', name: 'спорт' }))
-    const wrapper = mountSheet()
-    await wrapper.findAllComponents({ name: 'UiInput' })[0]!.setValue('Купить молоко')
-    await wrapper.find('input[type="text"]').setValue('спорт')
-
-    await wrapper.findComponent({ name: 'UiRoundBtn' }).trigger('click')
-    await wrapper.find('form').trigger('submit')
-
-    expect(tagMutate.mock.calls[0]![0]).toEqual({ name: 'спорт' })
-    expect(addMutate.mock.calls[0]![0]).toMatchObject({ tagIds: ['tag-3'] })
-  })
-
   it('удаляет задачу только в режиме редактирования', async () => {
-    expect(mountSheet().findAll('button[type="button"]').length).toBe(1)
+    expect(mountSheet().findAll('button[type="button"]')).toHaveLength(0)
 
     const wrapper = mountSheet(existing)
     const buttons = wrapper.findAll('button[type="button"]')

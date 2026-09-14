@@ -228,6 +228,10 @@ export function useAddTaskMutation() { ... }
 export function useUpdateTaskMutation() { ... }
 export function useToggleTaskMutation() { ... }   // оптимистичный
 export function useDeleteTaskMutation() { ... }   // оптимистичный
+export function useAddTagMutation() { ... }
+export function useAddTemplateMutation() { ... }
+export function useUpdateTemplateMutation() { ... }
+export function useDeleteTemplateMutation() { ... }
 ```
 
 ## useApi — авторизованные запросы с клиента

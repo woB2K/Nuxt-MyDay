@@ -56,4 +56,4 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 - Экранное, знает про запросы и стор → `app/components/features/{finance,tasks,auth,settings}/X.vue` без префикса.
 - Автоимпорт настроен с `pathPrefix: false`, поэтому имя файла = имя тега: `PeriodBar.vue` → `<PeriodBar />`.
 - Цвета приоритета задач не хардкодим: `priorityBarClass` / `priorityTextClass` из `app/utils/priority.ts`.
-- Feature-компоненты задач уже есть: `FocusCard`, `TaskSheet` (в `features/tasks/`). По `ROADMAP.md` осталось добавить `TemplateSheet` (3.10) и, если понадобится, скелетон `UiSkeletonTaskRow`.
+- Feature-компоненты задач (`features/tasks/`): `FocusCard`, `TaskSheet`, `TemplateSheet`, `TaskFilterBar`, `TagPicker`. Выбор тегов не дублируем — в обоих шитах стоит `<TagPicker v-model="tagIds" />`, он же сам создаёт новые теги.

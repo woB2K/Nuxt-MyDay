@@ -42,11 +42,17 @@ onUnmounted(() => register?.(null))
 
 <template>
   <div class="flex flex-col p-4 gap-3">
-    <div class="flex flex-col gap-1">
-      <h1 class="text-3xl font-bold text-text">
-        {{ t('tasks.allTasks') }}
-      </h1>
-      <span class="text-sm text-text-dim">{{ t('tasks.count', { count: list.length }, list.length) }}</span>
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex flex-col gap-1">
+        <h1 class="text-3xl font-bold text-text">
+          {{ t('tasks.allTasks') }}
+        </h1>
+        <span class="text-sm text-text-dim">{{ t('tasks.count', { count: list.length }, list.length) }}</span>
+      </div>
+
+      <UiRoundBtn class="mt-1" @click="navigateTo('/tasks/templates')">
+        <UIcon name="i-lucide-repeat" class="w-4.5 h-4.5" />
+      </UiRoundBtn>
     </div>
 
     <TaskFilterBar

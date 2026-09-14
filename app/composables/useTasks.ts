@@ -1,6 +1,14 @@
 import type { QueryClient, QueryKey } from '@tanstack/vue-query'
 import type { Tag, Task } from '~~/prisma/.generated/prisma'
-import type { CreateTagInput, CreateTaskInput, TaskItem, TemplateItem, UpdateTaskInput } from '~~/shared/types'
+import type {
+  CreateTagInput,
+  CreateTaskInput,
+  CreateTemplateInput,
+  TaskItem,
+  TemplateItem,
+  UpdateTaskInput,
+  UpdateTemplateInput
+} from '~~/shared/types'
 import type { TaskFilter } from '~/utils/taskFilters'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { taskQuery } from '~/utils/taskFilters'
@@ -49,6 +57,60 @@ export function useTemplatesQuery() {
   return useQuery({
     queryKey: queryKeys.templates(),
     queryFn: () => api<TemplateItem[]>('/api/templates')
+  })
+}
+
+export function useAddTemplateMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+
+  return useMutation({
+    mutationFn: (data: CreateTemplateInput) =>
+      api<TemplateItem>('/api/templates', { method: 'POST', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+      useAppToast().success(t('toast.templates.addSuccess'))
+    },
+    onError: () => {
+      useAppToast().error(t('toast.templates.addError'))
+    }
+  })
+}
+
+export function useUpdateTemplateMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & UpdateTemplateInput) =>
+      api<TemplateItem>(`/api/templates/${id}`, { method: 'PATCH', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+      useAppToast().success(t('toast.templates.updateSuccess'))
+    },
+    onError: () => {
+      useAppToast().error(t('toast.templates.updateError'))
+    }
+  })
+}
+
+export function useDeleteTemplateMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<TemplateItem>(`/api/templates/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+      useAppToast().success(t('toast.templates.deleteSuccess'))
+    },
+    onError: () => {
+      useAppToast().error(t('toast.templates.deleteError'))
+    }
   })
 }
 

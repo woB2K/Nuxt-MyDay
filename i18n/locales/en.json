@@ -191,7 +191,14 @@
       "done": "Done today"
     },
     "templates": {
-      "use": "Use"
+      "title": "Templates",
+      "subtitle": "Reusable tasks you add in one tap",
+      "add": "New template",
+      "edit": "Edit template",
+      "use": "Use",
+      "delete": "Delete template",
+      "empty": "No templates yet",
+      "emptySub": "Save a repeating task as a template"
     },
     "error": {
       "title": "Give the task a title"
