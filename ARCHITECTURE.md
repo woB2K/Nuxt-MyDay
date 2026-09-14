@@ -133,4 +133,8 @@ sequenceDiagram
 
   Снимать обход — только убедившись, что `nuxt build` выходит сам, и после повторного прогона `pnpm test` с подсчётом тестов, а не одного лишь кода выхода.
 
+- **Интеграционные тесты требуют предварительного `pnpm typecheck`** (найдено 14.09.2026 на первом прогоне CI). Корневой `tsconfig.json` ссылается на четыре `./.nuxt/tsconfig.*.json`, а `nuxt prepare` (то есть `postinstall`) на чистом клоне создаёт из них только `tsconfig.server.json` — квирк Nuxt 4.4.2. Vite резолвит tsconfig при трансформации и падает с `TSConfckParseError: ENOENT`, сначала на `global-setup.ts`, затем внутри фикстурной сборки `@nuxt/test-utils`. Все четыре файла пишет `nuxt typecheck`, поэтому в CI он стоит отдельным шагом перед `pnpm test:integration`. Локально проблема не воспроизводится, пока в `.nuxt/` лежат файлы от прошлых сборок — проверять только после `rm -rf .nuxt node_modules/.cache/nuxt`. E2E этого шага не требует: Playwright поднимает `nuxt dev`, который генерирует всё сам до загрузки спек.
+
+- **Юнит-тесты `jwt.ts` зависели от локального `.env`** (там же). Секреты берутся из `useRuntimeConfig()`, в CI они пустые, и `jose` падал с `DataError: Zero-length key is not supported` — 6 тестов из 7. Лечится через `environmentOptions.nuxt.overrides.runtimeConfig` в `vitest.config.ts`. Важно: override задаёт **дефолт**, а `NUXT_JWT_ACCESS_SECRET` из `.env` его перебивает, поэтому привязывать тесты к конкретному значению секрета нельзя — результат разойдётся между локалью и CI. Тест `runs against non-empty signing secrets` сторожит именно непустоту, а не значение.
+
 Хронология обсуждений — в `context/` (gitignored).

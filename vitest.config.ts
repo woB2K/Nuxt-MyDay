@@ -9,7 +9,13 @@ export default defineVitestConfig({
     exclude: ['**/node_modules/**', 'tests/integration/**', 'tests/e2e/**'],
     environmentOptions: {
       nuxt: {
-        domEnvironment: 'happy-dom'
+        domEnvironment: 'happy-dom',
+        overrides: {
+          runtimeConfig: {
+            jwtAccessSecret: 'unit-test-access-secret-32-chars!',
+            jwtRefreshSecret: 'unit-test-refresh-secret-32chars!'
+          }
+        }
       }
     },
     coverage: {

@@ -30,6 +30,12 @@ describe('signAccessToken / verifyAccessToken', () => {
     await expect(verifyAccessToken(token)).rejects.toThrow()
   })
 
+  it('runs against non-empty signing secrets', () => {
+    const config = useRuntimeConfig()
+    expect(config.jwtAccessSecret).not.toBe('')
+    expect(config.jwtRefreshSecret).not.toBe('')
+  })
+
   it('throws on expired token', async () => {
     vi.useFakeTimers()
     const token = await signAccessToken('user-123')

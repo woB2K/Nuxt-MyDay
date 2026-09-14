@@ -97,6 +97,9 @@ jobs:
       - name: Generate Prisma client
         run: pnpm prisma generate
 
+      - name: Generate Nuxt types
+        run: pnpm typecheck
+
       - name: Integration tests
         run: pnpm test:integration
 
