@@ -1,4 +1,8 @@
 {
+  "app": {
+    "title": "MyDay — tasks & finances",
+    "description": "Tasks and finances in one place"
+  },
   "general": {
     "somethingWrong": "Something went wrong",
     "save": "Save",
