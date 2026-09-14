@@ -148,6 +148,21 @@
     "date": "Date"
   },
   "tasks": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "today": "Today",
+    "focus": "Focus",
+    "empty": "Nothing for today",
+    "emptySub": "Add a task and it shows up here",
+    "priority": {
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low",
+      "NONE": "No priority"
+    },
     "stats": {
       "streak": "day streak | days streak",
       "done": "Done today"
