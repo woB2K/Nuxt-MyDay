@@ -142,10 +142,11 @@
 
 ## Фаза 5 — CI/CD
 
-- [x] **5.1** `.github/workflows/ci.yml` — pipeline: `lint → typecheck → build`
-- [ ] **5.1.1** Добавить прогон тестов в CI: шаг `pnpm test` (unit) перед build
-- [ ] **5.2** Настроить GitHub Secrets для переменных окружения
-- [ ] **5.3** Branch protection rule на `main` (требовать прохождения CI)
+- [x] **5.1** `.github/workflows/ci.yml` — pipeline: `lint → typecheck → build`. Переписан 14.09.2026: триггеры стояли только на `main`, поэтому за всю Фазу 3 pipeline не запускался ни разу. Добавлены `dev`, `workflow_dispatch` и `concurrency: cancel-in-progress` (частые пуши в `dev` иначе копят очередь прогонов)
+- [x] **5.1.1** Тесты в CI. Три независимых job, идут параллельно: `quality` (lint → typecheck → `pnpm test` → build), `integration` (`pnpm test:integration` против service-контейнера Postgres, порт 5434 как в `docker-compose.test.yml`), `e2e` (Playwright; только на PR в `main` и по `workflow_dispatch` — поднимает дев-сервер плюс Chromium, для каждого пуша в `dev` слишком долго). Build не переиспользуется между job: `@nuxt/test-utils` собирает свой фикстурный билд, шарить нечего
+- [x] **5.1.2** Починен `nuxt build`, который не завершался после успешной сборки — без этого job `quality` висел бы до таймаута на зелёном билде, а в Фазе 6 так же вис бы `docker build`. Диагностика и обход описаны в `ARCHITECTURE.md` → «Известные баги»
+- [~] **5.2** ~~Настроить GitHub Secrets для переменных окружения~~ → не нужно для CI, реальные секреты требуются только деплою (**6.3**). `runtimeConfig` в `nuxt.config.ts` объявлен с пустыми дефолтами и читается в рантайме, так что `pnpm build` секретов не требует; job `quality` работает с фейковым `DATABASE_URL` (Prisma нужен он только для `generate`, коннекта нет), тестовые job — с адресом service-контейнера. **Важно:** `process.loadEnvFile` не перетирает уже заданные переменные, поэтому фейковый `DATABASE_URL` на уровне workflow молча увёл бы интеграционные тесты мимо тестовой БД — URL задаётся только внутри job
+- [ ] **5.3** Branch protection rule на `main` (требовать прохождения CI) — только через веб-интерфейс: Settings → Branches → Add rule для `main`, включить *Require status checks to pass* и выбрать `quality` + `integration` + `e2e` (появятся в списке после первого прогона)
 
 ---
 
