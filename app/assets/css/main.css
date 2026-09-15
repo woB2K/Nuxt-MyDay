@@ -141,6 +141,7 @@ body {
   --duration-fast:  150ms;
   --duration-base:  240ms;
   --duration-slow:  360ms;
+  --duration-swipe: 280ms;
   --duration-sheet: 420ms;
 }
 
@@ -171,4 +172,19 @@ body {
   --color-p-med:       var(--c-p-med);
   --color-p-low:       var(--c-p-low);
   --color-p-none:      var(--c-p-none);
+}
+
+@utility pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
 }

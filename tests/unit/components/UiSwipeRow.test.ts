@@ -1,22 +1,38 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import UiSwipeRow from '../../../app/components/ui/UiSwipeRow.vue'
 
 const THRESHOLD = 90
+const MAX_PULL = 132
 
-function mountRow(props: Record<string, unknown> = {}) {
+function mountRow(props: Record<string, unknown> = {}, slot = '<div>row</div>') {
   return mount(UiSwipeRow, {
     props,
-    slots: { default: '<div>row</div>' },
+    slots: { default: slot },
     global: { stubs: { UIcon: true } }
   })
 }
 
-async function swipe(wrapper: ReturnType<typeof mountRow>, dx: number, dy = 0) {
-  const content = wrapper.find('.touch-pan-y')
-  await content.trigger('pointerdown', { clientX: 0, clientY: 0 })
-  await content.trigger('pointermove', { clientX: dx, clientY: dy })
-  await content.trigger('pointerup')
+type Row = ReturnType<typeof mountRow>
+
+function content(wrapper: Row) {
+  return wrapper.find('.touch-pan-y')
+}
+
+async function drag(wrapper: Row, dx: number, dy = 0) {
+  await content(wrapper).trigger('pointerdown', { clientX: 0, clientY: 0 })
+  await content(wrapper).trigger('pointermove', { clientX: dx, clientY: dy })
+}
+
+async function swipe(wrapper: Row, dx: number, dy = 0) {
+  await drag(wrapper, dx, dy)
+  await content(wrapper).trigger('pointerup')
+}
+
+function offsetOf(wrapper: Row) {
+  const transform = content(wrapper).attributes('style')?.match(/translateX\((-?[\d.]+)px\)/)
+
+  return Number(transform?.[1] ?? 0)
 }
 
 describe('uiSwipeRow', () => {
@@ -68,5 +84,54 @@ describe('uiSwipeRow', () => {
     await swipe(wrapper, -(THRESHOLD + 10))
 
     expect(wrapper.emitted('delete')).toBeUndefined()
+  })
+
+  it('тормозит палец резинкой за MAX_PULL', async () => {
+    const wrapper = mountRow()
+
+    await drag(wrapper, -(MAX_PULL + 100))
+
+    const offset = Math.abs(offsetOf(wrapper))
+
+    expect(offset).toBeGreaterThan(MAX_PULL)
+    expect(offset).toBeLessThan(MAX_PULL + 100)
+  })
+
+  it('держит слой действия видимым, пока строка едет обратно', async () => {
+    const wrapper = mountRow()
+
+    await drag(wrapper, -(THRESHOLD - 10))
+    expect(wrapper.find('.bg-danger').exists()).toBe(true)
+
+    await content(wrapper).trigger('pointerup')
+    expect(wrapper.find('.bg-danger').exists()).toBe(true)
+
+    await content(wrapper).trigger('transitionend')
+    expect(wrapper.find('.bg-danger').exists()).toBe(false)
+  })
+
+  it('гасит клик, который браузер шлёт после свайпа', async () => {
+    const onTap = vi.fn()
+    const wrapper = mountRow({}, '<button type="button">row</button>')
+
+    wrapper.find('button').element.addEventListener('click', onTap)
+
+    await swipe(wrapper, -(THRESHOLD + 10))
+    await wrapper.find('button').trigger('click')
+
+    expect(onTap).not.toHaveBeenCalled()
+  })
+
+  it('не мешает обычному тапу без движения', async () => {
+    const onTap = vi.fn()
+    const wrapper = mountRow({}, '<button type="button">row</button>')
+
+    wrapper.find('button').element.addEventListener('click', onTap)
+
+    await content(wrapper).trigger('pointerdown', { clientX: 0, clientY: 0 })
+    await content(wrapper).trigger('pointerup')
+    await wrapper.find('button').trigger('click')
+
+    expect(onTap).toHaveBeenCalledTimes(1)
   })
 })

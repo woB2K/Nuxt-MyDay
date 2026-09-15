@@ -132,11 +132,11 @@ function submit() {
         <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-dim">
           {{ t('settings.categoriesScreen.color') }}
         </span>
-        <div class="flex flex-wrap gap-3">
+        <div class="grid grid-cols-8 gap-2">
           <button
             v-for="option in categoryColors"
             :key="option"
-            class="size-9 flex items-center justify-center rounded-full transition-transform duration-fast ease-spring"
+            class="aspect-square flex items-center justify-center rounded-full transition-transform duration-fast ease-spring"
             :class="color === option ? 'scale-[1.08]' : 'active:scale-95'"
             :style="{
               backgroundColor: option,
