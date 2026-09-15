@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Category } from '~~/prisma/.generated/prisma'
+import { categoryLabel } from '~/utils/categoryLabel'
 
 interface Props {
   category: Category
@@ -7,6 +8,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const { t } = useI18n()
+const label = computed(() => categoryLabel(props.category, t))
 </script>
 
 <template>
@@ -28,7 +32,7 @@ const props = defineProps<Props>()
       :class="props.selected ? '' : 'text-text-dim'"
       :style="props.selected ? { color: props.category.color } : {}"
     >
-      {{ props.category.name }}
+      {{ label }}
     </span>
   </button>
 </template>

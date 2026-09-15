@@ -157,9 +157,11 @@ model Category {
   id        String          @id @default(cuid())
   userId    String
   name      String
+  key       String?
   icon      String
   color     String
   type      TransactionType
+  isSystem  Boolean         @default(false)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 
@@ -167,7 +169,7 @@ model Category {
   transactions Transaction[]
   budgets      Budget[]
 
-  @@unique([userId, name])
+  @@unique([userId, name, type])
 }
 
 model Budget {

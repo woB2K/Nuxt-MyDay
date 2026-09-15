@@ -35,6 +35,7 @@ export type BudgetItem = WithNumberAmount<Budget>
 export interface CategoryInfo {
   id: string
   name: string
+  key: string | null
   icon: string
   color: string
 }

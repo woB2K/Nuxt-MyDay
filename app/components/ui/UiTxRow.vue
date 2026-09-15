@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Category, Transaction } from '~~/prisma/.generated/prisma'
+import { categoryLabel } from '~/utils/categoryLabel'
 
 interface Props {
   transaction: Transaction
@@ -8,6 +9,9 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), { showDate: true })
+
+const { t } = useI18n()
+const label = computed(() => categoryLabel(props.category, t))
 </script>
 
 <template>
@@ -23,9 +27,9 @@ const props = withDefaults(defineProps<Props>(), { showDate: true })
       />
     </div>
     <div class="flex flex-col gap-1 flex-1 min-w-0">
-      <span class="text-text text-sm font-semibold">{{ props.transaction.notes || props.category.name }}</span>
+      <span class="text-text text-sm font-semibold">{{ props.transaction.notes || label }}</span>
       <span class="text-text-dim text-xs">
-        {{ props.category.name }}<template v-if="props.showDate"> · {{ formatDay(props.transaction.date) }}</template>
+        {{ label }}<template v-if="props.showDate"> · {{ formatDay(props.transaction.date) }}</template>
       </span>
     </div>
     <span

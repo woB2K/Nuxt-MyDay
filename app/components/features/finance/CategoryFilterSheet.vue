@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { categoryLabel } from '~/utils/categoryLabel'
+
 const props = defineProps<{
   open: boolean
   selected: string[]
@@ -46,7 +48,7 @@ function apply() {
         >
           <UIcon :name="category.icon" class="w-4.5 h-4.5" :style="{ color: category.color }" />
         </span>
-        <span class="flex-1 text-left text-[15px] font-semibold text-text truncate">{{ category.name }}</span>
+        <span class="flex-1 text-left text-[15px] font-semibold text-text truncate">{{ categoryLabel(category, t) }}</span>
         <span class="text-xs text-text-mute">
           {{ category.type === 'INCOME' ? t('finance.income') : t('finance.expense') }}
         </span>

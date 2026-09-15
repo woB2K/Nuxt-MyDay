@@ -248,6 +248,36 @@
     "templatesSub": "Add a task in one tap",
     "signOut": "Sign out",
     "signOutError": "Could not sign out",
-    "saveError": "Could not save settings"
+    "saveError": "Could not save settings",
+    "categories": "Categories",
+    "categoriesSub": "Rename, recolour or add your own",
+    "categoriesScreen": {
+      "title": "Categories",
+      "subtitle": "Used to sort your income and spending",
+      "hint": "Swipe left to delete",
+      "add": "New category",
+      "edit": "Edit category",
+      "name": "Name",
+      "type": "Type",
+      "icon": "Icon",
+      "color": "Color",
+      "expense": "Expense",
+      "income": "Income",
+      "nameRequired": "Name can't be empty",
+      "systemTypeLocked": "Fallback category — its type is fixed"
+    }
+  },
+  "categories": {
+    "food": "Food & Drink",
+    "transport": "Transport",
+    "shopping": "Shopping",
+    "entertainment": "Entertainment",
+    "health": "Health",
+    "housing": "Housing",
+    "education": "Education",
+    "salary": "Salary",
+    "freelance": "Freelance",
+    "other-expense": "Other",
+    "other-income": "Other"
   }
 }

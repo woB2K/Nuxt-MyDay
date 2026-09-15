@@ -60,6 +60,9 @@ export function useDeleteCategoryMutation() {
       api<Category>(`/api/categories/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['summary'] })
+      queryClient.invalidateQueries({ queryKey: ['budgets'] })
       useAppToast().success(t('toast.categories.deleteSuccess'))
     },
     onError: () => {

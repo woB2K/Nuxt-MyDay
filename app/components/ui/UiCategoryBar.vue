@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { CategoryInfo } from '~~/shared/types'
+import { categoryLabel } from '~/utils/categoryLabel'
 
 interface Props {
   category: CategoryInfo
@@ -9,6 +10,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const { t } = useI18n()
+const label = computed(() => categoryLabel(props.category, t))
 
 const barWidth = computed(() => `${Math.round((props.amount / props.maxAmount) * 100)}%`)
 const percentage = computed(() => Math.round((props.amount / props.totalAmount) * 100))
@@ -29,7 +33,7 @@ const percentage = computed(() => Math.round((props.amount / props.totalAmount) 
 
     <div class="flex-1 min-w-0 flex flex-col gap-1.5">
       <div class="flex items-center justify-between gap-2">
-        <span class="text-text text-sm font-medium truncate">{{ props.category.name }}</span>
+        <span class="text-text text-sm font-medium truncate">{{ label }}</span>
         <span class="text-text-dim text-xs shrink-0">{{ percentage }}%</span>
       </div>
       <div class="h-1 rounded-full bg-elev-3 overflow-hidden">

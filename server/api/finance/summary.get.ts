@@ -52,6 +52,7 @@ export default defineEventHandler(async (event) => {
         category: {
           id: cat?.id ?? '',
           name: cat?.name ?? '',
+          key: cat?.key ?? null,
           icon: cat?.icon ?? '',
           color: cat?.color ?? ''
         }

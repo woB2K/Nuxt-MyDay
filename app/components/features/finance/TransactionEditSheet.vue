@@ -145,7 +145,7 @@ function remove() {
         <span class="text-[13px] text-text-dim">{{ t('finance.date') }}</span>
         <input
           v-model="date"
-          class="h-12 w-full px-3.5 rounded-xl border border-hairline bg-elev2 text-text text-base outline-none [color-scheme:dark]"
+          class="h-12 w-full px-3.5 rounded-xl border border-hairline bg-elev2 text-text text-base outline-none"
           type="date"
         >
       </label>
