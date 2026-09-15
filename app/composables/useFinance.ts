@@ -1,8 +1,12 @@
+import type { QueryClient, QueryKey } from '@tanstack/vue-query'
 import type { Transaction } from '~~/prisma/.generated/prisma'
 import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse } from '~~/shared/types'
+import type { SavingsCache, TransactionCache } from '~/utils/financeCache'
 import type { Period } from '~/utils/period'
 import type { TransactionFilters } from '~/utils/transactionFilters'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { cachedTransactions, dropFromSummary, dropSavingsEntry, dropTransaction } from '~/utils/financeCache'
+import { invalidateWhenSettled, restoreQueries, snapshotQueries } from '~/utils/optimistic'
 import { periodKey, periodRange } from '~/utils/period'
 import { filterKey, filterQuery } from '~/utils/transactionFilters'
 import { queryKeys } from './queryKeys'
@@ -10,6 +14,34 @@ import { useApi } from './useApi'
 
 function toQuery(period: Period, filters: TransactionFilters): Record<string, string> {
   return { ...periodRange(period), ...filterQuery(filters) }
+}
+
+function removeTransactionFromCaches(queryClient: QueryClient, id: string) {
+  const lists = queryClient.getQueriesData<TransactionCache>({ queryKey: ['transactions'] })
+  const removed = lists
+    .flatMap(([, cache]) => cachedTransactions(cache))
+    .find(transaction => transaction.id === id)
+
+  const summaryKeys = new Map<string, QueryKey>()
+
+  lists.forEach(([key, cache]) => {
+    if (!cache) return
+
+    const next = dropTransaction(cache, id)
+    if (next === cache) return
+
+    queryClient.setQueryData(key, next)
+
+    const scope = key.at(-1)
+    summaryKeys.set(JSON.stringify(scope), ['summary', scope])
+  })
+
+  if (!removed) return
+
+  summaryKeys.forEach(key => queryClient.setQueryData<SummaryResponse>(
+    key,
+    summary => summary && dropFromSummary(summary, removed)
+  ))
 }
 
 export function useSummaryQuery(period: Ref<Period>, filters: Ref<TransactionFilters>) {
@@ -123,13 +155,22 @@ export function useDeleteTransactionMutation() {
   return useMutation({
     mutationFn: (id: string) =>
       api<TransactionItem>(`/api/finance/transactions/${id}`, { method: 'DELETE' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['transactions'], ['summary'])
+
+      removeTransactionFromCaches(queryClient, id)
+
+      return { previous }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] })
-      queryClient.invalidateQueries({ queryKey: ['summary'] })
       useAppToast().success(t('toast.transactions.deleteSuccess'))
     },
-    onError: () => {
+    onError: (_error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
       useAppToast().error(t('toast.transactions.deleteError'))
+    },
+    onSettled: () => {
+      invalidateWhenSettled(queryClient, ['transactions'], ['summary'])
     }
   })
 }
@@ -160,12 +201,25 @@ export function useDeleteSavingsMutation() {
   return useMutation({
     mutationFn: (id: string) =>
       api<SavingsEntryItem>(`/api/finance/savings/${id}`, { method: 'DELETE' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['savings'])
+
+      queryClient.setQueriesData<SavingsCache>(
+        { queryKey: ['savings'] },
+        cache => cache && dropSavingsEntry(cache, id)
+      )
+
+      return { previous }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savings'] })
       useAppToast().success(t('toast.savings.deleteSuccess'))
     },
-    onError: () => {
+    onError: (_error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
       useAppToast().error(t('toast.savings.deleteError'))
+    },
+    onSettled: () => {
+      invalidateWhenSettled(queryClient, ['savings'])
     }
   })
 }

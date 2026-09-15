@@ -1,4 +1,4 @@
-import type { QueryClient, QueryKey } from '@tanstack/vue-query'
+import type { QueryClient } from '@tanstack/vue-query'
 import type { Tag, Task } from '~~/prisma/.generated/prisma'
 import type {
   CreateTagInput,
@@ -11,24 +11,13 @@ import type {
 } from '~~/shared/types'
 import type { TaskFilter } from '~/utils/taskFilters'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { invalidateWhenSettled, restoreQueries, snapshotQueries } from '~/utils/optimistic'
 import { taskQuery } from '~/utils/taskFilters'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
 
-type TaskListSnapshot = [QueryKey, TaskItem[] | undefined][]
-
-async function snapshotTasks(queryClient: QueryClient): Promise<TaskListSnapshot> {
-  await queryClient.cancelQueries({ queryKey: ['tasks'] })
-
-  return queryClient.getQueriesData<TaskItem[]>({ queryKey: ['tasks'] })
-}
-
 function patchTaskLists(queryClient: QueryClient, patch: (tasks: TaskItem[]) => TaskItem[]) {
   queryClient.setQueriesData<TaskItem[]>({ queryKey: ['tasks'] }, tasks => tasks && patch(tasks))
-}
-
-function restoreTaskLists(queryClient: QueryClient, snapshot: TaskListSnapshot = []) {
-  snapshot.forEach(([key, tasks]) => queryClient.setQueryData(key, tasks))
 }
 
 export function useTasksQuery(filter: Ref<TaskFilter>, search: Ref<string>) {
@@ -176,7 +165,7 @@ export function useToggleTaskMutation() {
     mutationFn: ({ id, done }: { id: string, done: boolean }) =>
       api<TaskItem>(`/api/tasks/${id}`, { method: 'PATCH', body: { done } }),
     onMutate: async ({ id, done }) => {
-      const previous = await snapshotTasks(queryClient)
+      const previous = await snapshotQueries(queryClient, ['tasks'])
 
       patchTaskLists(queryClient, tasks => tasks.map(task => task.id === id
         ? { ...task, done, doneAt: done ? new Date() : null }
@@ -185,11 +174,11 @@ export function useToggleTaskMutation() {
       return { previous }
     },
     onError: (_error, _variables, context) => {
-      restoreTaskLists(queryClient, context?.previous)
+      restoreQueries(queryClient, context?.previous)
       useAppToast().error(t('toast.tasks.updateError'))
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      invalidateWhenSettled(queryClient, ['tasks'])
     }
   })
 }
@@ -203,7 +192,7 @@ export function useDeleteTaskMutation() {
     mutationFn: (id: string) =>
       api<Task>(`/api/tasks/${id}`, { method: 'DELETE' }),
     onMutate: async (id) => {
-      const previous = await snapshotTasks(queryClient)
+      const previous = await snapshotQueries(queryClient, ['tasks'])
 
       patchTaskLists(queryClient, tasks => tasks.filter(task => task.id !== id))
 
@@ -213,11 +202,11 @@ export function useDeleteTaskMutation() {
       useAppToast().success(t('toast.tasks.deleteSuccess'))
     },
     onError: (_error, _id, context) => {
-      restoreTaskLists(queryClient, context?.previous)
+      restoreQueries(queryClient, context?.previous)
       useAppToast().error(t('toast.tasks.deleteError'))
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      invalidateWhenSettled(queryClient, ['tasks'])
     }
   })
 }
