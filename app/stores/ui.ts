@@ -1,3 +1,6 @@
+import type { AccentName } from '~/utils/accents'
+import { defaultAccent } from '~/utils/accents'
+
 type ToastType = 'success' | 'error' | 'info'
 
 interface Toast {
@@ -9,6 +12,7 @@ interface Toast {
 
 export const useUiStore = defineStore('ui', () => {
   const queue = ref<Toast[]>([])
+  const accent = ref<AccentName>(defaultAccent)
 
   function addToast(toast: Omit<Toast, 'id'>) {
     queue.value.push({
@@ -24,6 +28,7 @@ export const useUiStore = defineStore('ui', () => {
 
   return {
     queue,
+    accent,
     addToast,
     removeToast
   }

@@ -2,12 +2,15 @@
 @import "@nuxt/ui";
 
 :root {
+  color-scheme: dark;
+
   --c-bg:          #0F0F14;
   --c-elev1:       #15151C;
   --c-elev2:       #1C1C25;
   --c-elev3:       #26262F;
   --c-hairline:    rgba(255, 255, 255, 0.06);
   --c-hairline2:   rgba(255, 255, 255, 0.10);
+  --c-chrome:      rgba(15, 15, 20, 0.85);
 
   --c-text:        #F4F4F7;
   --c-text-dim:    #A1A1AA;
@@ -27,22 +30,92 @@
   --c-p-med:       #FBBF24;
   --c-p-low:       #60A5FA;
   --c-p-none:      #6B6B75;
+
+  --c-shadow-sm:    0 1px 2px rgba(0, 0, 0, 0.40);
+  --c-shadow-md:    0 4px 14px rgba(0, 0, 0, 0.35);
+  --c-shadow-lg:    0 12px 36px rgba(0, 0, 0, 0.45);
+  --c-shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.40);
 }
 
 .light {
-  --c-bg:          #F8F8FC;
+  color-scheme: light;
+
+  --c-bg:          #F4F4F8;
   --c-elev1:       #FFFFFF;
-  --c-elev2:       #F0F0F5;
-  --c-elev3:       #E5E5ED;
+  --c-elev2:       #EBEBF0;
+  --c-elev3:       #DFDFE8;
   --c-hairline:    rgba(0, 0, 0, 0.06);
   --c-hairline2:   rgba(0, 0, 0, 0.10);
+  --c-chrome:      rgba(255, 255, 255, 0.85);
 
   --c-text:        #0F0F14;
-  --c-text-dim:    #52525B;
-  --c-text-mute:   #A1A1AA;
-  --c-text-ghost:  #D4D4D8;
+  --c-text-dim:    #4A4A58;
+  --c-text-mute:   #8A8A98;
+  --c-text-ghost:  #BABABC;
 
+  --c-accent:      #6D3FD4;
+  --c-accent-soft: rgba(109, 63, 212, 0.10);
   --c-accent-ink:  #FFFFFF;
+
+  --c-success:     #059669;
+  --c-warning:     #D97706;
+  --c-danger:      #DC2626;
+  --c-info:        #2563EB;
+
+  --c-p-high:      #DC2626;
+  --c-p-med:       #D97706;
+  --c-p-low:       #2563EB;
+  --c-p-none:      #8A8A98;
+
+  --c-shadow-sm:    0 1px 2px rgba(15, 15, 20, 0.06);
+  --c-shadow-md:    0 4px 14px rgba(15, 15, 20, 0.08);
+  --c-shadow-lg:    0 12px 36px rgba(15, 15, 20, 0.12);
+  --c-shadow-sheet: 0 -8px 32px rgba(15, 15, 20, 0.10);
+}
+
+body {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
+:root[data-accent="teal"] {
+  --c-accent:      #2DD4BF;
+  --c-accent-soft: rgba(45, 212, 191, 0.14);
+}
+
+:root[data-accent="amber"] {
+  --c-accent:      #F59E0B;
+  --c-accent-soft: rgba(245, 158, 11, 0.14);
+}
+
+:root[data-accent="sky"] {
+  --c-accent:      #38BDF8;
+  --c-accent-soft: rgba(56, 189, 248, 0.14);
+}
+
+:root[data-accent="rose"] {
+  --c-accent:      #FB7185;
+  --c-accent-soft: rgba(251, 113, 133, 0.14);
+}
+
+.light[data-accent="teal"] {
+  --c-accent:      #0D9488;
+  --c-accent-soft: rgba(13, 148, 136, 0.10);
+}
+
+.light[data-accent="amber"] {
+  --c-accent:      #B45309;
+  --c-accent-soft: rgba(180, 83, 9, 0.10);
+}
+
+.light[data-accent="sky"] {
+  --c-accent:      #0284C7;
+  --c-accent-soft: rgba(2, 132, 199, 0.10);
+}
+
+.light[data-accent="rose"] {
+  --c-accent:      #E11D48;
+  --c-accent-soft: rgba(225, 29, 72, 0.10);
 }
 
 @theme static {
@@ -56,10 +129,10 @@
   --radius-xl:   20px;
   --radius-2xl:  24px;
 
-  --shadow-sm:    0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md:    0 4px 14px rgba(0, 0, 0, 0.35);
-  --shadow-lg:    0 12px 36px rgba(0, 0, 0, 0.45);
-  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-sm:    var(--c-shadow-sm);
+  --shadow-md:    var(--c-shadow-md);
+  --shadow-lg:    var(--c-shadow-lg);
+  --shadow-sheet: var(--c-shadow-sheet);
 
   --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -78,6 +151,7 @@
   --color-elev3:       var(--c-elev3);
   --color-hairline:    var(--c-hairline);
   --color-hairline2:   var(--c-hairline2);
+  --color-chrome:      var(--c-chrome);
 
   --color-text:        var(--c-text);
   --color-text-dim:    var(--c-text-dim);

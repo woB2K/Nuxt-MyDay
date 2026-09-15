@@ -7,7 +7,7 @@ const isActive = (path: string) => route.path.startsWith(path)
 </script>
 
 <template>
-  <div class="flex fixed bottom-0 pb-safe w-full items-center bg-[rgba(15,15,20,0.85)] backdrop-blur-[24px] p-2 text-text-dim border-t border-white/10">
+  <div class="flex fixed bottom-0 pb-safe w-full items-center bg-chrome backdrop-blur-[24px] p-2 text-text-dim border-t border-hairline2">
     <NuxtLink
       v-for="tab in TAB_ITEMS"
       :key="tab.path"

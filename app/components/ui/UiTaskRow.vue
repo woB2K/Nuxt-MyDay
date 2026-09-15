@@ -55,7 +55,7 @@ const overdue = computed(() => {
         <span
           v-for="tag in props.task.tags"
           :key="tag.id"
-          class="shrink-0 px-1.5 py-0.5 rounded bg-white/5 text-[11px] font-medium text-text-dim truncate"
+          class="shrink-0 px-1.5 py-0.5 rounded bg-hairline text-[11px] font-medium text-text-dim truncate"
         >
           {{ tag.name }}
         </span>

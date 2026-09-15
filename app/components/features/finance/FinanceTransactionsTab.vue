@@ -77,7 +77,7 @@ function applyCategories(ids: string[]) {
           data-testid="finance-net"
         >{{ net < 0 ? '−' : '' }}{{ formatAmount(Math.abs(net)) }} ₽</span>
 
-        <div class="h-2.5 flex rounded-full overflow-hidden gap-0.5 bg-white/6">
+        <div class="h-2.5 flex rounded-full overflow-hidden gap-0.5 bg-hairline">
           <div
             class="h-full bg-success rounded-full transition-[width] duration-500"
             :style="{ width: `${incomePercent}%` }"

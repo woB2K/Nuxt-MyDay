@@ -2,13 +2,16 @@
 import { useAuthStore } from './stores/auth'
 
 const { t, locale } = useI18n()
+const { accent, surfaceColor } = useTheme()
 
 useHead({
   meta: [
-    { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    { name: 'theme-color', content: () => surfaceColor.value }
   ],
   htmlAttrs: {
-    lang: () => locale.value
+    'lang': () => locale.value,
+    'data-accent': () => accent.value
   }
 })
 
