@@ -13,6 +13,9 @@ interface Toast {
 export const useUiStore = defineStore('ui', () => {
   const queue = ref<Toast[]>([])
   const accent = ref<AccentName>(defaultAccent)
+  const isLocked = ref(false)
+  const lockPrimed = ref(false)
+  const lockReturn = ref('/today')
 
   function addToast(toast: Omit<Toast, 'id'>) {
     queue.value.push({
@@ -29,6 +32,9 @@ export const useUiStore = defineStore('ui', () => {
   return {
     queue,
     accent,
+    isLocked,
+    lockPrimed,
+    lockReturn,
     addToast,
     removeToast
   }

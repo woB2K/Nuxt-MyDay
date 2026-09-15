@@ -12,8 +12,7 @@ export function toPublicSettings(settings: AppSettings) {
     theme: settings.theme,
     accent: settings.accent,
     lang: settings.lang,
-    pinEnabled: settings.pinEnabled,
-    pinHash: settings.pinEnabled ? settings.pinHash : null
+    pinEnabled: settings.pinEnabled
   }
 }
 

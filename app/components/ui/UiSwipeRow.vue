@@ -71,7 +71,6 @@ function onPointerDown(event: PointerEvent) {
   startY = event.clientY
   axis = 'none'
   dragging.value = true
-  capture(event)
 }
 
 function onPointerMove(event: PointerEvent) {
@@ -82,7 +81,10 @@ function onPointerMove(event: PointerEvent) {
 
   if (axis === 'none') {
     if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return
+
     axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+
+    if (axis === 'x') capture(event)
   }
 
   if (axis === 'y') return

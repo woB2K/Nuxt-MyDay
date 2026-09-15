@@ -37,8 +37,7 @@ const storedSettings = {
   theme: 'dark',
   accent: '#A78BFA',
   lang: 'en',
-  pinEnabled: false,
-  pinHash: null
+  pinEnabled: false
 }
 
 function seedUser() {

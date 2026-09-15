@@ -9,3 +9,16 @@ export const updateSettingsSchema = z.object({
   accent: accentSchema.optional(),
   lang: langSchema.optional()
 }).refine(body => Object.keys(body).length > 0, { message: 'No settings to update' })
+
+export const pinLength = 4
+
+export const pinSchema = z.string().regex(new RegExp(`^\\d{${pinLength}}$`), 'PIN must be 4 digits')
+
+export const setPinSchema = z.object({
+  pin: pinSchema,
+  currentPin: pinSchema.optional()
+})
+
+export const pinAttemptSchema = z.object({ pin: pinSchema })
+
+export const resetPinSchema = z.object({ password: z.string().min(1) })

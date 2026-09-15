@@ -22,8 +22,7 @@ const mockUser = {
     theme: 'dark',
     accent: 'blue',
     lang: 'en',
-    pinEnabled: false,
-    pinHash: null
+    pinEnabled: false
   }
 }
 

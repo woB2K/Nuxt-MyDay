@@ -1,9 +1,14 @@
 import type { UserProfile } from '~~/shared/types'
+import { useUiStore } from '~/stores/ui'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserProfile | null>(null)
   const accessToken = ref<string | null>(null)
   const isAuthenticated = computed(() => !!accessToken.value)
+
+  function openSession() {
+    useUiStore().lockPrimed = true
+  }
 
   async function refresh() {
     const { accessToken: newToken } = await $fetch<{ accessToken: string }>('/api/auth/refresh', {
@@ -52,6 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
       method: 'POST',
       body
     })
+    openSession()
     user.value = userData
     accessToken.value = token
   }
@@ -61,6 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
       method: 'POST',
       body
     })
+    openSession()
     user.value = userData
     accessToken.value = token
   }

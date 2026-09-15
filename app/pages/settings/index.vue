@@ -36,6 +36,19 @@ const localeOptions = [
 
 const initial = computed(() => authStore.user?.name?.trim().charAt(0).toUpperCase() ?? '?')
 
+const pinEnabled = computed(() => authStore.user?.settings.pinEnabled ?? false)
+const pinSheetOpen = ref(false)
+const pinMode = ref<'enable' | 'change' | 'disable'>('enable')
+
+function openPinSheet(mode: 'enable' | 'change' | 'disable') {
+  pinMode.value = mode
+  pinSheetOpen.value = true
+}
+
+function togglePin() {
+  openPinSheet(pinEnabled.value ? 'disable' : 'enable')
+}
+
 const isSigningOut = ref(false)
 
 async function signOut() {
@@ -121,6 +134,30 @@ async function signOut() {
       />
     </UiCard>
 
+    <UiCard :padding="0">
+      <UiSettingRow
+        icon="i-lucide-lock"
+        :label="t('settings.pin.lock')"
+        :sub="t('settings.pin.lockSub')"
+        :last="!pinEnabled"
+      >
+        <template #trailing>
+          <UiSwitch :model-value="pinEnabled" @update:model-value="togglePin" />
+        </template>
+      </UiSettingRow>
+
+      <Transition name="pin-row">
+        <UiSettingRow
+          v-if="pinEnabled"
+          icon="i-lucide-key-round"
+          :label="t('settings.pin.change')"
+          clickable
+          last
+          @click="openPinSheet('change')"
+        />
+      </Transition>
+    </UiCard>
+
     <button
       class="h-13 w-full rounded-xl bg-danger/10 text-base font-semibold text-danger transition-transform duration-fast active:scale-[0.98] disabled:opacity-50"
       type="button"
@@ -129,5 +166,21 @@ async function signOut() {
     >
       {{ t('settings.signOut') }}
     </button>
+
+    <PinSheet v-model:open="pinSheetOpen" :mode="pinMode" />
   </div>
 </template>
+
+<style scoped>
+.pin-row-enter-active,
+.pin-row-leave-active {
+  transition: opacity var(--duration-base) var(--ease-out), max-height var(--duration-base) var(--ease-out);
+  max-height: 80px;
+  overflow: hidden;
+}
+.pin-row-enter-from,
+.pin-row-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+</style>

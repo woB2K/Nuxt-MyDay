@@ -6,7 +6,8 @@
   "general": {
     "somethingWrong": "Что-то пошло не так",
     "save": "Сохранить",
-    "edit": "Изменить"
+    "edit": "Изменить",
+    "close": "Закрыть"
   },
   "welcome": {
     "tagline": "Ваши задачи и финансы, все в одном месте!",
@@ -72,6 +73,11 @@
       "updateError": "Не удалось обновить шаблон",
       "deleteSuccess": "Шаблон удалён",
       "deleteError": "Не удалось удалить шаблон"
+    },
+    "pin": {
+      "saved": "PIN сохранён",
+      "disabled": "PIN выключен",
+      "reset": "PIN сброшен"
     }
   },
   "finance": {
@@ -265,6 +271,20 @@
       "income": "Доход",
       "nameRequired": "Название не может быть пустым",
       "systemTypeLocked": "Запасная категория — тип менять нельзя"
+    },
+    "pin": {
+      "lock": "PIN-код",
+      "lockSub": "Спрашивать PIN при открытии",
+      "change": "Сменить PIN",
+      "enableTitle": "Установить PIN",
+      "changeTitle": "Смена PIN",
+      "disableTitle": "Выключить PIN",
+      "enterFirst": "Придумайте PIN из 4 цифр",
+      "enterCurrent": "Введите текущий PIN",
+      "enterNew": "Введите новый PIN",
+      "repeatNew": "Повторите PIN",
+      "mismatch": "PIN-коды не совпадают",
+      "saveError": "Не удалось сохранить PIN"
     }
   },
   "categories": {
@@ -279,5 +299,23 @@
     "freelance": "Фриланс",
     "other-expense": "Другое",
     "other-income": "Другое"
+  },
+  "pin": {
+    "backspace": "Стереть последнюю цифру",
+    "unlockTitle": "Введите PIN",
+    "unlockSubtitle": "Разблокируйте MyDay, чтобы продолжить",
+    "wrong": "Неверный PIN · осталось попыток: {count}",
+    "wrongSimple": "Неверный PIN",
+    "tooManyAttempts": "Слишком много попыток. Повторите через несколько минут",
+    "forgot": "Забыли PIN?",
+    "reset": {
+      "title": "Сброс PIN",
+      "passwordHint": "Введите пароль от аккаунта, чтобы выключить PIN. Новый можно задать сразу после этого.",
+      "passwordRequired": "Введите пароль",
+      "wrongPassword": "Неверный пароль",
+      "submit": "Выключить PIN",
+      "oauthOnly": "У аккаунта нет пароля — войдите через своего провайдера заново",
+      "oauthHint": "Аккаунт создан через провайдера входа, пароля для проверки нет. Выйдите и войдите заново, чтобы выключить PIN."
+    }
   }
 }

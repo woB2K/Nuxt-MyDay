@@ -122,6 +122,25 @@ describe('uiSwipeRow', () => {
     expect(onTap).not.toHaveBeenCalled()
   })
 
+  it('захватывает указатель только на горизонтальном жесте', async () => {
+    const wrapper = mountRow()
+    const setPointerCapture = vi.fn()
+
+    Object.assign(content(wrapper).element, { setPointerCapture })
+
+    await content(wrapper).trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 1 })
+    expect(setPointerCapture).not.toHaveBeenCalled()
+
+    await content(wrapper).trigger('pointermove', { clientX: 0, clientY: 40, pointerId: 1 })
+    expect(setPointerCapture).not.toHaveBeenCalled()
+
+    await content(wrapper).trigger('pointerup')
+    await content(wrapper).trigger('pointerdown', { clientX: 0, clientY: 0, pointerId: 2 })
+    await content(wrapper).trigger('pointermove', { clientX: -40, clientY: 0, pointerId: 2 })
+
+    expect(setPointerCapture).toHaveBeenCalledTimes(1)
+  })
+
   it('не мешает обычному тапу без движения', async () => {
     const onTap = vi.fn()
     const wrapper = mountRow({}, '<button type="button">row</button>')

@@ -80,7 +80,7 @@ myday/
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts
+│   └── utils/                         # jwt.ts, password.ts, pin.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts
 │
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, finance.ts

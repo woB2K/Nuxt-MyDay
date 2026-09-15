@@ -6,7 +6,8 @@
   "general": {
     "somethingWrong": "Something went wrong",
     "save": "Save",
-    "edit": "Edit"
+    "edit": "Edit",
+    "close": "Close"
   },
   "welcome": {
     "tagline": "Tasks & finances, one place",
@@ -72,6 +73,11 @@
       "updateError": "Failed to update template",
       "deleteSuccess": "Template deleted",
       "deleteError": "Failed to delete template"
+    },
+    "pin": {
+      "saved": "PIN saved",
+      "disabled": "PIN turned off",
+      "reset": "PIN reset"
     }
   },
   "finance": {
@@ -265,6 +271,20 @@
       "income": "Income",
       "nameRequired": "Name can't be empty",
       "systemTypeLocked": "Fallback category — its type is fixed"
+    },
+    "pin": {
+      "lock": "PIN lock",
+      "lockSub": "Require PIN to open the app",
+      "change": "Change PIN",
+      "enableTitle": "Set a PIN",
+      "changeTitle": "Change PIN",
+      "disableTitle": "Turn PIN off",
+      "enterFirst": "Choose a 4-digit PIN",
+      "enterCurrent": "Enter your current PIN",
+      "enterNew": "Enter a new PIN",
+      "repeatNew": "Repeat the PIN",
+      "mismatch": "PINs do not match",
+      "saveError": "Could not save the PIN"
     }
   },
   "categories": {
@@ -279,5 +299,23 @@
     "freelance": "Freelance",
     "other-expense": "Other",
     "other-income": "Other"
+  },
+  "pin": {
+    "backspace": "Delete last digit",
+    "unlockTitle": "Enter PIN",
+    "unlockSubtitle": "Unlock MyDay to continue",
+    "wrong": "Wrong PIN · {count} attempts left",
+    "wrongSimple": "Wrong PIN",
+    "tooManyAttempts": "Too many attempts. Try again in a few minutes",
+    "forgot": "Forgot PIN?",
+    "reset": {
+      "title": "Reset PIN",
+      "passwordHint": "Enter your account password to turn the PIN off. You can set a new one afterwards.",
+      "passwordRequired": "Enter your password",
+      "wrongPassword": "Wrong password",
+      "submit": "Turn PIN off",
+      "oauthOnly": "This account has no password — sign in with your provider again",
+      "oauthHint": "This account was created through a sign-in provider, so there is no password to check. Sign out and sign in again to turn the PIN off."
+    }
   }
 }
