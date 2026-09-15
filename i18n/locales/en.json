@@ -225,5 +225,28 @@
     "errorShortPassword": "Password must be at least 8 characters.",
     "errorShortName": "Name must be at least 2 characters.",
     "alreadyHaveAccount": "Already have an account?"
+  },
+  "settings": {
+    "title": "Settings",
+    "noEmail": "No email",
+    "theme": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "accent": "Accent",
+    "accents": {
+      "violet": "Violet",
+      "teal": "Teal",
+      "amber": "Amber",
+      "sky": "Sky",
+      "rose": "Rose"
+    },
+    "language": "Language",
+    "templates": "Task templates",
+    "templatesSub": "Add a task in one tap",
+    "signOut": "Sign out",
+    "signOutError": "Could not sign out"
   }
 }

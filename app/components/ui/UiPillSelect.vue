@@ -25,7 +25,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
     <button
       v-for="option in props.options"
       :key="option.value"
-      class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-150"
+      class="rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-colors duration-150"
       :class="[
         props.full ? 'flex-1' : '',
         option.value === props.modelValue && !option.color

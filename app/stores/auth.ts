@@ -12,7 +12,9 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = newToken
   }
 
-  async function init() {
+  let restoring: Promise<void> | null = null
+
+  async function restore() {
     try {
       await refresh()
       await fetchUser()
@@ -20,6 +22,16 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       accessToken.value = null
     }
+  }
+
+  async function init() {
+    if (accessToken.value) return
+
+    restoring ??= restore().finally(() => {
+      restoring = null
+    })
+
+    await restoring
   }
 
   async function fetchUser() {

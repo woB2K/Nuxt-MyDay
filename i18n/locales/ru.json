@@ -225,5 +225,28 @@
     "errorShortPassword": "Пароль должен содержать не менее 8 символов.",
     "errorShortName": "Имя должно содержать не менее 2 символов.",
     "alreadyHaveAccount": "Уже есть аккаунт?"
+  },
+  "settings": {
+    "title": "Настройки",
+    "noEmail": "Без почты",
+    "theme": "Тема",
+    "themes": {
+      "light": "Светлая",
+      "dark": "Тёмная",
+      "system": "Системная"
+    },
+    "accent": "Акцент",
+    "accents": {
+      "violet": "Фиолетовый",
+      "teal": "Бирюзовый",
+      "amber": "Янтарный",
+      "sky": "Небесный",
+      "rose": "Розовый"
+    },
+    "language": "Язык",
+    "templates": "Шаблоны задач",
+    "templatesSub": "Добавляются в одно касание",
+    "signOut": "Выйти",
+    "signOutError": "Не удалось выйти"
   }
 }

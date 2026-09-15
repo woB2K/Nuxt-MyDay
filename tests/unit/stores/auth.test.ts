@@ -41,18 +41,53 @@ describe('init()', () => {
     expect(store.isAuthenticated).toBe(true)
   })
 
-  it('clears state when refresh fails (cookie expired or missing)', async () => {
+  it('skips a second restore once the session is already there', async () => {
+    mockFetch
+      .mockResolvedValueOnce({ accessToken: 'new-access-token' })
+      .mockResolvedValueOnce(mockUser)
+
+    const store = useAuthStore()
+    await store.init()
+    await store.init()
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('shares one refresh between concurrent callers, since the endpoint rotates the token', async () => {
+    mockFetch
+      .mockResolvedValueOnce({ accessToken: 'new-access-token' })
+      .mockResolvedValueOnce(mockUser)
+
+    const store = useAuthStore()
+    await Promise.all([store.init(), store.init()])
+
+    const refreshCalls = mockFetch.mock.calls.filter(([url]) => url === '/api/auth/refresh')
+    expect(refreshCalls).toHaveLength(1)
+  })
+
+  it('leaves the session empty when refresh fails (cookie expired or missing)', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Unauthorized'))
 
     const store = useAuthStore()
-    // Simulate a stale state from a previous session
-    store.accessToken = 'stale-token'
 
     await store.init()
 
     expect(store.accessToken).toBeNull()
     expect(store.user).toBeNull()
     expect(store.isAuthenticated).toBe(false)
+  })
+
+  it('recovers after a failed restore instead of latching the first outcome', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Unauthorized'))
+    const store = useAuthStore()
+    await store.init()
+
+    mockFetch
+      .mockResolvedValueOnce({ accessToken: 'new-access-token' })
+      .mockResolvedValueOnce(mockUser)
+    await store.init()
+
+    expect(store.isAuthenticated).toBe(true)
   })
 })
 
