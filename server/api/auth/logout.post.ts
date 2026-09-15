@@ -1,3 +1,4 @@
+import { clearRefreshCookie } from '~~/server/utils/authCookie'
 import { hashToken } from '~~/server/utils/jwt'
 
 export default defineEventHandler(async (event) => {
@@ -15,11 +16,7 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  deleteCookie(event, 'refreshToken', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax'
-  })
+  clearRefreshCookie(event)
 
   return {
     message: 'Logged out successfully'

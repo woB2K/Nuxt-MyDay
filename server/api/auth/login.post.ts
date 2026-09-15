@@ -1,3 +1,4 @@
+import { setRefreshCookie } from '~~/server/utils/authCookie'
 import { hashToken } from '~~/server/utils/jwt'
 import { toPublicUser } from '~~/server/utils/mapper'
 import { loginSchema } from '~~/shared/schemas'
@@ -36,12 +37,7 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  setCookie(event, 'refreshToken', rawRefreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30
-  })
+  setRefreshCookie(event, rawRefreshToken)
 
   return {
     user: toPublicUser(user),

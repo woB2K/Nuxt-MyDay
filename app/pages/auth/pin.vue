@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useAppLock } from '~/composables/useAppLock'
 
-definePageMeta({ layout: 'auth', middleware: 'auth' })
+definePageMeta({ layout: 'auth' })
 
 const maxAttempts = 10
 

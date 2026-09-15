@@ -2,7 +2,7 @@
 import type { Category } from '~~/prisma/.generated/prisma'
 import { categoryLabel } from '~/utils/categoryLabel'
 
-definePageMeta({ middleware: 'auth', hideFab: true })
+definePageMeta({ hideFab: true })
 
 const { t } = useI18n()
 

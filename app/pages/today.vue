@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { TaskItem } from '~~/shared/types'
+import { useFabAction } from '~/composables/useFabAction'
 import { fromDateString, toDateString } from '~/utils/formatDate'
 import {
   completionStreak,
@@ -12,7 +13,6 @@ import {
 const { t, locale } = useI18n()
 
 const authStore = useAuthStore()
-const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
 const filter = ref<TaskFilter>('all')
 const search = ref('')
@@ -56,8 +56,7 @@ function openSheet(task: TaskItem | null = null) {
   sheetOpen.value = true
 }
 
-onMounted(() => register?.(() => openSheet()))
-onUnmounted(() => register?.(null))
+useFabAction(() => openSheet())
 </script>
 
 <template>

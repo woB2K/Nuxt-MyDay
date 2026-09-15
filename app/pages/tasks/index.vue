@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { TaskItem } from '~~/shared/types'
 import type { TaskFilter } from '~/utils/taskFilters'
+import { useFabAction } from '~/composables/useFabAction'
 import { sortTasks } from '~/utils/taskStats'
 
 const { t } = useI18n()
-const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
 const tasksStore = useTasksStore()
 const filter = toRef(tasksStore, 'activeFilter')
@@ -36,8 +36,7 @@ function applySearch(next: string) {
   tasksStore.searchQuery = next
 }
 
-onMounted(() => register?.(() => openSheet()))
-onUnmounted(() => register?.(null))
+useFabAction(() => openSheet())
 </script>
 
 <template>

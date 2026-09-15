@@ -1,3 +1,4 @@
+import { setRefreshCookie } from '~~/server/utils/authCookie'
 import { hashToken } from '~~/server/utils/jwt'
 
 export default defineEventHandler(async (event) => {
@@ -38,12 +39,7 @@ export default defineEventHandler(async (event) => {
     })
   })
 
-  setCookie(event, 'refreshToken', rawRefreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30
-  })
+  setRefreshCookie(event, rawRefreshToken)
 
   return {
     accessToken

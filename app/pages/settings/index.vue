@@ -2,7 +2,7 @@
 import type { AccentSetting, LangSetting, ThemeSetting } from '~~/shared/types'
 import { themePreferences } from '~/composables/useTheme'
 
-definePageMeta({ middleware: 'auth', hideFab: true })
+definePageMeta({ hideFab: true })
 
 const { t, locale, setLocale } = useI18n()
 const authStore = useAuthStore()

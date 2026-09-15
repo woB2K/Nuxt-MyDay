@@ -76,8 +76,8 @@ describe('init()', () => {
     expect(store.isAuthenticated).toBe(false)
   })
 
-  it('recovers after a failed restore instead of latching the first outcome', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Unauthorized'))
+  it('retries after a transport failure — the network may just have been down', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network request failed'))
     const store = useAuthStore()
     await store.init()
 
@@ -87,6 +87,19 @@ describe('init()', () => {
     await store.init()
 
     expect(store.isAuthenticated).toBe(true)
+  })
+
+  it('не переспрашивает сервер, если он уже ответил «сессии нет»', async () => {
+    mockFetch.mockRejectedValueOnce(Object.assign(new Error('Unauthorized'), { statusCode: 401 }))
+
+    const store = useAuthStore()
+    await store.init()
+    await store.init()
+    await store.init()
+
+    const refreshCalls = mockFetch.mock.calls.filter(([url]) => url === '/api/auth/refresh')
+    expect(refreshCalls).toHaveLength(1)
+    expect(store.isAuthenticated).toBe(false)
   })
 })
 

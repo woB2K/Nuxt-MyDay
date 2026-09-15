@@ -1,4 +1,5 @@
 import { seedCategories } from '~~/prisma/seeds/categories'
+import { setRefreshCookie } from '~~/server/utils/authCookie'
 import { hashToken } from '~~/server/utils/jwt'
 import { toPublicUser } from '~~/server/utils/mapper'
 import { registerSchema } from '~~/shared/schemas'
@@ -35,12 +36,7 @@ export default defineEventHandler(async (event) => {
     const rawRefreshToken = await signRefreshToken(newUser.id)
     const tokenHash = hashToken(rawRefreshToken)
 
-    setCookie(event, 'refreshToken', rawRefreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30
-    })
+    setRefreshCookie(event, rawRefreshToken)
 
     await tx.refreshToken.create({
       data: {

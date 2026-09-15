@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { TemplateItem } from '~~/shared/types'
+import { useFabAction } from '~/composables/useFabAction'
 
 const { t } = useI18n()
-const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
 const { data: templates, isPending } = useTemplatesQuery()
 const { mutate: addTask } = useAddTaskMutation()
@@ -24,8 +24,7 @@ function use(template: TemplateItem) {
   })
 }
 
-onMounted(() => register?.(() => openSheet()))
-onUnmounted(() => register?.(null))
+useFabAction(() => openSheet())
 </script>
 
 <template>

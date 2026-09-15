@@ -72,7 +72,7 @@ myday/
 │   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useAppToast.ts
 │   ├── plugins/                       # errorHandler.ts, vue-query.ts
 │   ├── layouts/                       # default.vue (TabBar+FAB), auth.vue
-│   ├── middleware/                    # auth.ts, guest.ts
+│   ├── middleware/                    # auth.global.ts, lock.global.ts — оба глобальные, на страницах не объявляются
 │   ├── pages/
 │   ├── stores/                        # ТОЛЬКО client state — см. «Pinia vs TanStack» ниже
 │   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, routes.ts
@@ -80,7 +80,7 @@ myday/
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, pin.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts
+│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts
 │
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, finance.ts

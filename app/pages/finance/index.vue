@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { TransactionItem } from '~~/shared/types'
+import { useFabAction } from '~/composables/useFabAction'
 
 const { t } = useI18n()
-const register = inject<(fn: (() => void) | null) => void>('registerFabAction')
 
 const tabOptions = computed(() => [
   { value: 'transactions', label: t('finance.tabs.transactions') },
@@ -19,8 +19,7 @@ function openSheet(transaction: TransactionItem | null = null) {
   sheetOpen.value = true
 }
 
-onMounted(() => register?.(() => openSheet()))
-onUnmounted(() => register?.(null))
+useFabAction(() => openSheet())
 </script>
 
 <template>

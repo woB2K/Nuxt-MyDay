@@ -18,23 +18,32 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   let restoring: Promise<void> | null = null
+  let restored = false
 
-  async function restore() {
+  async function restore(): Promise<boolean> {
     try {
       await refresh()
       await fetchUser()
-    } catch {
+
+      return true
+    } catch (cause) {
       user.value = null
       accessToken.value = null
+
+      return typeof (cause as { statusCode?: number }).statusCode === 'number'
     }
   }
 
   async function init() {
-    if (accessToken.value) return
+    if (accessToken.value || restored) return
 
-    restoring ??= restore().finally(() => {
-      restoring = null
-    })
+    restoring ??= restore()
+      .then((settled) => {
+        restored = settled
+      })
+      .finally(() => {
+        restoring = null
+      })
 
     await restoring
   }
