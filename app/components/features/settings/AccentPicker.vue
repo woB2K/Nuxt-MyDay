@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import type { AccentName } from '~/utils/accents'
 import { accentNames, accentSwatches } from '~/utils/accents'
 
-const { t } = useI18n()
-const { accent, resolved, setAccent } = useTheme()
+const emit = defineEmits<{ select: [value: AccentName] }>()
 
-function swatch(name: typeof accentNames[number]) {
+const { t } = useI18n()
+const { accent, resolved } = useTheme()
+
+function swatch(name: AccentName) {
   return accentSwatches[name][resolved.value]
 }
 </script>
@@ -23,7 +26,7 @@ function swatch(name: typeof accentNames[number]) {
       }"
       :aria-label="t(`settings.accents.${name}`)"
       :aria-pressed="accent === name"
-      @click="setAccent(name)"
+      @click="emit('select', name)"
     >
       <UIcon v-if="accent === name" name="i-lucide-check" class="size-5 text-accent-ink" />
     </button>

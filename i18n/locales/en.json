@@ -247,6 +247,7 @@
     "templates": "Task templates",
     "templatesSub": "Add a task in one tap",
     "signOut": "Sign out",
-    "signOutError": "Could not sign out"
+    "signOutError": "Could not sign out",
+    "saveError": "Could not save settings"
   }
 }

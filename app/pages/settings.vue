@@ -1,12 +1,28 @@
 <script lang="ts" setup>
-import type { ThemePreference } from '~/composables/useTheme'
+import type { AccentSetting, LangSetting, ThemeSetting } from '~~/shared/types'
 import { themePreferences } from '~/composables/useTheme'
 
 definePageMeta({ middleware: 'auth', hideFab: true })
 
 const { t, locale, setLocale } = useI18n()
 const authStore = useAuthStore()
-const { preference, setTheme } = useTheme()
+const { preference, setTheme, setAccent } = useTheme()
+const { mutate: saveSettings } = useUpdateSettingsMutation()
+
+function changeTheme(value: ThemeSetting) {
+  setTheme(value)
+  saveSettings({ theme: value })
+}
+
+function changeAccent(value: AccentSetting) {
+  setAccent(value)
+  saveSettings({ accent: value })
+}
+
+function changeLocale(value: LangSetting) {
+  setLocale(value)
+  saveSettings({ lang: value })
+}
 
 const themeOptions = computed(() => themePreferences.map(value => ({
   value,
@@ -63,7 +79,7 @@ async function signOut() {
           :options="themeOptions"
           bg-class="bg-elev3"
           full
-          @update:model-value="setTheme($event as ThemePreference)"
+          @update:model-value="changeTheme($event as ThemeSetting)"
         />
       </div>
 
@@ -71,7 +87,7 @@ async function signOut() {
         <span class="text-[11px] font-semibold uppercase tracking-wider text-text-mute">
           {{ t('settings.accent') }}
         </span>
-        <AccentPicker />
+        <AccentPicker @select="changeAccent" />
       </div>
     </UiCard>
 
@@ -82,7 +98,7 @@ async function signOut() {
             :model-value="locale"
             :options="localeOptions"
             bg-class="bg-elev3"
-            @update:model-value="setLocale($event as 'en' | 'ru')"
+            @update:model-value="changeLocale($event as LangSetting)"
           />
         </template>
       </UiSettingRow>
