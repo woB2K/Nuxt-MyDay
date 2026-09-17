@@ -188,6 +188,10 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+@utility top-safe {
+  top: env(safe-area-inset-top, 0px);
+}
+
 @utility pb-shell {
   padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
 }

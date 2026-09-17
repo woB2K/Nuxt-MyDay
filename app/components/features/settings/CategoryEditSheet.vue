@@ -17,6 +17,7 @@ const { mutate: addCategory, isPending: isAdding } = useAddCategoryMutation()
 const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategoryMutation()
 
 const name = ref('')
+const nameError = ref('')
 const type = ref<'INCOME' | 'EXPENSE'>('EXPENSE')
 const icon = ref<string>(defaultCategoryIcon)
 const color = ref<string>(defaultCategoryColor)
@@ -47,6 +48,10 @@ watch(() => props.open, (open) => {
   if (open) reset()
 }, { immediate: true })
 
+watch(name, () => {
+  nameError.value = ''
+})
+
 function close() {
   emit('update:open', false)
 }
@@ -55,6 +60,7 @@ function submit() {
   const trimmed = name.value.trim()
 
   if (!trimmed) {
+    nameError.value = t('settings.categoriesScreen.nameRequired')
     toast.error(t('settings.categoriesScreen.nameRequired'))
     return
   }
@@ -92,7 +98,7 @@ function submit() {
         </div>
       </div>
 
-      <UiInput v-model="name" :label="t('settings.categoriesScreen.name')" type="text" />
+      <UiInput v-model="name" :label="t('settings.categoriesScreen.name')" type="text" :error="nameError" />
 
       <div class="flex flex-col gap-2.5">
         <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-dim">

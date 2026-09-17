@@ -62,10 +62,19 @@ function close() {
   emit('update:open', false)
 }
 
+const titleError = ref('')
+
+watch(title, () => {
+  titleError.value = ''
+})
+
 function submit() {
   const value = title.value.trim()
 
+  titleError.value = ''
+
   if (!value) {
+    titleError.value = t('tasks.error.title')
     toast.error(t('tasks.error.title'))
     return
   }
@@ -99,7 +108,7 @@ function remove() {
     @update:open="emit('update:open', $event)"
   >
     <form class="flex flex-col gap-5" @submit.prevent="submit">
-      <UiInput v-model="title" :label="t('tasks.title')" type="text" />
+      <UiInput v-model="title" :label="t('tasks.title')" type="text" :error="titleError" />
 
       <div class="flex flex-col gap-2.5">
         <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-dim">

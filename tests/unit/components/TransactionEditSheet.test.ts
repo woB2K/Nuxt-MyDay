@@ -146,3 +146,43 @@ describe('transactionEditSheet — редактирование', () => {
     expect(deleteMutate.mock.calls[0]![0]).toBe('tx-1')
   })
 })
+
+describe('transactionEditSheet — обратная связь при незаполненной форме', () => {
+  it('пустая сумма: ошибка стоит под полем, а не только в тосте', async () => {
+    const wrapper = mountSheet()
+
+    await wrapper.find('form').trigger('submit')
+
+    expect(addMutate).not.toHaveBeenCalled()
+    expect(toastError).toHaveBeenCalledWith('finance.error.amount')
+    expect(wrapper.text()).toContain('finance.error.amount')
+  })
+
+  it('ошибка уходит, как только пользователь начал вводить сумму', async () => {
+    const wrapper = mountSheet()
+
+    await wrapper.find('form').trigger('submit')
+    expect(wrapper.text()).toContain('finance.error.amount')
+
+    await amountField(wrapper).setValue('150')
+
+    expect(wrapper.text()).not.toContain('finance.error.amount')
+  })
+
+  it('невыбранная категория тоже объясняется под полем', async () => {
+    state.categories.value = []
+    const wrapper = mountSheet()
+
+    await amountField(wrapper).setValue('150')
+    await wrapper.find('form').trigger('submit')
+
+    expect(addMutate).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('finance.error.category')
+
+    state.categories.value = [
+      { id: 'exp-1', name: 'Food', type: 'EXPENSE', icon: 'i-lucide-utensils', color: '#FB923C' },
+      { id: 'exp-2', name: 'Transport', type: 'EXPENSE', icon: 'i-lucide-car', color: '#60A5FA' },
+      { id: 'inc-1', name: 'Salary', type: 'INCOME', icon: 'i-lucide-wallet', color: '#34D399' }
+    ]
+  })
+})

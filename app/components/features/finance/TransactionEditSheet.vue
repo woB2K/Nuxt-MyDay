@@ -53,9 +53,17 @@ watch(type, (next, previous) => {
   categoryId.value = filteredCategories.value[0]?.id
 })
 
+const amountError = ref('')
+const categoryError = ref('')
+
 function onAmountInput(event: Event) {
   amount.value = (event.target as HTMLInputElement).value.replace(/[^\d.]/g, '')
+  amountError.value = ''
 }
+
+watch(categoryId, () => {
+  categoryError.value = ''
+})
 
 function close() {
   emit('update:open', false)
@@ -64,12 +72,17 @@ function close() {
 function submit() {
   const value = Number(amount.value)
 
+  amountError.value = ''
+  categoryError.value = ''
+
   if (!value || value <= 0) {
+    amountError.value = t('finance.error.amount')
     toast.error(t('finance.error.amount'))
     return
   }
 
   if (!categoryId.value) {
+    categoryError.value = t('finance.error.category')
     toast.error(t('finance.error.category'))
     return
   }
@@ -111,17 +124,20 @@ function remove() {
         full
       />
 
-      <div class="flex items-baseline justify-center gap-1.5">
-        <input
-          :value="amount"
-          class="w-44 text-center bg-transparent outline-none text-[48px] font-bold tracking-[-0.03em]"
-          :class="type === 'INCOME' ? 'text-success' : 'text-text'"
-          inputmode="decimal"
-          placeholder="0"
-          type="text"
-          @input="onAmountInput"
-        >
-        <span class="text-[34px] font-bold text-text-mute">₽</span>
+      <div class="flex flex-col items-center gap-1.5">
+        <div class="flex items-baseline justify-center gap-1.5">
+          <input
+            :value="amount"
+            class="w-44 text-center bg-transparent outline-none text-[48px] font-bold tracking-[-0.03em]"
+            :class="type === 'INCOME' ? 'text-success' : 'text-text'"
+            inputmode="decimal"
+            placeholder="0"
+            type="text"
+            @input="onAmountInput"
+          >
+          <span class="text-[34px] font-bold text-text-mute">₽</span>
+        </div>
+        <span v-if="amountError" class="text-sm text-danger">{{ amountError }}</span>
       </div>
 
       <div class="flex flex-col gap-2.5">
@@ -137,6 +153,7 @@ function remove() {
             @click="categoryId = category.id"
           />
         </div>
+        <span v-if="categoryError" class="text-sm text-danger">{{ categoryError }}</span>
       </div>
 
       <UiInput v-model="note" :label="t('finance.note')" type="text" />

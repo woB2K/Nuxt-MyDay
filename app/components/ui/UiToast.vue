@@ -4,7 +4,7 @@ const uiStore = useUiStore()
 
 <template>
   <Teleport to="body">
-    <div class="fixed bottom-toast inset-x-5 z-[60] flex flex-col gap-2 pointer-events-none">
+    <div class="fixed top-safe inset-x-5 z-[60] flex flex-col gap-2 pt-3 pointer-events-none">
       <TransitionGroup name="toast">
         <UiToastItem
           v-for="toast in uiStore.queue"
@@ -27,10 +27,10 @@ const uiStore = useUiStore()
 }
 .toast-enter-from {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(-16px);
 }
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(8px) scale(0.96);
+  transform: translateY(-8px) scale(0.96);
 }
 </style>

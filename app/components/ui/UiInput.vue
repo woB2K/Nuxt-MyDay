@@ -63,7 +63,7 @@ const inputType = computed(() => {
         <slot name="trailing" />
       </div>
     </div>
-    <p v-if="props.error" class="text-error ml-2">
+    <p v-if="props.error" class="text-danger text-sm ml-2">
       {{ props.error }}
     </p>
   </div>
