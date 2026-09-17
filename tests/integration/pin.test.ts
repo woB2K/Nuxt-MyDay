@@ -79,7 +79,7 @@ describe('phase 4 pin lock', async () => {
     await setPin(token, { pin: '1234' })
 
     expect(await verifyPin(token, '1234')).toEqual({ ok: true })
-    expect(await statusCode(verifyPin(token, '4321'))).toBe(401)
+    expect(await statusCode(verifyPin(token, '4321'))).toBe(403)
   })
 
   it('проверка без включённого PIN — 409, а не молчаливое «ок»', async () => {
@@ -93,19 +93,19 @@ describe('phase 4 pin lock', async () => {
     await setPin(token, { pin: '1234' })
 
     expect(await statusCode(setPin(token, { pin: '5678' }))).toBe(400)
-    expect(await statusCode(setPin(token, { pin: '5678', currentPin: '0000' }))).toBe(401)
+    expect(await statusCode(setPin(token, { pin: '5678', currentPin: '0000' }))).toBe(403)
 
     await setPin(token, { pin: '5678', currentPin: '1234' })
 
     expect(await verifyPin(token, '5678')).toEqual({ ok: true })
-    expect(await statusCode(verifyPin(token, '1234'))).toBe(401)
+    expect(await statusCode(verifyPin(token, '1234'))).toBe(403)
   })
 
   it('выключение PIN требует текущий и стирает хеш', async () => {
     const { token, userId } = await registerUser()
     await setPin(token, { pin: '1234' })
 
-    expect(await statusCode(disablePin(token, '9999'))).toBe(401)
+    expect(await statusCode(disablePin(token, '9999'))).toBe(403)
 
     const settings = await disablePin(token, '1234')
     const stored = await prisma.appSettings.findUnique({ where: { userId } })
@@ -118,7 +118,7 @@ describe('phase 4 pin lock', async () => {
     const { token, userId } = await registerUser()
     await setPin(token, { pin: '1234' })
 
-    expect(await statusCode(resetPin(token, 'wrong-password'))).toBe(401)
+    expect(await statusCode(resetPin(token, 'wrong-password'))).toBe(403)
     expect((await prisma.appSettings.findUnique({ where: { userId } }))!.pinEnabled).toBe(true)
 
     const settings = await resetPin(token, PASSWORD)
@@ -158,7 +158,43 @@ describe('phase 4 pin lock', async () => {
       codes.push(await statusCode(verifyPin(token, '0000')))
     }
 
-    expect(codes.slice(0, 10)).toEqual(Array.from({ length: 10 }).fill(401))
+    expect(codes.slice(0, 10)).toEqual(Array.from({ length: 10 }).fill(403))
     expect(codes.slice(10)).toEqual([429, 429])
+  })
+
+  it('перебор через выключение и сброс считается тем же бакетом, что и проверка', async () => {
+    const { token } = await registerUser()
+    await setPin(token, { pin: '1234' })
+
+    const codes: number[] = []
+    for (let attempt = 0; attempt < 4; attempt++) {
+      codes.push(await statusCode(verifyPin(token, '0000')))
+    }
+    for (let attempt = 0; attempt < 4; attempt++) {
+      codes.push(await statusCode(disablePin(token, '0000')))
+    }
+    for (let attempt = 0; attempt < 4; attempt++) {
+      codes.push(await statusCode(resetPin(token, 'wrong-password')))
+    }
+
+    expect(codes.slice(0, 10).every(code => code === 403)).toBe(true)
+    expect(codes.slice(10)).toEqual([429, 429])
+  })
+
+  it('удачные действия лимит не тратят', async () => {
+    const { token } = await registerUser()
+
+    await setPin(token, { pin: '1234' })
+    for (let attempt = 0; attempt < 5; attempt++) {
+      await verifyPin(token, '1234')
+    }
+
+    const codes: number[] = []
+    for (let attempt = 0; attempt < 11; attempt++) {
+      codes.push(await statusCode(verifyPin(token, '0000')))
+    }
+
+    expect(codes.slice(0, 10).every(code => code === 403)).toBe(true)
+    expect(codes.slice(10)).toEqual([429])
   })
 })

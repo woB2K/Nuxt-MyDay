@@ -1,6 +1,6 @@
 import { toPublicSettings } from '~~/server/utils/mapper'
 import { comparePassword } from '~~/server/utils/password'
-import { clearPin } from '~~/server/utils/pin'
+import { clearPin, countFailedSecret } from '~~/server/utils/pin'
 import { resetPinSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!await comparePassword(password, user.passwordHash)) {
-    throw createError({ statusCode: 401, message: 'Wrong password' })
+    countFailedSecret(event, userId)
+
+    throw createError({ statusCode: 403, message: 'Wrong password' })
   }
 
   return toPublicSettings(await clearPin(userId))

@@ -18,16 +18,17 @@ export function useAddCategoryMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (data: CreateCategoryInput) =>
       api<Category>('/api/categories', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      useAppToast().success(t('toast.categories.addSuccess'))
+      toast.success(t('toast.categories.addSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.categories.addError'))
+      toast.error(t('toast.categories.addError'))
     }
   })
 }
@@ -36,16 +37,17 @@ export function useUpdateCategoryMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & UpdateCategoryInput) =>
       api<Category>(`/api/categories/${id}`, { method: 'PATCH', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      useAppToast().success(t('toast.categories.updateSuccess'))
+      toast.success(t('toast.categories.updateSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.categories.updateError'))
+      toast.error(t('toast.categories.updateError'))
     }
   })
 }
@@ -54,6 +56,7 @@ export function useDeleteCategoryMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -63,10 +66,10 @@ export function useDeleteCategoryMutation() {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })
       queryClient.invalidateQueries({ queryKey: ['budgets'] })
-      useAppToast().success(t('toast.categories.deleteSuccess'))
+      toast.success(t('toast.categories.deleteSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.categories.deleteError'))
+      toast.error(t('toast.categories.deleteError'))
     }
   })
 }

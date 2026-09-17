@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const { pin } = await readValidatedBody(event, pinAttemptSchema.parse)
 
-  await assertPin(await requireSettings(userId), pin)
+  await assertPin(event, await requireSettings(userId), pin)
 
   return { ok: true }
 })

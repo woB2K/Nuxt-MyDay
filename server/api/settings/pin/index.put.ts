@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (settings.pinEnabled) {
     if (!currentPin) throw createError({ statusCode: 400, message: 'Current PIN is required' })
 
-    await assertPin(settings, currentPin)
+    await assertPin(event, settings, currentPin)
   }
 
   const updated = await prisma.appSettings.update({

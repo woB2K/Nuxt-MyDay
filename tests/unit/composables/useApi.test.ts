@@ -64,6 +64,14 @@ describe('useApi', () => {
     expect(client).toHaveBeenCalledTimes(1)
   })
 
+  it('не обновляет токен на 403 — сессия жива, это не подошёл секрет', async () => {
+    client.mockRejectedValueOnce(Object.assign(new Error('Wrong PIN'), { statusCode: 403 }))
+
+    await expect(useApi()('/api/settings/pin', { method: 'DELETE' })).rejects.toThrow('Wrong PIN')
+    expect(store.renew).not.toHaveBeenCalled()
+    expect(client).toHaveBeenCalledTimes(1)
+  })
+
   it('не трогает refresh на других ошибках', async () => {
     client.mockRejectedValueOnce(Object.assign(new Error('Bad request'), { statusCode: 400 }))
 

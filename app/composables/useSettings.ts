@@ -7,6 +7,7 @@ export function useUpdateSettingsMutation() {
   const api = useApi()
   const authStore = useAuthStore()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (body: UpdateSettingsInput) =>
@@ -15,7 +16,7 @@ export function useUpdateSettingsMutation() {
       if (authStore.user) authStore.user.settings = settings
     },
     onError: () => {
-      useAppToast().error(t('settings.saveError'))
+      toast.error(t('settings.saveError'))
     }
   })
 }

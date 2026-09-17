@@ -53,16 +53,17 @@ export function useAddTemplateMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (data: CreateTemplateInput) =>
       api<TemplateItem>('/api/templates', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
-      useAppToast().success(t('toast.templates.addSuccess'))
+      toast.success(t('toast.templates.addSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.templates.addError'))
+      toast.error(t('toast.templates.addError'))
     }
   })
 }
@@ -71,16 +72,17 @@ export function useUpdateTemplateMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & UpdateTemplateInput) =>
       api<TemplateItem>(`/api/templates/${id}`, { method: 'PATCH', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
-      useAppToast().success(t('toast.templates.updateSuccess'))
+      toast.success(t('toast.templates.updateSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.templates.updateError'))
+      toast.error(t('toast.templates.updateError'))
     }
   })
 }
@@ -89,16 +91,17 @@ export function useDeleteTemplateMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (id: string) =>
       api<TemplateItem>(`/api/templates/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
-      useAppToast().success(t('toast.templates.deleteSuccess'))
+      toast.success(t('toast.templates.deleteSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.templates.deleteError'))
+      toast.error(t('toast.templates.deleteError'))
     }
   })
 }
@@ -107,6 +110,7 @@ export function useAddTagMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (data: CreateTagInput) =>
@@ -115,7 +119,7 @@ export function useAddTagMutation() {
       queryClient.invalidateQueries({ queryKey: ['tags'] })
     },
     onError: () => {
-      useAppToast().error(t('toast.tags.addError'))
+      toast.error(t('toast.tags.addError'))
     }
   })
 }
@@ -124,16 +128,17 @@ export function useAddTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (data: CreateTaskInput) =>
       api<TaskItem>('/api/tasks', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      useAppToast().success(t('toast.tasks.addSuccess'))
+      toast.success(t('toast.tasks.addSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.tasks.addError'))
+      toast.error(t('toast.tasks.addError'))
     }
   })
 }
@@ -142,16 +147,17 @@ export function useUpdateTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & UpdateTaskInput) =>
       api<TaskItem>(`/api/tasks/${id}`, { method: 'PATCH', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      useAppToast().success(t('toast.tasks.updateSuccess'))
+      toast.success(t('toast.tasks.updateSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.tasks.updateError'))
+      toast.error(t('toast.tasks.updateError'))
     }
   })
 }
@@ -160,6 +166,7 @@ export function useToggleTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: ({ id, done }: { id: string, done: boolean }) =>
@@ -175,7 +182,7 @@ export function useToggleTaskMutation() {
     },
     onError: (_error, _variables, context) => {
       restoreQueries(queryClient, context?.previous)
-      useAppToast().error(t('toast.tasks.updateError'))
+      toast.error(t('toast.tasks.updateError'))
     },
     onSettled: () => {
       invalidateWhenSettled(queryClient, ['tasks'])
@@ -187,6 +194,7 @@ export function useDeleteTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -199,11 +207,11 @@ export function useDeleteTaskMutation() {
       return { previous }
     },
     onSuccess: () => {
-      useAppToast().success(t('toast.tasks.deleteSuccess'))
+      toast.success(t('toast.tasks.deleteSuccess'))
     },
     onError: (_error, _id, context) => {
       restoreQueries(queryClient, context?.previous)
-      useAppToast().error(t('toast.tasks.deleteError'))
+      toast.error(t('toast.tasks.deleteError'))
     },
     onSettled: () => {
       invalidateWhenSettled(queryClient, ['tasks'])

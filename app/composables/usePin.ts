@@ -27,13 +27,14 @@ export function useSetPinMutation() {
   const api = useApi()
   const apply = useSettingsWriter()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (body: SetPinInput) =>
       api<UserSettings>('/api/settings/pin', { method: 'PUT', body }),
     onSuccess: (settings) => {
       apply(settings)
-      useAppToast().success(t('toast.pin.saved'))
+      toast.success(t('toast.pin.saved'))
     }
   })
 }
@@ -42,13 +43,14 @@ export function useDisablePinMutation() {
   const api = useApi()
   const apply = useSettingsWriter()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (body: PinAttemptInput) =>
       api<UserSettings>('/api/settings/pin', { method: 'DELETE', body }),
     onSuccess: (settings) => {
       apply(settings)
-      useAppToast().success(t('toast.pin.disabled'))
+      toast.success(t('toast.pin.disabled'))
     }
   })
 }
@@ -66,13 +68,14 @@ export function useResetPinMutation() {
   const api = useApi()
   const apply = useSettingsWriter()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (body: ResetPinInput) =>
       api<UserSettings>('/api/settings/pin/reset', { method: 'POST', body }),
     onSuccess: (settings) => {
       apply(settings)
-      useAppToast().success(t('toast.pin.reset'))
+      toast.success(t('toast.pin.reset'))
     }
   })
 }

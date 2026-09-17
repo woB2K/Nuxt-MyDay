@@ -113,6 +113,7 @@ export function useAddTransactionMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (data: CreateTransactionInput) =>
@@ -120,10 +121,10 @@ export function useAddTransactionMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })
-      useAppToast().success(t('toast.transactions.addSuccess'))
+      toast.success(t('toast.transactions.addSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.transactions.addError'))
+      toast.error(t('toast.transactions.addError'))
     }
   })
 }
@@ -132,6 +133,7 @@ export function useUpdateTransactionMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: ({ id, ...data }: { id: string } & UpdateTransactionInput) =>
@@ -139,10 +141,10 @@ export function useUpdateTransactionMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })
-      useAppToast().success(t('toast.transactions.updateSuccess'))
+      toast.success(t('toast.transactions.updateSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.transactions.updateError'))
+      toast.error(t('toast.transactions.updateError'))
     }
   })
 }
@@ -151,6 +153,7 @@ export function useDeleteTransactionMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -163,11 +166,11 @@ export function useDeleteTransactionMutation() {
       return { previous }
     },
     onSuccess: () => {
-      useAppToast().success(t('toast.transactions.deleteSuccess'))
+      toast.success(t('toast.transactions.deleteSuccess'))
     },
     onError: (_error, _id, context) => {
       restoreQueries(queryClient, context?.previous)
-      useAppToast().error(t('toast.transactions.deleteError'))
+      toast.error(t('toast.transactions.deleteError'))
     },
     onSettled: () => {
       invalidateWhenSettled(queryClient, ['transactions'], ['summary'])
@@ -179,16 +182,17 @@ export function useAddSavingsMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (data: CreateSavingsSchema) =>
       api<SavingsEntryItem>('/api/finance/savings', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['savings'] })
-      useAppToast().success(t('toast.savings.addSuccess'))
+      toast.success(t('toast.savings.addSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.savings.addError'))
+      toast.error(t('toast.savings.addError'))
     }
   })
 }
@@ -197,6 +201,7 @@ export function useDeleteSavingsMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -212,11 +217,11 @@ export function useDeleteSavingsMutation() {
       return { previous }
     },
     onSuccess: () => {
-      useAppToast().success(t('toast.savings.deleteSuccess'))
+      toast.success(t('toast.savings.deleteSuccess'))
     },
     onError: (_error, _id, context) => {
       restoreQueries(queryClient, context?.previous)
-      useAppToast().error(t('toast.savings.deleteError'))
+      toast.error(t('toast.savings.deleteError'))
     },
     onSettled: () => {
       invalidateWhenSettled(queryClient, ['savings'])
@@ -228,16 +233,17 @@ export function useUpsertBudgetMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
+  const toast = useAppToast()
 
   return useMutation({
     mutationFn: (body: UpdateBudgetInput) =>
       api<BudgetItem>('/api/finance/budgets', { method: 'POST', body }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] })
-      useAppToast().success(t('toast.budgets.saveSuccess'))
+      toast.success(t('toast.budgets.saveSuccess'))
     },
     onError: () => {
-      useAppToast().error(t('toast.budgets.saveError'))
+      toast.error(t('toast.budgets.saveError'))
     }
   })
 }
