@@ -6,7 +6,7 @@ const { accent, surfaceColor } = useTheme()
 
 useHead({
   meta: [
-    { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover' },
     { name: 'theme-color', content: () => surfaceColor.value }
   ],
   htmlAttrs: {

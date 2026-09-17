@@ -34,6 +34,25 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  let renewing: Promise<void> | null = null
+
+  async function renew(): Promise<boolean> {
+    renewing ??= refresh().finally(() => {
+      renewing = null
+    })
+
+    try {
+      await renewing
+
+      return true
+    } catch {
+      user.value = null
+      accessToken.value = null
+
+      return false
+    }
+  }
+
   async function init() {
     if (accessToken.value || restored) return
 
@@ -94,6 +113,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     accessToken,
     refresh,
+    renew,
     init,
     login,
     logout,

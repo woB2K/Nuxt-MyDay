@@ -132,7 +132,7 @@ function remove() {
 
         <input
           v-model="dueDate"
-          class="h-12 w-full px-3.5 rounded-xl border border-hairline bg-elev2 text-text text-base outline-none [color-scheme:dark]"
+          class="h-12 w-full min-w-0 px-3.5 rounded-xl border border-hairline bg-elev2 text-text text-base outline-none"
           type="date"
         >
       </div>

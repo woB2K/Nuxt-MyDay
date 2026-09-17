@@ -89,20 +89,20 @@ function applyRange() {
     </button>
 
     <div v-if="customOpen" class="mt-3 flex flex-col gap-3">
-      <div class="flex gap-2.5">
-        <label class="flex-1 flex flex-col gap-1.5">
+      <div class="grid grid-cols-2 gap-2.5">
+        <label class="min-w-0 flex-1 flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-text-dim">{{ t('finance.period.from') }}</span>
           <input
             v-model="from"
-            class="h-12 w-full px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none [color-scheme:dark]"
+            class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none"
             type="date"
           >
         </label>
-        <label class="flex-1 flex flex-col gap-1.5">
+        <label class="min-w-0 flex-1 flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-text-dim">{{ t('finance.period.to') }}</span>
           <input
             v-model="to"
-            class="h-12 w-full px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none [color-scheme:dark]"
+            class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none"
             type="date"
           >
         </label>

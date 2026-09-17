@@ -73,9 +73,15 @@
   --c-shadow-sheet: 0 -8px 32px rgba(15, 15, 20, 0.10);
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background-color: var(--c-bg);
   color: var(--c-text);
+  touch-action: manipulation;
 }
 
 :root[data-accent="teal"] {
@@ -180,6 +186,18 @@ body {
 
 @utility pt-safe {
   padding-top: env(safe-area-inset-top, 0px);
+}
+
+@utility pb-shell {
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+}
+
+@utility bottom-fab {
+  bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@utility bottom-toast {
+  bottom: calc(10.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {

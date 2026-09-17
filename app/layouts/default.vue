@@ -9,7 +9,7 @@ const fabAction = provideFabAction()
 
 <template>
   <div class="min-h-dvh bg-bg">
-    <main class="pt-safe pb-28">
+    <main class="pt-safe pb-shell">
       <slot />
     </main>
     <UiFab v-if="!route.meta.hideFab" @click="fabAction?.()" />

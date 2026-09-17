@@ -4,7 +4,7 @@ defineEmits<{ click: [] }>()
 
 <template>
   <button
-    class="fixed right-5 bottom-[100px] z-30 size-14 rounded-full bg-accent shadow-[0_0_20px_0] shadow-accent/40 flex items-center justify-center active:scale-90 transition-transform duration-fast ease-spring"
+    class="fixed right-5 bottom-fab z-30 size-14 rounded-full bg-accent shadow-[0_0_20px_0] shadow-accent/40 flex items-center justify-center active:scale-90 transition-transform duration-fast ease-spring"
     @click="$emit('click')"
   >
     <UIcon name="i-lucide-plus" class="size-6 text-accent-ink" />

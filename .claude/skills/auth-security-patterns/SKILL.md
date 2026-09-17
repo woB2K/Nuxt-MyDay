@@ -118,3 +118,29 @@ if (owned !== ids.length) throw createError({ statusCode: 400, message: 'Unknown
 Для update/delete самих сущностей принцип уже соблюдается через `where: { id, userId }` (см. `tags/[id].delete.ts`) — здесь то же самое, но для связей. Бонус: явная проверка возвращает 400 вместо 500 от FK-констрейнта при несуществующем id.
 
 Актуальные точки применения: `2.18` (`ROADMAP.md`) для finance, `3.2` для `tagIds` в tasks.
+
+---
+
+## Обновление токена при 401 (useApi)
+
+Access token живёт 15 минут и лежит только в памяти. Silent refresh при старте (выше) закрывает перезагрузку страницы, но **не** истечение токена посреди сессии. Без повтора запроса приложение умирает через 15 минут: мутации падают, `onSuccess` не наступает, шиты остаются висеть.
+
+```ts
+// app/composables/useApi.ts
+export function useApi() {
+  const authStore = useAuthStore()
+  const client = $fetch.create({ onRequest({ options }) { /* Bearer из стора */ } })
+
+  return async function api<T>(request: string, options?: FetchOptions): Promise<T> {
+    try {
+      return await client<T>(request, options)
+    } catch (error) {
+      if (statusOf(error) !== 401) throw error
+      if (!await authStore.renew()) { await navigateTo('/auth/welcome'); throw error }
+      return await client<T>(request, options)   // ровно один повтор
+    }
+  }
+}
+```
+
+Три несущих детали: **ровно один повтор** (второй 401 уходит наверх, иначе петля); `renew()` **дедуплицирован** общим промисом, потому что `/api/auth/refresh` ротирует токен и два параллельных вызова убьют сессию; при провале refresh — чистим сессию и уводим на `/auth/welcome`, иначе пользователь залипает в «залогинен, но всё падает».
