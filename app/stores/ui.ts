@@ -17,11 +17,15 @@ export const useUiStore = defineStore('ui', () => {
   const lockPrimed = ref(false)
   const lockReturn = ref('/today')
 
+  let toastSeq = 0
+
   function addToast(toast: Omit<Toast, 'id'>) {
+    toastSeq += 1
+
     queue.value.push({
       duration: 3000,
       ...toast,
-      id: crypto.randomUUID()
+      id: `toast-${toastSeq}`
     })
   }
 

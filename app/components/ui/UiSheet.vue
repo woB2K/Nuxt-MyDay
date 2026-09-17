@@ -15,6 +15,7 @@ const panelHeight = ref(0)
 const drag = ref(0)
 const dragging = ref(false)
 const closing = ref(false)
+const { inset: keyboard } = useKeyboardInset()
 
 let startY = 0
 
@@ -22,12 +23,18 @@ const progress = computed(() => panelHeight.value
   ? Math.min(1, drag.value / panelHeight.value)
   : 0)
 
-const panelStyle = computed(() => drag.value === 0
-  ? undefined
-  : {
-      transform: `translateY(${drag.value}px)`,
-      transition: dragging.value ? 'none' : 'transform var(--duration-base) var(--ease-out)'
-    })
+const panelStyle = computed(() => {
+  const shift = drag.value
+  const lift = keyboard.value
+
+  if (shift === 0 && lift === 0) return undefined
+
+  return {
+    ...(lift > 0 ? { bottom: `${lift}px` } : {}),
+    ...(shift > 0 ? { transform: `translateY(${shift}px)` } : {}),
+    transition: dragging.value ? 'none' : 'transform var(--duration-base) var(--ease-out), bottom var(--duration-base) var(--ease-out)'
+  }
+})
 
 const scrimStyle = computed(() => drag.value === 0
   ? undefined
@@ -116,7 +123,11 @@ onUnmounted(() => {
         :class="{ 'pointer-events-none': closing }"
         :style="panelStyle"
       >
-        <div ref="panel" class="max-h-[88dvh] overflow-y-auto rounded-t-2xl bg-elev2 shadow-sheet">
+        <div
+          ref="panel"
+          class="overflow-y-auto rounded-t-2xl bg-elev2 shadow-sheet"
+          :style="{ maxHeight: keyboard > 0 ? `calc(100dvh - ${keyboard}px - 1rem)` : '88dvh' }"
+        >
           <div
             class="touch-none select-none pt-3 pb-1"
             @pointerdown="onPointerDown"

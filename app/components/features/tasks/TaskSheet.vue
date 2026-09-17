@@ -150,7 +150,7 @@ function remove() {
 
       <UiInput v-model="notes" :label="t('tasks.notes')" multiline :rows="3" />
 
-      <UiButton class="w-full" type="submit" :disabled="isPending">
+      <UiButton class="w-full" type="submit" :loading="isPending">
         {{ t('general.save') }}
       </UiButton>
 

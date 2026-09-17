@@ -1,10 +1,19 @@
 <script lang="ts" setup>
 const uiStore = useUiStore()
+
+const { inset: keyboard } = useKeyboardInset()
+
+const style = computed(() => keyboard.value > 0
+  ? { bottom: `calc(${keyboard.value}px + 1rem)` }
+  : undefined)
 </script>
 
 <template>
   <Teleport to="body">
-    <div class="fixed top-safe inset-x-5 z-[60] flex flex-col gap-2 pt-3 pointer-events-none">
+    <div
+      class="fixed bottom-toast inset-x-5 z-[60] flex flex-col gap-2 pointer-events-none"
+      :style="style"
+    >
       <TransitionGroup name="toast">
         <UiToastItem
           v-for="toast in uiStore.queue"
@@ -20,17 +29,17 @@ const uiStore = useUiStore()
 
 <style scoped>
 .toast-enter-active {
-  transition: all 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all var(--duration-base) var(--ease-spring);
 }
 .toast-leave-active {
-  transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: all var(--duration-base) var(--ease-out);
 }
 .toast-enter-from {
   opacity: 0;
-  transform: translateY(-16px);
+  transform: translateY(16px);
 }
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(-8px) scale(0.96);
+  transform: translateY(8px) scale(0.96);
 }
 </style>

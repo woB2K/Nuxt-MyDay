@@ -58,7 +58,7 @@ function submit() {
 
       <span v-if="error" class="text-sm text-danger">{{ error }}</span>
 
-      <UiButton class="w-full" type="submit" :disabled="isPending">
+      <UiButton class="w-full" type="submit" :loading="isPending">
         {{ t('pin.reset.submit') }}
       </UiButton>
     </form>

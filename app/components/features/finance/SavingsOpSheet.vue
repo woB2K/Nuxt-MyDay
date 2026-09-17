@@ -90,7 +90,7 @@ function submit() {
 
       <UiInput v-model="note" :label="t('finance.note')" type="text" />
 
-      <UiButton class="w-full" type="submit" :disabled="isPending">
+      <UiButton class="w-full" type="submit" :loading="isPending">
         {{ isDeposit ? t('finance.savings.add') : t('finance.savings.withdraw') }}
       </UiButton>
     </form>

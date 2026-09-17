@@ -156,7 +156,7 @@ function submit() {
         </div>
       </div>
 
-      <UiButton class="w-full" type="submit" :disabled="isPending">
+      <UiButton class="w-full" type="submit" :loading="isPending">
         {{ t('general.save') }}
       </UiButton>
     </form>

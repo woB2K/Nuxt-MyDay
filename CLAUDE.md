@@ -248,6 +248,8 @@ pnpm test:db:up && pnpm test:e2e
 pnpm test:e2e --ui
 ```
 
+**Проверять фичи руками нужно по `http://<LAN-IP>:3000`, а не по `localhost`.** Браузер считает localhost secure context, а LAN-адрес — нет, и на этой разнице уже трижды прятались настоящие баги (см. `ARCHITECTURE.md` → «Проверять по LAN-адресу»).
+
 E2E поднимает собственный `nuxt dev --dotenv .env.test --port 3100`, поэтому не конфликтует с твоим `pnpm dev` на :3000 и никогда не пишет в dev-базу. Браузер ставится один раз: `pnpm exec playwright install chromium`.
 
 Интеграционным и E2E-тестам нужен файл `.env.test` — скопируй `.env.test.example` → `.env.test` (в нём только тестовые значения, секретов нет; CI делает то же самое).
