@@ -1,0 +1,321 @@
+{
+  "app": {
+    "title": "MyDay — задачи и финансы",
+    "description": "Задачи и финансы в одном месте"
+  },
+  "general": {
+    "somethingWrong": "Что-то пошло не так",
+    "save": "Сохранить",
+    "edit": "Изменить",
+    "close": "Закрыть"
+  },
+  "welcome": {
+    "tagline": "Ваши задачи и финансы, все в одном месте!",
+    "getStarted": "Начать!",
+    "continueGoogle": "Авторизоваться через Google",
+    "continueEmail": "Авторизоваться через почту",
+    "alreadyHaveAccount": "У вас уже есть аккаунт?",
+    "signIn": "Войти"
+  },
+  "tabbar": {
+    "today": "Главная",
+    "tasks": "Задачи",
+    "finance": "Финансы",
+    "settings": "Настройки"
+  },
+  "toast": {
+    "transactions": {
+      "addSuccess": "Транзакция добавлена",
+      "addError": "Не удалось добавить транзакцию",
+      "updateSuccess": "Транзакция обновлена",
+      "updateError": "Не удалось обновить транзакцию",
+      "deleteSuccess": "Транзакция удалена",
+      "deleteError": "Не удалось удалить транзакцию"
+    },
+    "savings": {
+      "addSuccess": "Запись о накоплениях добавлена",
+      "addError": "Не удалось добавить запись о накоплениях",
+      "deleteSuccess": "Запись о накоплениях удалена",
+      "deleteError": "Не удалось удалить запись о накоплениях"
+    },
+    "budgets": {
+      "saveSuccess": "Бюджет сохранён",
+      "saveError": "Не удалось сохранить бюджет"
+    },
+    "categories": {
+      "addSuccess": "Категория создана",
+      "addError": "Не удалось создать категорию",
+      "updateSuccess": "Категория обновлена",
+      "updateError": "Не удалось обновить категорию",
+      "deleteSuccess": "Категория удалена",
+      "deleteError": "Не удалось удалить категорию"
+    },
+    "tasks": {
+      "addSuccess": "Задача добавлена",
+      "addError": "Не удалось добавить задачу",
+      "updateSuccess": "Задача обновлена",
+      "updateError": "Не удалось обновить задачу",
+      "deleteSuccess": "Задача удалена",
+      "deleteError": "Не удалось удалить задачу"
+    },
+    "tags": {
+      "addSuccess": "Тег создан",
+      "addError": "Не удалось создать тег",
+      "updateSuccess": "Тег обновлён",
+      "updateError": "Не удалось обновить тег",
+      "deleteSuccess": "Тег удалён",
+      "deleteError": "Не удалось удалить тег"
+    },
+    "templates": {
+      "addSuccess": "Шаблон создан",
+      "addError": "Не удалось создать шаблон",
+      "updateSuccess": "Шаблон обновлён",
+      "updateError": "Не удалось обновить шаблон",
+      "deleteSuccess": "Шаблон удалён",
+      "deleteError": "Не удалось удалить шаблон"
+    },
+    "pin": {
+      "saved": "PIN сохранён",
+      "disabled": "PIN выключен",
+      "reset": "PIN сброшен"
+    }
+  },
+  "finance": {
+    "tabs": {
+      "transactions": "Транзакции",
+      "savings": "Накопления",
+      "budgets": "Бюджет"
+    },
+    "error": {
+      "amount": "Некорректная сумма",
+      "category": "Не выбрана категория"
+    },
+    "title": "Финансы",
+    "balance": "Баланс",
+    "income": "Доходы",
+    "expense": "Расходы",
+    "breakdown": "По категориям",
+    "recent": "Последние транзакции",
+    "noTransactions": "Транзакций пока нет",
+    "noBreakdown": "Нет данных за этот период",
+    "addTransaction": "Добавить транзакцию",
+    "amount": "Количество",
+    "note": "Описание",
+    "savings": {
+      "balance": "Накопления",
+      "add": "Пополнить",
+      "withdraw": "Снять",
+      "history": "История",
+      "noHistory": "Записей о накоплениях пока нет",
+      "deposit": "Пополнение",
+      "withdrawal": "Снятие",
+      "forPeriod": "За выбранный период",
+      "addTitle": "Пополнить копилку",
+      "withdrawTitle": "Снять с копилки",
+      "available": "Доступно",
+      "notEnough": "В копилке столько нет"
+    },
+    "netPeriod": "Итог за период",
+    "period": {
+      "title": "Период",
+      "presets": {
+        "thisMonth": "Этот месяц",
+        "lastMonth": "Прошлый месяц",
+        "last3": "Последние 3 месяца",
+        "thisYear": "Этот год",
+        "all": "Всё время"
+      },
+      "everything": "Без ограничений",
+      "preset": "Пресет",
+      "customRange": "Свой диапазон",
+      "from": "От",
+      "to": "До",
+      "apply": "Применить",
+      "invalidRange": "Начало диапазона должно быть раньше конца"
+    },
+    "filters": {
+      "all": "Все",
+      "categories": "Категории",
+      "search": "Поиск",
+      "searchPlaceholder": "Поиск по заметке",
+      "reset": "Сбросить",
+      "clear": "Очистить",
+      "show": "Показать",
+      "showAll": "Показать все",
+      "noResults": "Ничего не найдено",
+      "noResultsSub": "Расширьте период или снимите фильтры",
+      "clearFilters": "Сбросить фильтры"
+    },
+    "allTransactions": "Операции",
+    "seeAll": "Все",
+    "ops": "{count} операция | {count} операции | {count} операций",
+    "loadMore": "Показать ещё",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "editTransaction": "Операция",
+    "deleteTransaction": "Удалить операцию",
+    "category": "Категория",
+    "date": "Дата"
+  },
+  "tasks": {
+    "greeting": {
+      "morning": "Доброе утро",
+      "afternoon": "Добрый день",
+      "evening": "Добрый вечер"
+    },
+    "today": "Сегодня",
+    "allTasks": "Все задачи",
+    "count": "{count} задача | {count} задачи | {count} задач",
+    "focus": "Фокус",
+    "empty": "На сегодня пусто",
+    "emptySub": "Добавь задачу — она появится здесь",
+    "emptyAll": "Задач пока нет",
+    "emptyAllSub": "Нажми + и добавь первую",
+    "filters": {
+      "all": "Все",
+      "open": "Активные",
+      "done": "Готовы",
+      "searchPlaceholder": "Поиск задач",
+      "noResults": "Ничего не нашлось",
+      "noResultsSub": "Попробуй другой запрос или фильтр",
+      "clearFilters": "Сбросить фильтры"
+    },
+    "add": "Новая задача",
+    "edit": "Изменить задачу",
+    "title": "Название",
+    "priorityLabel": "Приоритет",
+    "priority": {
+      "HIGH": "Высокий",
+      "MEDIUM": "Средний",
+      "LOW": "Низкий",
+      "NONE": "Нет"
+    },
+    "dueDate": "Дедлайн",
+    "clearDate": "Убрать",
+    "tags": "Теги",
+    "newTag": "Новый тег",
+    "notes": "Заметки",
+    "delete": "Удалить задачу",
+    "stats": {
+      "streak": "день подряд | дня подряд | дней подряд",
+      "done": "Сделано сегодня"
+    },
+    "templates": {
+      "title": "Шаблоны",
+      "subtitle": "Повторяющиеся задачи в одно касание",
+      "add": "Новый шаблон",
+      "edit": "Изменить шаблон",
+      "use": "Применить",
+      "delete": "Удалить шаблон",
+      "empty": "Шаблонов пока нет",
+      "emptySub": "Сохрани повторяющуюся задачу как шаблон"
+    },
+    "error": {
+      "title": "Впиши название задачи"
+    }
+  },
+  "auth": {
+    "name": "Имя",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "welcomeBack": "С возвращением!",
+    "loginDescription": "Войти в аккаунт",
+    "forgotPass": "Забыли пароль?",
+    "signIn": "Войти",
+    "registerDescription": "Присоединяйся к MyDay - это бесплатно",
+    "createAccount": "Создать аккаунт",
+    "dontHaveAccount": "Вы не зарегистрированы?",
+    "errorGeneric": "Что-то пошло не так. Попробуйте ещё раз.",
+    "errorInvalidCredentials": "Неверный email или пароль.",
+    "errorInvalidEmail": "Введите корректный email.",
+    "errorShortPassword": "Пароль должен содержать не менее 8 символов.",
+    "errorShortName": "Имя должно содержать не менее 2 символов.",
+    "alreadyHaveAccount": "Уже есть аккаунт?"
+  },
+  "settings": {
+    "title": "Настройки",
+    "noEmail": "Без почты",
+    "theme": "Тема",
+    "themes": {
+      "light": "Светлая",
+      "dark": "Тёмная",
+      "system": "Системная"
+    },
+    "accent": "Акцент",
+    "accents": {
+      "violet": "Фиолетовый",
+      "teal": "Бирюзовый",
+      "amber": "Янтарный",
+      "sky": "Небесный",
+      "rose": "Розовый"
+    },
+    "language": "Язык",
+    "templates": "Шаблоны задач",
+    "templatesSub": "Добавляются в одно касание",
+    "signOut": "Выйти",
+    "signOutError": "Не удалось выйти",
+    "saveError": "Не удалось сохранить настройки",
+    "categories": "Категории",
+    "categoriesSub": "Переименовать, перекрасить или добавить свою",
+    "categoriesScreen": {
+      "title": "Категории",
+      "subtitle": "По ним раскладываются доходы и расходы",
+      "hint": "Смахни влево, чтобы удалить",
+      "add": "Новая категория",
+      "edit": "Изменить категорию",
+      "name": "Название",
+      "type": "Тип",
+      "icon": "Иконка",
+      "color": "Цвет",
+      "expense": "Расход",
+      "income": "Доход",
+      "nameRequired": "Название не может быть пустым",
+      "systemTypeLocked": "Запасная категория — тип менять нельзя"
+    },
+    "pin": {
+      "lock": "PIN-код",
+      "lockSub": "Спрашивать PIN при открытии",
+      "change": "Сменить PIN",
+      "enableTitle": "Установить PIN",
+      "changeTitle": "Смена PIN",
+      "disableTitle": "Выключить PIN",
+      "enterFirst": "Придумайте PIN из 4 цифр",
+      "enterCurrent": "Введите текущий PIN",
+      "enterNew": "Введите новый PIN",
+      "repeatNew": "Повторите PIN",
+      "mismatch": "PIN-коды не совпадают",
+      "saveError": "Не удалось сохранить PIN"
+    }
+  },
+  "categories": {
+    "food": "Еда и напитки",
+    "transport": "Транспорт",
+    "shopping": "Покупки",
+    "entertainment": "Развлечения",
+    "health": "Здоровье",
+    "housing": "Жильё",
+    "education": "Образование",
+    "salary": "Зарплата",
+    "freelance": "Фриланс",
+    "other-expense": "Другое",
+    "other-income": "Другое"
+  },
+  "pin": {
+    "backspace": "Стереть последнюю цифру",
+    "unlockTitle": "Введите PIN",
+    "unlockSubtitle": "Разблокируйте MyDay, чтобы продолжить",
+    "wrong": "Неверный PIN · осталось попыток: {count}",
+    "wrongSimple": "Неверный PIN",
+    "tooManyAttempts": "Слишком много попыток. Повторите через несколько минут",
+    "forgot": "Забыли PIN?",
+    "reset": {
+      "title": "Сброс PIN",
+      "passwordHint": "Введите пароль от аккаунта, чтобы выключить PIN. Новый можно задать сразу после этого.",
+      "passwordRequired": "Введите пароль",
+      "wrongPassword": "Неверный пароль",
+      "submit": "Выключить PIN",
+      "oauthOnly": "У аккаунта нет пароля — войдите через своего провайдера заново",
+      "oauthHint": "Аккаунт создан через провайдера входа, пароля для проверки нет. Выйдите и войдите заново, чтобы выключить PIN."
+    }
+  }
+}

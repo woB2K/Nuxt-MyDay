@@ -7,7 +7,7 @@ export default withNuxt(
     vue: true,
     typescript: true,
     stylistic: false,
-    ignores: ['CLAUDE.md', 'DESIGN.md', 'design_handoff_myday/**']
+    ignores: ['CLAUDE.md', 'DESIGN.md', 'design_handoff_myday/**', 'playwright.config.ts']
   }),
   {
     rules: {

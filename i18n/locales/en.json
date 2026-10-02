@@ -1,0 +1,321 @@
+{
+  "app": {
+    "title": "MyDay — tasks & finances",
+    "description": "Tasks and finances in one place"
+  },
+  "general": {
+    "somethingWrong": "Something went wrong",
+    "save": "Save",
+    "edit": "Edit",
+    "close": "Close"
+  },
+  "welcome": {
+    "tagline": "Tasks & finances, one place",
+    "getStarted": "Get started",
+    "continueGoogle": "Continue with Google",
+    "continueEmail": "Continue with email",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "tabbar": {
+    "today": "Today",
+    "tasks": "Tasks",
+    "finance": "Finance",
+    "settings": "Settings"
+  },
+  "toast": {
+    "transactions": {
+      "addSuccess": "Transaction added",
+      "addError": "Failed to add transaction",
+      "updateSuccess": "Transaction updated",
+      "updateError": "Failed to update transaction",
+      "deleteSuccess": "Transaction deleted",
+      "deleteError": "Failed to delete transaction"
+    },
+    "savings": {
+      "addSuccess": "Savings entry added",
+      "addError": "Failed to add savings entry",
+      "deleteSuccess": "Savings entry deleted",
+      "deleteError": "Failed to delete savings entry"
+    },
+    "budgets": {
+      "saveSuccess": "Budget saved",
+      "saveError": "Failed to save budget"
+    },
+    "categories": {
+      "addSuccess": "Category created",
+      "addError": "Failed to create category",
+      "updateSuccess": "Category updated",
+      "updateError": "Failed to update category",
+      "deleteSuccess": "Category deleted",
+      "deleteError": "Failed to delete category"
+    },
+    "tasks": {
+      "addSuccess": "Task added",
+      "addError": "Failed to add task",
+      "updateSuccess": "Task updated",
+      "updateError": "Failed to update task",
+      "deleteSuccess": "Task deleted",
+      "deleteError": "Failed to delete task"
+    },
+    "tags": {
+      "addSuccess": "Tag created",
+      "addError": "Failed to create tag",
+      "updateSuccess": "Tag updated",
+      "updateError": "Failed to update tag",
+      "deleteSuccess": "Tag deleted",
+      "deleteError": "Failed to delete tag"
+    },
+    "templates": {
+      "addSuccess": "Template created",
+      "addError": "Failed to create template",
+      "updateSuccess": "Template updated",
+      "updateError": "Failed to update template",
+      "deleteSuccess": "Template deleted",
+      "deleteError": "Failed to delete template"
+    },
+    "pin": {
+      "saved": "PIN saved",
+      "disabled": "PIN turned off",
+      "reset": "PIN reset"
+    }
+  },
+  "finance": {
+    "tabs": {
+      "transactions": "Transaction",
+      "savings": "Savings",
+      "budgets": "Budgets"
+    },
+    "error": {
+      "amount": "Incorrect amount",
+      "category": "No category selected"
+    },
+    "title": "Finance",
+    "balance": "Balance",
+    "income": "Income",
+    "expense": "Expense",
+    "breakdown": "Breakdown",
+    "recent": "Recent transaction",
+    "noTransactions": "No transactions yet",
+    "noBreakdown": "No data for this period",
+    "addTransaction": "Add transaction",
+    "amount": "Amount",
+    "note": "Note",
+    "savings": {
+      "balance": "Savings",
+      "add": "Add",
+      "withdraw": "Withdraw",
+      "history": "History",
+      "noHistory": "No savings entries yet",
+      "deposit": "Deposit",
+      "withdrawal": "Withdrawal",
+      "forPeriod": "For the selected period",
+      "addTitle": "Add to savings",
+      "withdrawTitle": "Withdraw from savings",
+      "available": "Available",
+      "notEnough": "Not enough in savings"
+    },
+    "netPeriod": "Net this period",
+    "period": {
+      "title": "Period",
+      "presets": {
+        "thisMonth": "This month",
+        "lastMonth": "Last month",
+        "last3": "Last 3 months",
+        "thisYear": "This year",
+        "all": "All time"
+      },
+      "everything": "Everything",
+      "preset": "Preset",
+      "customRange": "Custom range",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply range",
+      "invalidRange": "The start date must be before the end date"
+    },
+    "filters": {
+      "all": "All",
+      "categories": "Categories",
+      "search": "Search",
+      "searchPlaceholder": "Search notes",
+      "reset": "Reset",
+      "clear": "Clear",
+      "show": "Show",
+      "showAll": "Show all",
+      "noResults": "Nothing matches",
+      "noResultsSub": "Try a wider period or fewer filters",
+      "clearFilters": "Clear filters"
+    },
+    "allTransactions": "Transactions",
+    "seeAll": "See all",
+    "ops": "{count} operation | {count} operations",
+    "loadMore": "Load more",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "editTransaction": "Edit transaction",
+    "deleteTransaction": "Delete transaction",
+    "category": "Category",
+    "date": "Date"
+  },
+  "tasks": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "today": "Today",
+    "allTasks": "All tasks",
+    "count": "{count} task | {count} tasks",
+    "focus": "Focus",
+    "empty": "Nothing for today",
+    "emptySub": "Add a task and it shows up here",
+    "emptyAll": "No tasks yet",
+    "emptyAllSub": "Tap + to add the first one",
+    "filters": {
+      "all": "All",
+      "open": "Open",
+      "done": "Done",
+      "searchPlaceholder": "Search tasks",
+      "noResults": "Nothing found",
+      "noResultsSub": "Try another search or filter",
+      "clearFilters": "Clear filters"
+    },
+    "add": "New task",
+    "edit": "Edit task",
+    "title": "Title",
+    "priorityLabel": "Priority",
+    "priority": {
+      "HIGH": "High",
+      "MEDIUM": "Medium",
+      "LOW": "Low",
+      "NONE": "None"
+    },
+    "dueDate": "Due date",
+    "clearDate": "Clear",
+    "tags": "Tags",
+    "newTag": "New tag",
+    "notes": "Notes",
+    "delete": "Delete task",
+    "stats": {
+      "streak": "day streak | days streak",
+      "done": "Done today"
+    },
+    "templates": {
+      "title": "Templates",
+      "subtitle": "Reusable tasks you add in one tap",
+      "add": "New template",
+      "edit": "Edit template",
+      "use": "Use",
+      "delete": "Delete template",
+      "empty": "No templates yet",
+      "emptySub": "Save a repeating task as a template"
+    },
+    "error": {
+      "title": "Give the task a title"
+    }
+  },
+  "auth": {
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "welcomeBack": "Welcome back!",
+    "loginDescription": "Sign in to your MyDay account",
+    "forgotPass": "Forgot password?",
+    "signIn": "Sign in",
+    "registerDescription": "Join MyDay — it’s free",
+    "createAccount": "Create account",
+    "dontHaveAccount": "Don’t have an account?",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorInvalidCredentials": "Invalid email or password.",
+    "errorInvalidEmail": "Please enter a valid email address.",
+    "errorShortPassword": "Password must be at least 8 characters.",
+    "errorShortName": "Name must be at least 2 characters.",
+    "alreadyHaveAccount": "Already have an account?"
+  },
+  "settings": {
+    "title": "Settings",
+    "noEmail": "No email",
+    "theme": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "accent": "Accent",
+    "accents": {
+      "violet": "Violet",
+      "teal": "Teal",
+      "amber": "Amber",
+      "sky": "Sky",
+      "rose": "Rose"
+    },
+    "language": "Language",
+    "templates": "Task templates",
+    "templatesSub": "Add a task in one tap",
+    "signOut": "Sign out",
+    "signOutError": "Could not sign out",
+    "saveError": "Could not save settings",
+    "categories": "Categories",
+    "categoriesSub": "Rename, recolour or add your own",
+    "categoriesScreen": {
+      "title": "Categories",
+      "subtitle": "Used to sort your income and spending",
+      "hint": "Swipe left to delete",
+      "add": "New category",
+      "edit": "Edit category",
+      "name": "Name",
+      "type": "Type",
+      "icon": "Icon",
+      "color": "Color",
+      "expense": "Expense",
+      "income": "Income",
+      "nameRequired": "Name can't be empty",
+      "systemTypeLocked": "Fallback category — its type is fixed"
+    },
+    "pin": {
+      "lock": "PIN lock",
+      "lockSub": "Require PIN to open the app",
+      "change": "Change PIN",
+      "enableTitle": "Set a PIN",
+      "changeTitle": "Change PIN",
+      "disableTitle": "Turn PIN off",
+      "enterFirst": "Choose a 4-digit PIN",
+      "enterCurrent": "Enter your current PIN",
+      "enterNew": "Enter a new PIN",
+      "repeatNew": "Repeat the PIN",
+      "mismatch": "PINs do not match",
+      "saveError": "Could not save the PIN"
+    }
+  },
+  "categories": {
+    "food": "Food & Drink",
+    "transport": "Transport",
+    "shopping": "Shopping",
+    "entertainment": "Entertainment",
+    "health": "Health",
+    "housing": "Housing",
+    "education": "Education",
+    "salary": "Salary",
+    "freelance": "Freelance",
+    "other-expense": "Other",
+    "other-income": "Other"
+  },
+  "pin": {
+    "backspace": "Delete last digit",
+    "unlockTitle": "Enter PIN",
+    "unlockSubtitle": "Unlock MyDay to continue",
+    "wrong": "Wrong PIN · {count} attempts left",
+    "wrongSimple": "Wrong PIN",
+    "tooManyAttempts": "Too many attempts. Try again in a few minutes",
+    "forgot": "Forgot PIN?",
+    "reset": {
+      "title": "Reset PIN",
+      "passwordHint": "Enter your account password to turn the PIN off. You can set a new one afterwards.",
+      "passwordRequired": "Enter your password",
+      "wrongPassword": "Wrong password",
+      "submit": "Turn PIN off",
+      "oauthOnly": "This account has no password — sign in with your provider again",
+      "oauthHint": "This account was created through a sign-in provider, so there is no password to check. Sign out and sign in again to turn the PIN off."
+    }
+  }
+}

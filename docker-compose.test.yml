@@ -1,0 +1,18 @@
+# Одноразовая Postgres для интеграционных тестов (2.15.5).
+# Порт 5434 — чтобы не конфликтовать с дев-базой (5433) и локальной (5432).
+# Данные не персистятся (нет volume) — каждый up с нуля.
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: myday-postgres-test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: myday_test
+    ports:
+      - '5434:5432'
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U postgres -d myday_test]
+      interval: 2s
+      timeout: 3s
+      retries: 15

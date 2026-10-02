@@ -71,7 +71,7 @@ model Task {
   done      Boolean   @default(false)
   doneAt    DateTime?
   priority  Priority  @default(NONE)
-  dueDate   DateTime?
+  dueDate   DateTime? @db.Date
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -83,8 +83,8 @@ model TaskTag {
   taskId String
   tagId  String
 
-  task Task @relation(fields: [taskId], references: [id])
-  tag  Tag  @relation(fields: [tagId], references: [id])
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([taskId, tagId])
 }
@@ -106,8 +106,8 @@ model TaskTemplateTag {
   templateId String
   tagId      String
 
-  template TaskTemplate @relation(fields: [templateId], references: [id])
-  tag      Tag          @relation(fields: [tagId], references: [id])
+  template TaskTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  tag      Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@id([templateId, tagId])
 }
@@ -146,6 +146,7 @@ model SavingsEntry {
   id        String   @id @default(cuid())
   userId    String
   amount    Decimal  @db.Decimal(12, 2)
+  type      SavingsType
   notes     String?
   createdAt DateTime @default(now())
 
@@ -156,8 +157,11 @@ model Category {
   id        String          @id @default(cuid())
   userId    String
   name      String
-  icon      String?
+  key       String?
+  icon      String
+  color     String
   type      TransactionType
+  isSystem  Boolean         @default(false)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 
@@ -165,7 +169,7 @@ model Category {
   transactions Transaction[]
   budgets      Budget[]
 
-  @@unique([userId, name])
+  @@unique([userId, name, type])
 }
 
 model Budget {
@@ -193,4 +197,9 @@ enum Priority {
 enum TransactionType {
   INCOME
   EXPENSE
+}
+
+enum SavingsType {
+  DEPOSIT
+  WITHDRAWAL
 }

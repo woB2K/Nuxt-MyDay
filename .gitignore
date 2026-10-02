@@ -4,6 +4,7 @@
 .nuxt
 .nitro
 .cache
+.vscode
 dist
 
 # Node dependencies
@@ -22,9 +23,21 @@ logs
 .env
 .env.*
 !.env.example
+!.env.test.example
+!.env.docker.example
 
 # Prisma generated client
 prisma/.generated/
 
+# Playwright artifacts
+test-results/
+playwright-report/
+
 # Design prototype (reference only, not part of codebase)
 design_handoff_myday/
+
+TAILWIND.md
+
+# Working context / session notes (not part of codebase)
+context/
+.claude/settings.local.json
