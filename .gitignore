@@ -24,6 +24,7 @@ logs
 .env.*
 !.env.example
 !.env.test.example
+!.env.docker.example
 
 # Prisma generated client
 prisma/.generated/
