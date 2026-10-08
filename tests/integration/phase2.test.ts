@@ -605,6 +605,7 @@ describe('phase 2 api', async () => {
         income: number
         expense: number
         networth: number
+        breakdownType: 'INCOME' | 'EXPENSE'
         breakdown: Array<{ total: number, category: { id: string } }>
       }
 
@@ -638,18 +639,31 @@ describe('phase 2 api', async () => {
         expect(result.income).toBe(0)
         expect(result.expense).toBe(500)
         expect(result.networth).toBe(-500)
+        expect(result.breakdownType).toBe('EXPENSE')
         expect(result.breakdown).toHaveLength(2)
       })
 
-      it('empties expense and breakdown when type=INCOME — breakdown is spend by category', async () => {
-        const { summary } = await seed()
+      it('breaks down income by category when type=INCOME', async () => {
+        const { incomeCat, summary } = await seed()
 
         const result = await summary({ type: 'INCOME' })
 
         expect(result.income).toBe(1000)
         expect(result.expense).toBe(0)
         expect(result.networth).toBe(1000)
-        expect(result.breakdown).toEqual([])
+        expect(result.breakdownType).toBe('INCOME')
+        expect(result.breakdown).toHaveLength(1)
+        expect(result.breakdown[0]!.category.id).toBe(incomeCat)
+        expect(result.breakdown[0]!.total).toBe(1000)
+      })
+
+      it('breaks down expenses when no type is selected', async () => {
+        const { summary } = await seed()
+
+        const result = await summary({})
+
+        expect(result.breakdownType).toBe('EXPENSE')
+        expect(result.breakdown.map(item => item.total)).toEqual([300, 200])
       })
 
       it('narrows totals to the selected categories', async () => {

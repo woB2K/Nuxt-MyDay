@@ -205,7 +205,8 @@ function seedTransactions(queryClient: QueryClient) {
     income: 1000,
     expense: 400,
     networth: 600,
-    breakdown: [{ total: 400, category: { id: 'cat-1', name: 'Food', icon: 'i', color: '#fff' } }]
+    breakdownType: 'EXPENSE',
+    breakdown: [{ total: 400, category: { id: 'cat-1', name: 'Food', key: null, icon: 'i', color: '#fff' } }]
   })
 }
 

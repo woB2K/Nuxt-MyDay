@@ -33,6 +33,8 @@ const total = computed(() => (summary.value?.income ?? 0) + (summary.value?.expe
 const incomePercent = computed(() => (total.value > 0 ? (summary.value!.income / total.value) * 100 : 0))
 const expensePercent = computed(() => (total.value > 0 ? (summary.value!.expense / total.value) * 100 : 0))
 
+const isIncomeBreakdown = computed(() => summary.value?.breakdownType === 'INCOME')
+
 const maxAmount = computed(() =>
   Math.max(...(summary.value?.breakdown.map(el => el.total) ?? [0]))
 )
@@ -116,7 +118,7 @@ function applyCategories(ids: string[]) {
     </template>
 
     <template v-else-if="summary && transactions && categories">
-      <UiSectionHeader :title="t('finance.breakdown')" />
+      <UiSectionHeader :title="t(isIncomeBreakdown ? 'finance.breakdownIncome' : 'finance.breakdownExpense')" />
       <UiEmptyState
         v-if="summary.breakdown.length === 0"
         icon="i-lucide-chart-pie"
@@ -126,7 +128,7 @@ function applyCategories(ids: string[]) {
         <UiCategoryBar
           v-for="item in summary.breakdown"
           :key="item.category.id"
-          :total-amount="summary.expense"
+          :total-amount="isIncomeBreakdown ? summary.income : summary.expense"
           :max-amount="maxAmount"
           :amount="item.total"
           :category="item.category"

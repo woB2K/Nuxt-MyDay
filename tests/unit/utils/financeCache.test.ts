@@ -78,9 +78,21 @@ describe('dropFromSummary', () => {
     income: 1000,
     expense: 400,
     networth: 600,
+    breakdownType: 'EXPENSE',
     breakdown: [
-      { total: 300, category: { id: 'cat-1', name: 'Food', icon: 'i', color: '#fff' } },
-      { total: 100, category: { id: 'cat-2', name: 'Fun', icon: 'i', color: '#000' } }
+      { total: 300, category: { id: 'cat-1', name: 'Food', key: null, icon: 'i', color: '#fff' } },
+      { total: 100, category: { id: 'cat-2', name: 'Fun', key: null, icon: 'i', color: '#000' } }
+    ]
+  }
+
+  const incomeSummary: SummaryResponse = {
+    income: 1000,
+    expense: 0,
+    networth: 1000,
+    breakdownType: 'INCOME',
+    breakdown: [
+      { total: 800, category: { id: 'salary', name: 'Salary', key: null, icon: 'i', color: '#fff' } },
+      { total: 200, category: { id: 'gift', name: 'Gift', key: null, icon: 'i', color: '#000' } }
     ]
   }
 
@@ -99,13 +111,27 @@ describe('dropFromSummary', () => {
     expect(next.breakdown.map(item => item.category.id)).toEqual(['cat-1'])
   })
 
-  it('доход не трогает breakdown, который считается только по расходам', () => {
+  it('доход не трогает breakdown расходов', () => {
     const next = dropFromSummary(summary, tx('a', { type: 'INCOME', amount: 200 }))
 
     expect(next.income).toBe(800)
     expect(next.expense).toBe(400)
     expect(next.networth).toBe(400)
     expect(next.breakdown).toBe(summary.breakdown)
+  })
+
+  it('доход вычитается из breakdown доходов и сохраняет его тип', () => {
+    const next = dropFromSummary(incomeSummary, tx('a', { type: 'INCOME', amount: 200, categoryId: 'gift' }))
+
+    expect(next.income).toBe(800)
+    expect(next.breakdownType).toBe('INCOME')
+    expect(next.breakdown.map(item => item.category.id)).toEqual(['salary'])
+  })
+
+  it('расход не трогает breakdown доходов', () => {
+    const next = dropFromSummary(incomeSummary, tx('a', { type: 'EXPENSE', amount: 100, categoryId: 'salary' }))
+
+    expect(next.breakdown).toBe(incomeSummary.breakdown)
   })
 })
 
