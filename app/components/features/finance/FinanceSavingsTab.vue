@@ -14,6 +14,8 @@ const {
   fetchNextPage
 } = useSavingsQuery(period)
 
+const { mutate: deleteEntry } = useDeleteSavingsMutation()
+
 const sheetOpen = ref(false)
 const sheetMode = ref<'DEPOSIT' | 'WITHDRAWAL'>('DEPOSIT')
 const periodSheetOpen = ref(false)
@@ -64,39 +66,40 @@ function applyPeriod(next: Period) {
       />
 
       <UiCard v-else :padding="0" class="overflow-hidden border border-hairline">
-        <div
-          v-for="entry in entries"
-          :key="entry.id"
-          class="flex items-center gap-3 p-4 border-b border-hairline last:border-b-0"
-        >
-          <div
-            class="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
-            :class="entry.type === 'DEPOSIT' ? 'bg-success/14' : 'bg-warning/14'"
-          >
-            <UIcon
-              :name="entry.type === 'DEPOSIT' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'"
-              class="w-5 h-5"
-              :class="entry.type === 'DEPOSIT' ? 'text-success' : 'text-warning'"
-            />
-          </div>
+        <template v-for="(entry, index) in entries" :key="entry.id">
+          <div v-if="index > 0" class="h-px ml-[66px] bg-hairline" />
+          <UiSwipeRow @delete="deleteEntry(entry.id)">
+            <div class="flex items-center gap-3 p-4">
+              <div
+                class="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
+                :class="entry.type === 'DEPOSIT' ? 'bg-success/14' : 'bg-warning/14'"
+              >
+                <UIcon
+                  :name="entry.type === 'DEPOSIT' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'"
+                  class="w-5 h-5"
+                  :class="entry.type === 'DEPOSIT' ? 'text-success' : 'text-warning'"
+                />
+              </div>
 
-          <div class="flex flex-col gap-0.5 flex-1 min-w-0">
-            <span class="text-text text-sm font-semibold truncate">
-              {{ entry.notes || t(`finance.savings.${entry.type === 'DEPOSIT' ? 'deposit' : 'withdrawal'}`) }}
-            </span>
-            <span class="text-text-dim text-xs">
-              {{ entry.type === 'DEPOSIT' ? t('finance.savings.add') : t('finance.savings.withdraw') }} ·
-              {{ formatDay(entry.createdAt) }}
-            </span>
-          </div>
+              <div class="flex flex-col gap-0.5 flex-1 min-w-0">
+                <span class="text-text text-sm font-semibold truncate">
+                  {{ entry.notes || t(`finance.savings.${entry.type === 'DEPOSIT' ? 'deposit' : 'withdrawal'}`) }}
+                </span>
+                <span class="text-text-dim text-xs">
+                  {{ entry.type === 'DEPOSIT' ? t('finance.savings.add') : t('finance.savings.withdraw') }} ·
+                  {{ formatDay(entry.createdAt) }}
+                </span>
+              </div>
 
-          <span
-            class="ml-auto text-sm font-semibold shrink-0"
-            :class="entry.type === 'DEPOSIT' ? 'text-success' : 'text-warning'"
-          >
-            {{ entry.type === 'DEPOSIT' ? '+' : '−' }}{{ formatAmount(entry.amount) }} ₽
-          </span>
-        </div>
+              <span
+                class="ml-auto text-sm font-semibold shrink-0"
+                :class="entry.type === 'DEPOSIT' ? 'text-success' : 'text-warning'"
+              >
+                {{ entry.type === 'DEPOSIT' ? '+' : '−' }}{{ formatAmount(entry.amount) }} ₽
+              </span>
+            </div>
+          </UiSwipeRow>
+        </template>
       </UiCard>
 
       <UiButton
