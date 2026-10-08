@@ -16,7 +16,7 @@
 | `ARCHITECTURE.md` | Решения по БД, ER-диаграмма, auth-flow, зоны риска, известные баги | Работа с БД/архитектурой, риск-рефакторинг |
 | `ROADMAP.md` | Чеклист фаз реализации | Перед стартом/завершением конкретного шага |
 | `DESIGN.md` | Дизайн-токены, спеки экранов и компонентов | Вёрстка UI |
-| `.claude/skills/*` | Готовые кодовые паттерны проекта (auth, Prisma, TanStack Query, UI feedback, даты и периоды, инвентарь Ui-компонентов) | Подгружаются автоматически, когда релевантны задаче |
+| `.claude/skills/*` | Готовые кодовые паттерны проекта (auth, Prisma, TanStack Query, UI feedback, даты и периоды, инвентарь Ui-компонентов) и процесс релиза (`/release`) | Подгружаются автоматически, когда релевантны задаче |
 
 ---
 
@@ -84,7 +84,10 @@ myday/
 │
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, finance.ts
-│   └── schemas/                       # Zod — одна схема на клиент и сервер
+│   ├── schemas/                       # Zod — одна схема на клиент и сервер
+│   └── changelog.ts                   # patch notes en/ru — пишет скилл /release
+│
+├── scripts/release/                   # pnpm release:status|check|notes — сбор коммитов и чек в CI
 │
 ├── prisma/
 │   ├── schema.prisma
