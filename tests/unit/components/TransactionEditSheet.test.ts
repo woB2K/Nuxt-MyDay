@@ -85,6 +85,17 @@ describe('transactionEditSheet — создание', () => {
     })
   })
 
+  it('показывает сумму с разрядами, а отправляет числом', async () => {
+    const wrapper = mountSheet()
+
+    await amountField(wrapper).setValue('245000,5')
+    await wrapper.findAllComponents({ name: 'UiCategoryTile' })[0]!.trigger('click')
+    await wrapper.find('form').trigger('submit')
+
+    expect((amountField(wrapper).element as HTMLInputElement).value).toBe('245 000,5')
+    expect(addMutate.mock.calls[0]![0]).toMatchObject({ amount: 245000.5 })
+  })
+
   it('не отправляет запрос при нулевой сумме', async () => {
     const wrapper = mountSheet()
 

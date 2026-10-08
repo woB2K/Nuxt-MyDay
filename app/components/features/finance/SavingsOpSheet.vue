@@ -26,10 +26,6 @@ watch(() => props.open, (open) => {
   note.value = ''
 }, { immediate: true })
 
-function onAmountInput(event: Event) {
-  amount.value = (event.target as HTMLInputElement).value.replace(/[^\d.]/g, '')
-}
-
 function submit() {
   const value = Number(amount.value)
 
@@ -61,16 +57,12 @@ function submit() {
   >
     <form class="flex flex-col gap-5" @submit.prevent="submit">
       <div class="flex flex-col items-center gap-1">
-        <div class="flex items-baseline justify-center gap-1.5">
-          <input
-            :value="amount"
-            class="w-44 text-center bg-transparent outline-none text-[48px] font-bold tracking-[-0.03em]"
+        <div class="flex max-w-full items-baseline justify-center gap-1.5">
+          <UiAmountInput
+            v-model="amount"
+            class="text-[48px] font-bold tracking-[-0.03em]"
             :class="isDeposit ? 'text-success' : 'text-warning'"
-            inputmode="decimal"
-            placeholder="0"
-            type="text"
-            @input="onAmountInput"
-          >
+          />
           <span class="text-[34px] font-bold text-text-mute">₽</span>
         </div>
         <span class="text-xs text-text-mute">
