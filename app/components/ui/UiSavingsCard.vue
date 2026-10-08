@@ -20,28 +20,26 @@ const { t } = useI18n()
       style="background: #5EEAD4; opacity: 0.06; filter: blur(30px);"
     />
 
-    <div class="flex items-start justify-between gap-3">
-      <div class="flex flex-col gap-1">
-        <span class="text-xs font-semibold uppercase tracking-widest text-text-mute">
-          {{ t('finance.savings.balance') }}
-        </span>
-        <span class="text-[44px] font-bold leading-none text-text font-display">
-          {{ formatAmount(props.balance) }} ₽
-        </span>
-      </div>
+    <div class="flex flex-col gap-1">
+      <span class="text-xs font-semibold uppercase tracking-widest text-text-mute">
+        {{ t('finance.savings.balance') }}
+      </span>
+      <span class="text-[44px] font-bold leading-none whitespace-nowrap text-text font-display">
+        {{ formatAmount(props.balance) }} ₽
+      </span>
+    </div>
 
+    <div v-if="props.delta !== 0" class="flex items-center gap-2 -mt-1">
       <span
-        v-if="props.delta !== 0"
-        class="mt-1 shrink-0 px-2.5 py-1 rounded-full text-sm font-semibold"
+        class="shrink-0 px-2.5 py-1 rounded-full text-sm font-semibold whitespace-nowrap"
         :class="props.delta > 0 ? 'bg-success/14 text-success' : 'bg-danger/14 text-danger'"
       >
         {{ props.delta > 0 ? '+' : '−' }}{{ formatAmount(Math.abs(props.delta)) }} ₽
       </span>
+      <span class="text-xs text-text-mute">
+        {{ t('finance.savings.forPeriod') }}
+      </span>
     </div>
-
-    <p class="text-xs text-text-mute -mt-2">
-      {{ t('finance.savings.forPeriod') }}
-    </p>
 
     <div class="flex gap-2">
       <button
