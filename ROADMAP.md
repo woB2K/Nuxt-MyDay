@@ -153,9 +153,9 @@
 
 ## Фаза 6 — Docker + Деплой
 
-- [ ] **6.1** `Dockerfile` — multi-stage build (deps → build → production)
-- [ ] **6.2** `docker-compose.yml` — app + postgres сервисы
-- [ ] **6.3** Настроить деплой на сервер (docker compose pull + up)
+- [x] **6.1** `Dockerfile` — multi-stage build: `deps → migrate / build → runtime`. Отдельный таргет `migrate` (только зависимости + `prisma/`) нужен, чтобы миграции катились тем же образом, но без исходников приложения; `runtime` — голый `.output` под пользователем `node` с `HEALTHCHECK`
+- [x] **6.2** `docker-compose.yml` — `db` (postgres:16) + `migrate` (одноразовый, `prisma migrate deploy`) + `app`. `app` стартует только после `service_completed_successfully` у `migrate`, поэтому миграции применяются на каждом `up` сами — руками `migrate deploy` на сервере не запускаем. Порт по умолчанию слушает `127.0.0.1` — наружу только через reverse proxy
+- [x] **6.3** Деплой на сервер настроен (закрыто 08.10.2026). Образ собирается на сервере (`docker compose up -d --build`), registry нет — в compose стоит `build:`, а не `image:`
 
 ---
 
