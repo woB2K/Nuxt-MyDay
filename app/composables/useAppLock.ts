@@ -6,12 +6,13 @@ export const lockRoute = '/auth/pin'
 
 const activityEvents = ['pointerdown', 'keydown', 'touchstart', 'wheel'] as const
 
+let timer: ReturnType<typeof setTimeout> | null = null
+let hiddenAt = 0
+let listeners: AbortController | null = null
+
 export function useAppLock() {
   const ui = useUiStore()
   const authStore = useAuthStore()
-
-  let timer: ReturnType<typeof setTimeout> | null = null
-  let hiddenAt = 0
 
   const isLocked = computed(() => ui.isLocked)
   const pinEnabled = computed(() => authStore.user?.settings.pinEnabled ?? false)
@@ -69,8 +70,15 @@ export function useAppLock() {
   }
 
   function start() {
-    activityEvents.forEach(type => document.addEventListener(type, onActivity, { passive: true }))
-    document.addEventListener('visibilitychange', onVisibility)
+    listeners?.abort()
+    listeners = new AbortController()
+    clearTimer()
+    hiddenAt = 0
+
+    const { signal } = listeners
+
+    activityEvents.forEach(type => document.addEventListener(type, onActivity, { passive: true, signal }))
+    document.addEventListener('visibilitychange', onVisibility, { signal })
 
     watch(() => authStore.user?.settings, (settings) => {
       if (!settings) return
