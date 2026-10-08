@@ -82,6 +82,8 @@ async function signOut() {
       </span>
     </UiCard>
 
+    <InstallSettingsCard />
+
     <UiCard class="gap-5">
       <div class="flex flex-col gap-2">
         <span class="text-[11px] font-semibold uppercase tracking-wider text-text-mute">

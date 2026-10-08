@@ -46,11 +46,13 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 
 | Компонент | API | Заметки |
 |---|---|---|
-| `UiSheet` | `v-model:open`, `title` | Базовый нижний шит: скрим, ручка, блокировка скролла. Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
+| `UiSheet` | `v-model:open`, `title` (необязательный) | Базовый нижний шит: скрим, ручка, блокировка скролла. Без `title` заголовок не рисуется — для шитов со своей шапкой (`InstallSheet`). Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
 | `UiToast` / `UiToastItem` | через `useAppToast()` | Не монтировать вручную — см. skill `ui-feedback-patterns` |
 | `UiTabBar` | — | Нижняя навигация, берёт пункты из `app/utils/routes.ts` |
 | `UiSkeleton` | `w`, `h` (14), `r` (6) | Плюс готовые `UiSkeletonRow`, `UiSkeletonFinanceHero` |
-| `UiLogoMark` | `size` (40) | |
+| `UiLogoMark` | `size` (40) | Он же иконка приложения в гайде установки |
+| `UiInstallStep` | `n`, `title`, `hint`, `visual`, `label` | Нумерованный шаг инструкции с мини-мокапом справа |
+| `UiStepVisual` | `kind` share/menuAdd/menuInstall/add/kebab/install, `label` | Схема 76×56 без привязки к реальному UI браузера. Тип `StepVisualKind` — в `app/utils/pwaInstall.ts` |
 
 ## Куда класть новое
 
@@ -58,4 +60,5 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 - Экранное, знает про запросы и стор → `app/components/features/{finance,tasks,auth,settings}/X.vue` без префикса.
 - Автоимпорт настроен с `pathPrefix: false`, поэтому имя файла = имя тега: `PeriodBar.vue` → `<PeriodBar />`.
 - Цвета приоритета задач не хардкодим: `priorityBarClass` / `priorityTextClass` из `app/utils/priority.ts`.
+- Гайд установки PWA (`features/install/`): `InstallHint`, `InstallBanner`, `InstallSettingsCard` сами решают, показываться ли (`usePwaInstall`), и каждый держит свой `InstallSheet` — вставлять одной строкой без обёрток.
 - Feature-компоненты задач (`features/tasks/`): `FocusCard`, `TaskSheet`, `TemplateSheet`, `TaskFilterBar`, `TagPicker`. Выбор тегов не дублируем — в обоих шитах стоит `<TagPicker v-model="tagIds" />`, он же сам создаёт новые теги.

@@ -26,6 +26,7 @@ const { t } = useI18n()
       <p class="text-text-dim">
         {{ t('welcome.tagline') }}
       </p>
+      <InstallHint />
     </div>
 
     <div class="flex flex-col rounded-md bg-elev1 items-center text-center gap-6 w-full p-6">

@@ -322,5 +322,100 @@
       "oauthOnly": "This account has no password — sign in with your provider again",
       "oauthHint": "This account was created through a sign-in provider, so there is no password to check. Sign out and sign in again to turn the PIN off."
     }
+  },
+  "install": {
+    "banner": {
+      "title": "Install MyDay",
+      "body": "Full screen, faster launch and works offline.",
+      "cta": "How to install",
+      "dismiss": "Hide"
+    },
+    "welcome": {
+      "title": "Install MyDay first",
+      "sub": "then sign in inside the app"
+    },
+    "settings": {
+      "label": "Install app",
+      "sub": "Add MyDay to your Home Screen"
+    },
+    "sheet": {
+      "title": "Install MyDay",
+      "subtitle": "Works like a regular app. No app store needed.",
+      "close": "Close",
+      "notNow": "Not now",
+      "welcomeNote": "Install before signing in: the app doesn’t share your Safari session, so you’d have to sign in again."
+    },
+    "benefits": {
+      "fullscreen": "Full screen, no address bar",
+      "homeIcon": "Icon next to your other apps",
+      "fast": "Opens instantly",
+      "offline": "Works offline"
+    },
+    "ios": {
+      "overline": "3 steps in Safari",
+      "step1": {
+        "title": "Tap Share",
+        "hint": "At the bottom or top of the screen, sometimes under •••"
+      },
+      "step2": {
+        "title": "Choose Add to Home Screen",
+        "hint": "Not there? Scroll the list down"
+      },
+      "step3": {
+        "title": "Tap Add",
+        "hint": "The MyDay icon appears with your other apps"
+      },
+      "visual": {
+        "add": "Add"
+      }
+    },
+    "iosOther": {
+      "overline": "3 steps in your browser",
+      "step1": {
+        "title": "Tap Share",
+        "hint": "In the address bar or the ••• menu"
+      },
+      "fallback": {
+        "text": "No Add to Home Screen option? Open this page in Safari.",
+        "copy": "Copy link",
+        "copied": "Link copied",
+        "copyError": "Couldn’t copy the link"
+      }
+    },
+    "android": {
+      "cta": "Install",
+      "waiting": "Waiting for confirmation…",
+      "hint": "Chrome will ask you to confirm.",
+      "promptDismissed": "The install window was closed. You can still install from the browser menu."
+    },
+    "androidFallback": {
+      "overline": "3 steps in the browser menu",
+      "step1": {
+        "title": "Open the ⋮ menu",
+        "hint": "Usually at the top right"
+      },
+      "step2": {
+        "title": "Choose Install app",
+        "hint": "Some browsers call it Add to Home screen"
+      },
+      "step3": {
+        "title": "Confirm",
+        "hint": "MyDay appears on your Home screen"
+      },
+      "visual": {
+        "install": "Install"
+      }
+    },
+    "unknown": {
+      "overline": "Which phone do you have?",
+      "ios": "iPhone",
+      "android": "Android"
+    },
+    "success": {
+      "title": "Done, MyDay is on your Home Screen",
+      "body": "Open it from the icon. You can close this browser tab.",
+      "cta": "Got it",
+      "appLabel": "MyDay"
+    }
   }
 }
