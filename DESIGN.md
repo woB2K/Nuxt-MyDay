@@ -531,10 +531,28 @@ PinKey: aspectRatio 1.4/1 minHeight 56, radius 16, font display 28/500
 Секция Account:
   Help & feedback → шеврон
 
+Секция About (UiCard padding=0), над Sign out:
+  What's new → icon sparkles + sub "Version X.Y.Z" + шеврон (открывает /settings/changelog)
+
 Sign out: отдельная кнопка, ширина 100%, height 52px, radius 12
   bg: rgba(248,113,113,0.10), color: var(--c-danger), font 16/600
 
 SettingRow обновлён: добавлено поле sub (subtitle 12/400/textMute) + onClick
+```
+
+#### `ChangelogScreen` (`/settings/changelog`)
+```
+layout как у Categories: UiRoundBtn назад (chevron-left) + h1 "What's new" + sub "Current version X.Y.Z" (14/400/textDim)
+
+карточка релиза: UiCard padding=16, gap 12, по одной на версию, новые сверху
+  шапка: версия 17/700/text + title релиза 14/400/textDim (truncate) ··· дата 12/400/textMute справа (DD.MM.YYYY)
+  строка изменения: бейдж типа + текст 14/400/text, gap 10, между строками 10
+    бейдж: w 84, radius 6, padding 2/0, font 11/600, текст по центру
+      New       → bg accentSoft, color accent
+      Improved  → bg info/15%, color info
+      Fixed     → bg elev3, color textDim
+
+тексты берутся из shared/changelog.ts на языке интерфейса; через t() — только заголовок, подпись и бейджи
 ```
 
 #### `UiTemplatesScreen`

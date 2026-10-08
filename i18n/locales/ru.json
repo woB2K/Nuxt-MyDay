@@ -290,6 +290,17 @@
       "repeatNew": "Повторите PIN",
       "mismatch": "PIN-коды не совпадают",
       "saveError": "Не удалось сохранить PIN"
+    },
+    "whatsNew": "Что нового",
+    "version": "Версия {version}",
+    "changelog": {
+      "title": "Что нового",
+      "current": "Текущая версия {version}",
+      "types": {
+        "new": "Новое",
+        "improved": "Улучшено",
+        "fixed": "Исправлено"
+      }
     }
   },
   "categories": {
