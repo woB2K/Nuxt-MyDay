@@ -2,6 +2,82 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '1.1.0',
+    date: '2026-10-08',
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Opening balance in Savings: money you already had no longer counts as a deposit',
+          ru: 'Начальный остаток в накоплениях: деньги, которые уже были, больше не считаются пополнением'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'A step-by-step guide to adding MyDay to your Home Screen',
+          ru: 'Пошаговый гайд, как добавить MyDay на экран «Домой»'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'What\'s new in Settings: see what changed in each version',
+          ru: '«Что нового» в настройках: что поменялось в каждой версии'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Savings entries can be deleted with a swipe, just like transactions',
+          ru: 'Записи о накоплениях удаляются свайпом, как и транзакции'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Amounts are split into thousands as you type, and decimals can be entered with a comma',
+          ru: 'Суммы разбиваются на разряды прямо при вводе, а копейки можно ввести через запятую'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The app no longer locks itself five minutes after you enter your PIN while you are using it',
+          ru: 'Приложение больше не блокируется через пять минут после ввода PIN, пока ты им пользуешься'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The Income tab shows income by category instead of "No data for this period"',
+          ru: 'На вкладке «Доходы» видны доходы по категориям, а не «Нет данных за этот период»'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The savings balance no longer wraps onto a second line',
+          ru: 'Сумма накоплений больше не переносится на вторую строку'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'On a computer, the calendar opens when you click anywhere in a date field',
+          ru: 'На компьютере календарь открывается по клику в любом месте поля с датой'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'A rare sign-in error right after registering',
+          ru: 'Редкая ошибка входа сразу после регистрации'
+        }
+      }
+    ]
+  },
+  {
     version: '1.0.0',
     date: '2026-10-02',
     title: { en: 'Day One', ru: 'Первый день' },
