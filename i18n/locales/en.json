@@ -114,7 +114,11 @@
       "addTitle": "Add to savings",
       "withdrawTitle": "Withdraw from savings",
       "available": "Available",
-      "notEnough": "Not enough in savings"
+      "notEnough": "Not enough in savings",
+      "opening": "Opening balance",
+      "setOpening": "Set opening balance",
+      "startPoint": "Starting point",
+      "openingHint": "What you have saved already. It counts toward the balance, but not as a deposit — gains and losses are measured from it."
     },
     "netPeriod": "Net this period",
     "period": {

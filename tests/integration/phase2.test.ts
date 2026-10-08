@@ -733,6 +733,58 @@ describe('phase 2 api', async () => {
       expect(res.balance).toBe(0)
     })
 
+    describe('opening balance', () => {
+      interface Savings {
+        balance: number
+        delta: number
+        opening: number | null
+      }
+
+      it('counts toward the balance but not the delta, so spending below it shows a loss', async () => {
+        const { token } = await registerUser()
+        const post = (body: object) => $fetch('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body
+        })
+        await post({ amount: 245000, type: 'OPENING' })
+        await post({ amount: 15000, type: 'WITHDRAWAL' })
+
+        const res = await $fetch<Savings>('/api/finance/savings', { headers: authHeaders(token) })
+
+        expect(res.opening).toBe(245000)
+        expect(res.balance).toBe(230000)
+        expect(res.delta).toBe(-15000)
+      })
+
+      it('reports null until it is set', async () => {
+        const { token } = await registerUser()
+
+        const res = await $fetch<Savings>('/api/finance/savings', { headers: authHeaders(token) })
+
+        expect(res.opening).toBeNull()
+      })
+
+      it('answers 409 to a second opening balance', async () => {
+        const { token } = await registerUser()
+        const post = () => $fetch('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body: { amount: 1000, type: 'OPENING' }
+        })
+        await post()
+
+        await expect(post()).rejects.toMatchObject({ statusCode: 409 })
+      })
+
+      it('can be set again after the previous one is deleted', async () => {
+        const { token } = await registerUser()
+        const post = () => $fetch<{ id: string }>('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body: { amount: 1000, type: 'OPENING' }
+        })
+        const first = await post()
+        await $fetch(`/api/finance/savings/${first.id}`, { method: 'DELETE', headers: authHeaders(token) })
+
+        await expect(post()).resolves.toMatchObject({ type: 'OPENING' })
+      })
+    })
+
     it('answers 404 when deleting another users entry', async () => {
       const userA = await registerUser()
       const userB = await registerUser()
@@ -800,7 +852,7 @@ describe('phase 2 api', async () => {
         expect(res.total).toBe(1)
       })
 
-      it('falls back to all time without from/to — delta equals balance', async () => {
+      it('falls back to all time without from/to — without an opening balance delta equals balance', async () => {
         const { token } = await seed()
 
         const res = await get(token)

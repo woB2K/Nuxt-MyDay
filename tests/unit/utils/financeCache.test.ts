@@ -26,7 +26,7 @@ function infinite(...pages: TransactionListResponse[]): TransactionCache {
   return { pages, pageParams: pages.map((_, index) => index + 1) }
 }
 
-function entry(id: string, type: 'DEPOSIT' | 'WITHDRAWAL', amount: number): SavingsEntryItem {
+function entry(id: string, type: SavingsEntryItem['type'], amount: number): SavingsEntryItem {
   return {
     id,
     userId: 'user-1',
@@ -37,8 +37,8 @@ function entry(id: string, type: 'DEPOSIT' | 'WITHDRAWAL', amount: number): Savi
   } as SavingsEntryItem
 }
 
-function savings(entries: SavingsEntryItem[], balance: number, delta: number): SavingsResponse {
-  return { balance, delta, entries, total: entries.length, page: 1, limit: 20 }
+function savings(entries: SavingsEntryItem[], balance: number, delta: number, opening: number | null = null): SavingsResponse {
+  return { balance, delta, opening, entries, total: entries.length, page: 1, limit: 20 }
 }
 
 describe('cachedTransactions', () => {
@@ -159,5 +159,18 @@ describe('dropSavingsEntry', () => {
 
   it('возвращает ту же ссылку, если записи в кэше нет', () => {
     expect(dropSavingsEntry(cache, 'missing')).toBe(cache)
+  })
+
+  it('снятый стартовый остаток уменьшает баланс, но не дельту, и снова разрешает его задать', () => {
+    const withOpening: SavingsCache = {
+      pages: [savings([entry('s-0', 'OPENING', 245000), entry('s-1', 'WITHDRAWAL', 5000)], 240000, -5000, 245000)],
+      pageParams: [1]
+    }
+
+    const next = dropSavingsEntry(withOpening, 's-0')
+
+    expect(next.pages[0]!.balance).toBe(-5000)
+    expect(next.pages[0]!.delta).toBe(-5000)
+    expect(next.pages[0]!.opening).toBeNull()
   })
 })

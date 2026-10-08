@@ -24,6 +24,7 @@ export type SavingsEntryItem = WithNumberAmount<SavingsEntry>
 export interface SavingsResponse {
   balance: number
   delta: number
+  opening: number | null
   entries: SavingsEntryItem[]
   total: number
   page: number

@@ -52,3 +52,26 @@ test('таб «Доходы» показывает разбивку доходо
   await expect(page.getByText('Income by category')).toBeVisible()
   await expect(page.getByText('No data for this period')).toBeHidden()
 })
+
+// 08.10.2026: первые 245к считались пополнением, и бейдж оставался в плюсе, даже когда с них только снимали
+test('стартовый остаток не пополнение: снятие с него уводит бейдж в минус', async ({ page, request }) => {
+  const email = uniqueEmail()
+  await registerViaApi(request, email)
+
+  await loginViaUi(page, email)
+  await page.goto('/finance')
+  await page.getByRole('button', { name: 'Savings', exact: true }).click()
+
+  await page.getByRole('button', { name: 'Set opening balance' }).click()
+  await page.locator('input[inputmode="decimal"]').fill('245000')
+  await expect(page.locator('input[inputmode="decimal"]')).toHaveValue('245 000')
+  await page.locator('button[type="submit"]').click()
+  await expect(page.getByRole('button', { name: 'Set opening balance' })).toBeHidden()
+
+  await page.getByRole('button', { name: 'Withdraw', exact: true }).click()
+  await page.locator('input[inputmode="decimal"]').fill('15000')
+  await page.locator('button[type="submit"]').click()
+
+  await expect(page.getByText('230 000 ₽', { exact: true })).toBeVisible()
+  await expect(page.locator('span.rounded-full', { hasText: '−15 000 ₽' })).toBeVisible()
+})

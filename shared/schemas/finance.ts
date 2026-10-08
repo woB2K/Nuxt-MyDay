@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 const transactionTypeEnum = z.enum(['INCOME', 'EXPENSE'])
-const savingTypeEnum = z.enum(['DEPOSIT', 'WITHDRAWAL'])
+const savingTypeEnum = z.enum(['DEPOSIT', 'WITHDRAWAL', 'OPENING'])
 
 export const createTransactionSchema = z.object({
   type: transactionTypeEnum,
