@@ -92,19 +92,17 @@ function applyRange() {
       <div class="grid grid-cols-2 gap-2.5">
         <label class="min-w-0 flex-1 flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-text-dim">{{ t('finance.period.from') }}</span>
-          <input
+          <UiDateInput
             v-model="from"
             class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none"
-            type="date"
-          >
+          />
         </label>
         <label class="min-w-0 flex-1 flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-text-dim">{{ t('finance.period.to') }}</span>
-          <input
+          <UiDateInput
             v-model="to"
             class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none"
-            type="date"
-          >
+          />
         </label>
       </div>
       <UiButton class="w-full" @click="applyRange">

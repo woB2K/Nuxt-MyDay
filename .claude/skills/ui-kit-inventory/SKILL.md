@@ -14,7 +14,8 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | Компонент | API | Заметки |
 |---|---|---|
 | `UiButton` | `size` sm/md/lg (по умолчанию lg), `variant` primary/secondary/ghost/danger, `loading`, `disabled`, `to` | С `to` рендерится `NuxtLink`. `loading` показывает спиннер вместо слота |
-| `UiInput` | `v-model`, `label`, `placeholder`, `type` text/password/email/number, `multiline` + `rows`, `error`; слоты `icon`, `trailing` | Для `password` сам рисует кнопку показа. Поля даты — не сюда: нужен нативный `input[type=date]` с `[color-scheme:dark]` |
+| `UiInput` | `v-model`, `label`, `placeholder`, `type` text/password/email/number, `multiline` + `rows`, `error`; слоты `icon`, `trailing` | Для `password` сам рисует кнопку показа. Поля даты — не сюда, а в `UiDateInput` |
+| `UiDateInput` | `v-model` (`YYYY-MM-DD`), классы пробрасываются на `input` | Нативный `input[type=date]`, голый `<input type="date">` не пишем: на десктопе Chrome открывает календарь только по иконке, а этот — кликом по всему полю (`showPicker()` при `pointer: fine`) |
 | `UiPillSelect` | `v-model`, `options: { value, label, color?, inkColor? }[]`, `full`, `bgClass` | `color` красит активную пилюлю (расход — danger, доход — success) |
 | `UiDateStrip` | `v-model` (`YYYY-MM-DD` или `''`), `days` (7) | Семь дней от сегодня, горизонтальный скролл. Повторный тап по выбранному дню снимает дату. Отдаёт календарный день строкой, не `Date` |
 | `UiSwitch` | `v-model` (boolean) | iOS-стиль, 51×31 |

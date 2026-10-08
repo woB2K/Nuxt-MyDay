@@ -139,11 +139,10 @@ function remove() {
 
         <UiDateStrip v-model="dueDate" />
 
-        <input
+        <UiDateInput
           v-model="dueDate"
           class="h-12 w-full min-w-0 px-3.5 rounded-xl border border-hairline bg-elev2 text-text text-base outline-none"
-          type="date"
-        >
+        />
       </div>
 
       <TagPicker v-model="tagIds" />
