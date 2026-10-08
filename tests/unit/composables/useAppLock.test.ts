@@ -198,4 +198,21 @@ describe('useAppLock', () => {
     vi.advanceTimersByTime(idleLimit)
     expect(useUiStore().isLocked).toBe(true)
   })
+
+  it('после разблокировки с экрана PIN активность продолжает сдвигать таймер', async () => {
+    const auth = useAuthStore()
+    auth.user = profile(true)
+
+    startLock()
+    await nextTick()
+
+    useAppLock().unlock()
+
+    for (let minute = 0; minute < 15; minute++) {
+      vi.advanceTimersByTime(60_000)
+      document.dispatchEvent(new Event('pointerdown'))
+    }
+
+    expect(useUiStore().isLocked).toBe(false)
+  })
 })

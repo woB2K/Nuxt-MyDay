@@ -14,14 +14,24 @@ const {
   fetchNextPage
 } = useSavingsQuery(period)
 
+const { mutate: deleteEntry } = useDeleteSavingsMutation()
+
+type SavingsMode = SavingsEntryItem['type']
+
+const entryLooks = {
+  DEPOSIT: { icon: 'i-lucide-arrow-up', tile: 'bg-success/14', ink: 'text-success', sign: '+', title: 'finance.savings.deposit', caption: 'finance.savings.add' },
+  WITHDRAWAL: { icon: 'i-lucide-arrow-down', tile: 'bg-warning/14', ink: 'text-warning', sign: '−', title: 'finance.savings.withdrawal', caption: 'finance.savings.withdraw' },
+  OPENING: { icon: 'i-lucide-flag', tile: 'bg-accent-soft', ink: 'text-accent', sign: '', title: 'finance.savings.opening', caption: 'finance.savings.startPoint' }
+} as const
+
 const sheetOpen = ref(false)
-const sheetMode = ref<'DEPOSIT' | 'WITHDRAWAL'>('DEPOSIT')
+const sheetMode = ref<SavingsMode>('DEPOSIT')
 const periodSheetOpen = ref(false)
 
 const summary = computed(() => pages.value?.pages[0])
 const entries = computed(() => pages.value?.pages.flatMap(page => page.entries) ?? [])
 
-function openSheet(mode: 'DEPOSIT' | 'WITHDRAWAL') {
+function openSheet(mode: SavingsMode) {
   sheetMode.value = mode
   sheetOpen.value = true
 }
@@ -48,6 +58,16 @@ function applyPeriod(next: Period) {
         @withdraw="openSheet('WITHDRAWAL')"
       />
 
+      <button
+        v-if="summary.opening === null"
+        class="flex items-center justify-center gap-1.5 py-2 text-sm font-semibold text-accent"
+        type="button"
+        @click="openSheet('OPENING')"
+      >
+        <UIcon name="i-lucide-flag" class="w-4 h-4" />
+        {{ t('finance.savings.setOpening') }}
+      </button>
+
       <PeriodBar
         class="mt-2"
         :period="financeStore.period"
@@ -64,39 +84,40 @@ function applyPeriod(next: Period) {
       />
 
       <UiCard v-else :padding="0" class="overflow-hidden border border-hairline">
-        <div
-          v-for="entry in entries"
-          :key="entry.id"
-          class="flex items-center gap-3 p-4 border-b border-hairline last:border-b-0"
-        >
-          <div
-            class="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
-            :class="entry.type === 'DEPOSIT' ? 'bg-success/14' : 'bg-warning/14'"
-          >
-            <UIcon
-              :name="entry.type === 'DEPOSIT' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'"
-              class="w-5 h-5"
-              :class="entry.type === 'DEPOSIT' ? 'text-success' : 'text-warning'"
-            />
-          </div>
+        <template v-for="(entry, index) in entries" :key="entry.id">
+          <div v-if="index > 0" class="h-px ml-[66px] bg-hairline" />
+          <UiSwipeRow @delete="deleteEntry(entry.id)">
+            <div class="flex items-center gap-3 p-4">
+              <div
+                class="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
+                :class="entryLooks[entry.type].tile"
+              >
+                <UIcon
+                  :name="entryLooks[entry.type].icon"
+                  class="w-5 h-5"
+                  :class="entryLooks[entry.type].ink"
+                />
+              </div>
 
-          <div class="flex flex-col gap-0.5 flex-1 min-w-0">
-            <span class="text-text text-sm font-semibold truncate">
-              {{ entry.notes || t(`finance.savings.${entry.type === 'DEPOSIT' ? 'deposit' : 'withdrawal'}`) }}
-            </span>
-            <span class="text-text-dim text-xs">
-              {{ entry.type === 'DEPOSIT' ? t('finance.savings.add') : t('finance.savings.withdraw') }} ·
-              {{ formatDay(entry.createdAt) }}
-            </span>
-          </div>
+              <div class="flex flex-col gap-0.5 flex-1 min-w-0">
+                <span class="text-text text-sm font-semibold truncate">
+                  {{ entry.notes || t(entryLooks[entry.type].title) }}
+                </span>
+                <span class="text-text-dim text-xs">
+                  {{ t(entryLooks[entry.type].caption) }} ·
+                  {{ formatDay(entry.createdAt) }}
+                </span>
+              </div>
 
-          <span
-            class="ml-auto text-sm font-semibold shrink-0"
-            :class="entry.type === 'DEPOSIT' ? 'text-success' : 'text-warning'"
-          >
-            {{ entry.type === 'DEPOSIT' ? '+' : '−' }}{{ formatAmount(entry.amount) }} ₽
-          </span>
-        </div>
+              <span
+                class="ml-auto text-sm font-semibold shrink-0"
+                :class="entryLooks[entry.type].ink"
+              >
+                {{ entryLooks[entry.type].sign }}{{ formatAmount(entry.amount) }} ₽
+              </span>
+            </div>
+          </UiSwipeRow>
+        </template>
       </UiCard>
 
       <UiButton

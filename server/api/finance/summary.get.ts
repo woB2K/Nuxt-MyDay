@@ -11,6 +11,9 @@ export default defineEventHandler(async (event) => {
   const withIncome = filters.type !== 'EXPENSE'
   const withExpense = filters.type !== 'INCOME'
 
+  // Разбивка идёт за выбранным типом: «Доходы» — по доходам, «Все» и «Расходы» — по расходам
+  const breakdownType = filters.type === 'INCOME' ? 'INCOME' : 'EXPENSE'
+
   const [incomeAgg, expenseAgg, breakdown] = await Promise.all([
     withIncome
       ? prisma.transaction.aggregate({ where: { ...where, type: 'INCOME' }, _sum: { amount: true } })
@@ -18,16 +21,14 @@ export default defineEventHandler(async (event) => {
     withExpense
       ? prisma.transaction.aggregate({ where: { ...where, type: 'EXPENSE' }, _sum: { amount: true } })
       : null,
-    withExpense
-      ? prisma.transaction.groupBy({
-          by: ['categoryId'],
-          where: { ...where, type: 'EXPENSE' },
-          _sum: { amount: true },
-          orderBy: {
-            _sum: { amount: 'desc' }
-          }
-        })
-      : []
+    prisma.transaction.groupBy({
+      by: ['categoryId'],
+      where: { ...where, type: breakdownType },
+      _sum: { amount: true },
+      orderBy: {
+        _sum: { amount: 'desc' }
+      }
+    })
   ])
 
   const categoryIds = breakdown.map(b => b.categoryId)
@@ -45,6 +46,7 @@ export default defineEventHandler(async (event) => {
     income,
     expense,
     networth: income - expense,
+    breakdownType,
     breakdown: breakdown.map((b) => {
       const cat = categories.find(c => c.id === b.categoryId)
       return {

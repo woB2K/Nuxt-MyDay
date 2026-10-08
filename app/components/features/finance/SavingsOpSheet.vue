@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+type SavingsMode = 'DEPOSIT' | 'WITHDRAWAL' | 'OPENING'
+
 const props = defineProps<{
   open: boolean
-  mode: 'DEPOSIT' | 'WITHDRAWAL'
+  mode: SavingsMode
   balance: number
 }>()
 
@@ -14,10 +16,17 @@ const { mutate: addSavings, isPending } = useAddSavingsMutation()
 
 const QUICK_AMOUNTS = [500, 1000, 2500, 5000]
 
+const modes = {
+  DEPOSIT: { title: 'finance.savings.addTitle', submit: 'finance.savings.add', color: 'text-success', sign: '+' },
+  WITHDRAWAL: { title: 'finance.savings.withdrawTitle', submit: 'finance.savings.withdraw', color: 'text-warning', sign: '−' },
+  OPENING: { title: 'finance.savings.opening', submit: 'general.save', color: 'text-text', sign: '' }
+} as const
+
 const amount = ref('')
 const note = ref('')
 
-const isDeposit = computed(() => props.mode === 'DEPOSIT')
+const current = computed(() => modes[props.mode])
+const isOpening = computed(() => props.mode === 'OPENING')
 
 watch(() => props.open, (open) => {
   if (!open) return
@@ -25,10 +34,6 @@ watch(() => props.open, (open) => {
   amount.value = ''
   note.value = ''
 }, { immediate: true })
-
-function onAmountInput(event: Event) {
-  amount.value = (event.target as HTMLInputElement).value.replace(/[^\d.]/g, '')
-}
 
 function submit() {
   const value = Number(amount.value)
@@ -38,7 +43,7 @@ function submit() {
     return
   }
 
-  if (!isDeposit.value && value > props.balance) {
+  if (props.mode === 'WITHDRAWAL' && value > props.balance) {
     toast.error(t('finance.savings.notEnough'))
     return
   }
@@ -56,33 +61,32 @@ function submit() {
 <template>
   <UiSheet
     :open="props.open"
-    :title="isDeposit ? t('finance.savings.addTitle') : t('finance.savings.withdrawTitle')"
+    :title="t(current.title)"
     @update:open="emit('update:open', $event)"
   >
     <form class="flex flex-col gap-5" @submit.prevent="submit">
       <div class="flex flex-col items-center gap-1">
-        <div class="flex items-baseline justify-center gap-1.5">
-          <input
-            :value="amount"
-            class="w-44 text-center bg-transparent outline-none text-[48px] font-bold tracking-[-0.03em]"
-            :class="isDeposit ? 'text-success' : 'text-warning'"
-            inputmode="decimal"
-            placeholder="0"
-            type="text"
-            @input="onAmountInput"
-          >
+        <div class="flex max-w-full items-baseline justify-center gap-1.5">
+          <UiAmountInput
+            v-model="amount"
+            class="text-[48px] font-bold tracking-[-0.03em]"
+            :class="current.color"
+          />
           <span class="text-[34px] font-bold text-text-mute">₽</span>
         </div>
-        <span class="text-xs text-text-mute">
+        <span v-if="isOpening" class="text-xs text-text-mute text-center text-balance">
+          {{ t('finance.savings.openingHint') }}
+        </span>
+        <span v-else class="text-xs text-text-mute">
           {{ t('finance.savings.available') }} · {{ formatAmount(props.balance) }} ₽
         </span>
       </div>
 
-      <div class="flex gap-2 justify-center">
+      <div v-if="!isOpening" class="flex gap-2 justify-center">
         <UiChip
           v-for="quick in QUICK_AMOUNTS"
           :key="quick"
-          :label="`${isDeposit ? '+' : '−'}${formatAmount(quick)}`"
+          :label="`${current.sign}${formatAmount(quick)}`"
           :active="Number(amount) === quick"
           @click="amount = String(quick)"
         />
@@ -91,7 +95,7 @@ function submit() {
       <UiInput v-model="note" :label="t('finance.note')" type="text" />
 
       <UiButton class="w-full" type="submit" :loading="isPending">
-        {{ isDeposit ? t('finance.savings.add') : t('finance.savings.withdraw') }}
+        {{ t(current.submit) }}
       </UiButton>
     </form>
   </UiSheet>

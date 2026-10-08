@@ -31,7 +31,7 @@ export function dropFromSummary(summary: SummaryResponse, transaction: Transacti
   const income = transaction.type === 'INCOME' ? summary.income - transaction.amount : summary.income
   const expense = transaction.type === 'EXPENSE' ? summary.expense - transaction.amount : summary.expense
 
-  const breakdown = transaction.type === 'INCOME'
+  const breakdown = transaction.type !== summary.breakdownType
     ? summary.breakdown
     : summary.breakdown
         .map(item => item.category.id === transaction.categoryId
@@ -40,7 +40,7 @@ export function dropFromSummary(summary: SummaryResponse, transaction: Transacti
         .filter(item => item.total > 0)
         .sort((a, b) => b.total - a.total)
 
-  return { income, expense, networth: income - expense, breakdown }
+  return { income, expense, networth: income - expense, breakdownType: summary.breakdownType, breakdown }
 }
 
 export function dropSavingsEntry(cache: SavingsCache, id: string): SavingsCache {
@@ -48,7 +48,8 @@ export function dropSavingsEntry(cache: SavingsCache, id: string): SavingsCache 
 
   if (!entry) return cache
 
-  const shift = entry.type === 'DEPOSIT' ? -entry.amount : entry.amount
+  const isOpening = entry.type === 'OPENING'
+  const shift = entry.type === 'WITHDRAWAL' ? entry.amount : -entry.amount
 
   return {
     ...cache,
@@ -56,7 +57,8 @@ export function dropSavingsEntry(cache: SavingsCache, id: string): SavingsCache 
       ...page,
       entries: page.entries.filter(item => item.id !== id),
       balance: page.balance + shift,
-      delta: page.delta + shift,
+      delta: isOpening ? page.delta : page.delta + shift,
+      opening: isOpening ? null : page.opening,
       total: page.total - 1
     }))
   }

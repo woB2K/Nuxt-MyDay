@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { jwtVerify, SignJWT } from 'jose'
 
 export function hashToken(token: string): string {
@@ -19,8 +19,11 @@ export async function signAccessToken(userId: string): Promise<string> {
 export async function signRefreshToken(userId: string): Promise<string> {
   const config = useRuntimeConfig()
 
+  // jti: без него два токена одному пользователю в одну секунду совпадают байт в байт,
+  // и их tokenHash упирается в unique-индекс refresh_tokens
   const jwt = await new SignJWT({ sub: userId })
     .setProtectedHeader({ alg: 'HS256' })
+    .setJti(randomUUID())
     .setExpirationTime('30d')
     .sign(new TextEncoder().encode(config.jwtRefreshSecret))
 

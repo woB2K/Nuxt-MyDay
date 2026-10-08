@@ -196,6 +196,8 @@ dur-sheet: 420ms   открытие/закрытие bottom sheet
 | `FilterBar` | Фильтры списка транзакций: тип + категории + поиск (v3) |
 | `Chip` | Компактный фильтр/quick-amount: чип 36px с бейджем-счётчиком (v3) |
 | `RoundBtn` | Круглая иконочная кнопка 36px: back, шаг месяца, «+» в секциях (v3) |
+| `InstallHint` / `InstallBanner` / `InstallSettingsCard` | Точки входа в гайд по установке PWA: Welcome, Today, Settings |
+| `UiInstallStep` + `UiStepVisual` | Нумерованный шаг инструкции со схематичным мини-мокапом |
 
 ---
 
@@ -529,10 +531,28 @@ PinKey: aspectRatio 1.4/1 minHeight 56, radius 16, font display 28/500
 Секция Account:
   Help & feedback → шеврон
 
+Секция About (UiCard padding=0), над Sign out:
+  What's new → icon sparkles + sub "Version X.Y.Z" + шеврон (открывает /settings/changelog)
+
 Sign out: отдельная кнопка, ширина 100%, height 52px, radius 12
   bg: rgba(248,113,113,0.10), color: var(--c-danger), font 16/600
 
 SettingRow обновлён: добавлено поле sub (subtitle 12/400/textMute) + onClick
+```
+
+#### `ChangelogScreen` (`/settings/changelog`)
+```
+layout как у Categories: UiRoundBtn назад (chevron-left) + h1 "What's new" + sub "Current version X.Y.Z" (14/400/textDim)
+
+карточка релиза: UiCard padding=16, gap 12, по одной на версию, новые сверху
+  шапка: версия 17/700/text + title релиза 14/400/textDim (truncate) ··· дата 12/400/textMute справа (DD.MM.YYYY)
+  строка изменения: бейдж типа + текст 14/400/text, gap 10, между строками 10
+    бейдж: w 84, radius 6, padding 2/0, font 11/600, текст по центру
+      New       → bg accentSoft, color accent
+      Improved  → bg info/15%, color info
+      Fixed     → bg elev3, color textDim
+
+тексты берутся из shared/changelog.ts на языке интерфейса; через t() — только заголовок, подпись и бейджи
 ```
 
 #### `UiTemplatesScreen`
@@ -865,3 +885,77 @@ hint-строка: bgElev2 r12 — IconWallet + «Spent this month» + сумм�
 
 Все через `UiEmptyState` + опциональная action-кнопка: нет транзакций в периоде («No transactions yet»), ничего не найдено фильтрами («Nothing matches» + Clear filters), нет накоплений, нет бюджетов.
 
+---
+
+## Гайд по установке PWA (B.4)
+
+Прототип: `design_handoff_myday/prototype/MyDay Install Guide.html`. Правила показа и хранение — в `ARCHITECTURE.md` → «Гайд по установке PWA».
+
+### Точки входа
+
+```
+только телефон в браузере, вне standalone (iPad и Android-планшеты исключены)
+
+InstallHint (Welcome, под слоганом) — не закрывается
+  кнопка-карточка: min-h 56, r16, bgElev1, border hairline2, padding 10 12 10 10
+  [квадрат 36 r10 accentSoft + download 18 accent] · title 15/600 + sub 13/500 textDim · chevron 18 textMute
+
+InstallBanner (Today, между приветствием и статистикой)
+  r16, border accentSoft, bg linear-gradient(135deg, accentSoft 0%, bgElev1 70%), padding 16
+  UiLogoMark 44 · title 17/600 display + body 13/500 textDim + UiButton primary sm «How to install»
+  крестик: зона 44, видимый круг 28 bgElev3, aria-label install.banner.dismiss
+  скрытие: 1-е закрытие → 14 дней, 2-е → 30, 3-е → навсегда
+
+InstallSettingsCard (Settings, под профилем)
+  UiCard padding 0 + UiSettingRow (download, label + sub, chevron)
+```
+
+### `InstallSheet`
+
+```
+props: open, context: 'welcome' | 'today' | 'settings'
+state: guide | prompting | success
+контент UiSheet без title (своя шапка):
+  крестик: зона 44, круг 32 bgElev3
+  шапка: UiLogoMark 52 · title 22/600 display + subtitle 15 textDim
+  welcome + iOS: заметка r12 accentSoft (info 18 accent + 13/500 text) — почему ставить до входа
+  преимущества: grid 2×2, круг 28 accentSoft + иконка 16 accent, текст 13/500 textDim
+    maximize · layout-grid · zap · wifi-off
+  тело по варианту (overline 11/600 uppercase 0.08em textMute над шагами):
+    iOS Safari        → 3 шага: share → menuAdd → add
+    iOS другой браузер → те же шаги + карточка «Открой в Safari» + UiButton secondary sm «Copy link»
+    Android с промптом → UiButton primary lg full «Install» + hint 13 textMute
+    Android без промпта → (после отказа — пояснение) + 3 шага: kebab → menuInstall → install
+    платформа не определена → UiPillSelect iPhone | Android (bg-elev1) + шаги выбранной
+  футер: UiButton ghost md full «Not now»
+success: мини-экран «Домой» (3 заглушки 52 r14 bgElev3 + UiLogoMark 52 с бейджем check success)
+  + title 22/600 + body 15 textDim + UiButton primary lg «Got it»
+```
+
+### `UiInstallStep` / `UiStepVisual`
+
+```
+UiInstallStep: n, title, hint, visual, label?
+  grid [24 | 1fr | 76], gap 12, padding 12, r16, bgElev1, border hairline
+  номер: круг 24 accentSoft, 13/600 display accent
+  title 16/600 · hint 13/500 textDim
+
+UiStepVisual: kind, label?
+  76×56, r10, bg bg, border hairline — только CSS + Lucide, без координат реального UI браузера
+  share       круг 32 accentSoft (share) + круг 22 bgElev3 (ellipsis)
+  menuAdd     3 полоски меню, средняя подсвечена accentSoft + square-plus
+  menuInstall то же с download
+  add         полоска + label 10/600 accent; ниже UiLogoMark 18 + полоска
+  kebab       адресная строка 36×14 + круг 22 accentSoft (ellipsis-vertical)
+  install     pill h24 accent, label 10/600 accentInk
+```
+
+### Motion
+
+```
+баннер: появление через 600ms, opacity + translateY −8→0, 240ms ease-out
+  закрытие: карточка opacity→0 + scale 0.98 (150ms), через 120ms строка схлопывается grid-rows 1fr→0fr (240ms)
+шаги: opacity + translateY 8→0, 240ms ease-out, stagger 40ms (повторяется при смене платформы)
+успех: fade 240ms; иконка scale 0.6→1 420ms spring, бейдж с задержкой 240ms
+prefers-reduced-motion — глобальное правило в main.css
+```

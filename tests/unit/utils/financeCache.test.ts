@@ -26,7 +26,7 @@ function infinite(...pages: TransactionListResponse[]): TransactionCache {
   return { pages, pageParams: pages.map((_, index) => index + 1) }
 }
 
-function entry(id: string, type: 'DEPOSIT' | 'WITHDRAWAL', amount: number): SavingsEntryItem {
+function entry(id: string, type: SavingsEntryItem['type'], amount: number): SavingsEntryItem {
   return {
     id,
     userId: 'user-1',
@@ -37,8 +37,8 @@ function entry(id: string, type: 'DEPOSIT' | 'WITHDRAWAL', amount: number): Savi
   } as SavingsEntryItem
 }
 
-function savings(entries: SavingsEntryItem[], balance: number, delta: number): SavingsResponse {
-  return { balance, delta, entries, total: entries.length, page: 1, limit: 20 }
+function savings(entries: SavingsEntryItem[], balance: number, delta: number, opening: number | null = null): SavingsResponse {
+  return { balance, delta, opening, entries, total: entries.length, page: 1, limit: 20 }
 }
 
 describe('cachedTransactions', () => {
@@ -78,9 +78,21 @@ describe('dropFromSummary', () => {
     income: 1000,
     expense: 400,
     networth: 600,
+    breakdownType: 'EXPENSE',
     breakdown: [
-      { total: 300, category: { id: 'cat-1', name: 'Food', icon: 'i', color: '#fff' } },
-      { total: 100, category: { id: 'cat-2', name: 'Fun', icon: 'i', color: '#000' } }
+      { total: 300, category: { id: 'cat-1', name: 'Food', key: null, icon: 'i', color: '#fff' } },
+      { total: 100, category: { id: 'cat-2', name: 'Fun', key: null, icon: 'i', color: '#000' } }
+    ]
+  }
+
+  const incomeSummary: SummaryResponse = {
+    income: 1000,
+    expense: 0,
+    networth: 1000,
+    breakdownType: 'INCOME',
+    breakdown: [
+      { total: 800, category: { id: 'salary', name: 'Salary', key: null, icon: 'i', color: '#fff' } },
+      { total: 200, category: { id: 'gift', name: 'Gift', key: null, icon: 'i', color: '#000' } }
     ]
   }
 
@@ -99,13 +111,27 @@ describe('dropFromSummary', () => {
     expect(next.breakdown.map(item => item.category.id)).toEqual(['cat-1'])
   })
 
-  it('доход не трогает breakdown, который считается только по расходам', () => {
+  it('доход не трогает breakdown расходов', () => {
     const next = dropFromSummary(summary, tx('a', { type: 'INCOME', amount: 200 }))
 
     expect(next.income).toBe(800)
     expect(next.expense).toBe(400)
     expect(next.networth).toBe(400)
     expect(next.breakdown).toBe(summary.breakdown)
+  })
+
+  it('доход вычитается из breakdown доходов и сохраняет его тип', () => {
+    const next = dropFromSummary(incomeSummary, tx('a', { type: 'INCOME', amount: 200, categoryId: 'gift' }))
+
+    expect(next.income).toBe(800)
+    expect(next.breakdownType).toBe('INCOME')
+    expect(next.breakdown.map(item => item.category.id)).toEqual(['salary'])
+  })
+
+  it('расход не трогает breakdown доходов', () => {
+    const next = dropFromSummary(incomeSummary, tx('a', { type: 'EXPENSE', amount: 100, categoryId: 'salary' }))
+
+    expect(next.breakdown).toBe(incomeSummary.breakdown)
   })
 })
 
@@ -133,5 +159,18 @@ describe('dropSavingsEntry', () => {
 
   it('возвращает ту же ссылку, если записи в кэше нет', () => {
     expect(dropSavingsEntry(cache, 'missing')).toBe(cache)
+  })
+
+  it('снятый стартовый остаток уменьшает баланс, но не дельту, и снова разрешает его задать', () => {
+    const withOpening: SavingsCache = {
+      pages: [savings([entry('s-0', 'OPENING', 245000), entry('s-1', 'WITHDRAWAL', 5000)], 240000, -5000, 245000)],
+      pageParams: [1]
+    }
+
+    const next = dropSavingsEntry(withOpening, 's-0')
+
+    expect(next.pages[0]!.balance).toBe(-5000)
+    expect(next.pages[0]!.delta).toBe(-5000)
+    expect(next.pages[0]!.opening).toBeNull()
   })
 })

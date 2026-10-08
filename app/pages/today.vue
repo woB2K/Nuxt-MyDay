@@ -68,6 +68,8 @@ useFabAction(() => openSheet())
       <span class="text-sm text-text-dim">{{ dateLabel }}</span>
     </div>
 
+    <InstallBanner />
+
     <div class="grid grid-cols-2 gap-3">
       <UiStatsCard type="streak" :value="streak" />
       <UiStatsCard type="progress" :value="doneCount" :total="list.length" />

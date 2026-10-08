@@ -3,10 +3,14 @@ import { timestampRange } from '~~/server/utils/dateRange'
 import { mapAmount } from '~~/server/utils/mapper'
 import { savingsQuerySchema } from '~~/shared/schemas'
 
-function net(rows: Array<{ type: string, _sum: { amount: Prisma.Decimal | null } }>): number {
-  const sum = (type: string) => rows.find(row => row.type === type)?._sum.amount?.toNumber() ?? 0
+type SumRows = Array<{ type: string, _sum: { amount: Prisma.Decimal | null } }>
 
-  return sum('DEPOSIT') - sum('WITHDRAWAL')
+function sumOf(rows: SumRows, type: string): number | null {
+  return rows.find(row => row.type === type)?._sum.amount?.toNumber() ?? null
+}
+
+function net(rows: SumRows): number {
+  return (sumOf(rows, 'DEPOSIT') ?? 0) - (sumOf(rows, 'WITHDRAWAL') ?? 0)
 }
 
 export default defineEventHandler(async (event) => {
@@ -39,11 +43,12 @@ export default defineEventHandler(async (event) => {
     prisma.savingsEntry.count({ where })
   ])
 
-  const balance = net(allTime)
+  const opening = sumOf(allTime, 'OPENING')
 
   return {
-    balance,
-    delta: inPeriod ? net(inPeriod) : balance,
+    balance: (opening ?? 0) + net(allTime),
+    delta: net(inPeriod ?? allTime),
+    opening,
     entries: entries.map(e => mapAmount(e)),
     total,
     page,

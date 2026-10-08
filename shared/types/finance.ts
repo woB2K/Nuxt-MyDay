@@ -24,6 +24,7 @@ export type SavingsEntryItem = WithNumberAmount<SavingsEntry>
 export interface SavingsResponse {
   balance: number
   delta: number
+  opening: number | null
   entries: SavingsEntryItem[]
   total: number
   page: number
@@ -49,5 +50,7 @@ export interface SummaryResponse {
   income: number
   expense: number
   networth: number
+  /** По какому типу транзакций посчитан breakdown: INCOME при фильтре «Доходы», иначе EXPENSE */
+  breakdownType: Transaction['type']
   breakdown: SummaryBreakdownItem[]
 }

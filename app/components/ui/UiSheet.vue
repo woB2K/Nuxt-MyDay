@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 interface Props {
   open: boolean
-  title: string
+  title?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { title: '' })
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const DISMISS = 96
@@ -140,6 +140,7 @@ onUnmounted(() => {
 
           <div class="px-5 pt-2 pb-safe">
             <h2
+              v-if="title"
               class="mb-4 touch-none select-none text-lg font-semibold"
               @pointerdown="onPointerDown"
               @pointermove="onPointerMove"

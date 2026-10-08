@@ -605,6 +605,7 @@ describe('phase 2 api', async () => {
         income: number
         expense: number
         networth: number
+        breakdownType: 'INCOME' | 'EXPENSE'
         breakdown: Array<{ total: number, category: { id: string } }>
       }
 
@@ -638,18 +639,31 @@ describe('phase 2 api', async () => {
         expect(result.income).toBe(0)
         expect(result.expense).toBe(500)
         expect(result.networth).toBe(-500)
+        expect(result.breakdownType).toBe('EXPENSE')
         expect(result.breakdown).toHaveLength(2)
       })
 
-      it('empties expense and breakdown when type=INCOME — breakdown is spend by category', async () => {
-        const { summary } = await seed()
+      it('breaks down income by category when type=INCOME', async () => {
+        const { incomeCat, summary } = await seed()
 
         const result = await summary({ type: 'INCOME' })
 
         expect(result.income).toBe(1000)
         expect(result.expense).toBe(0)
         expect(result.networth).toBe(1000)
-        expect(result.breakdown).toEqual([])
+        expect(result.breakdownType).toBe('INCOME')
+        expect(result.breakdown).toHaveLength(1)
+        expect(result.breakdown[0]!.category.id).toBe(incomeCat)
+        expect(result.breakdown[0]!.total).toBe(1000)
+      })
+
+      it('breaks down expenses when no type is selected', async () => {
+        const { summary } = await seed()
+
+        const result = await summary({})
+
+        expect(result.breakdownType).toBe('EXPENSE')
+        expect(result.breakdown.map(item => item.total)).toEqual([300, 200])
       })
 
       it('narrows totals to the selected categories', async () => {
@@ -719,6 +733,58 @@ describe('phase 2 api', async () => {
       expect(res.balance).toBe(0)
     })
 
+    describe('opening balance', () => {
+      interface Savings {
+        balance: number
+        delta: number
+        opening: number | null
+      }
+
+      it('counts toward the balance but not the delta, so spending below it shows a loss', async () => {
+        const { token } = await registerUser()
+        const post = (body: object) => $fetch('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body
+        })
+        await post({ amount: 245000, type: 'OPENING' })
+        await post({ amount: 15000, type: 'WITHDRAWAL' })
+
+        const res = await $fetch<Savings>('/api/finance/savings', { headers: authHeaders(token) })
+
+        expect(res.opening).toBe(245000)
+        expect(res.balance).toBe(230000)
+        expect(res.delta).toBe(-15000)
+      })
+
+      it('reports null until it is set', async () => {
+        const { token } = await registerUser()
+
+        const res = await $fetch<Savings>('/api/finance/savings', { headers: authHeaders(token) })
+
+        expect(res.opening).toBeNull()
+      })
+
+      it('answers 409 to a second opening balance', async () => {
+        const { token } = await registerUser()
+        const post = () => $fetch('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body: { amount: 1000, type: 'OPENING' }
+        })
+        await post()
+
+        await expect(post()).rejects.toMatchObject({ statusCode: 409 })
+      })
+
+      it('can be set again after the previous one is deleted', async () => {
+        const { token } = await registerUser()
+        const post = () => $fetch<{ id: string }>('/api/finance/savings', {
+          method: 'POST', headers: authHeaders(token), body: { amount: 1000, type: 'OPENING' }
+        })
+        const first = await post()
+        await $fetch(`/api/finance/savings/${first.id}`, { method: 'DELETE', headers: authHeaders(token) })
+
+        await expect(post()).resolves.toMatchObject({ type: 'OPENING' })
+      })
+    })
+
     it('answers 404 when deleting another users entry', async () => {
       const userA = await registerUser()
       const userB = await registerUser()
@@ -786,7 +852,7 @@ describe('phase 2 api', async () => {
         expect(res.total).toBe(1)
       })
 
-      it('falls back to all time without from/to — delta equals balance', async () => {
+      it('falls back to all time without from/to — without an opening balance delta equals balance', async () => {
         const { token } = await seed()
 
         const res = await get(token)

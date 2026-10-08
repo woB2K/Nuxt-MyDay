@@ -8,6 +8,7 @@ const { t, locale, setLocale } = useI18n()
 const authStore = useAuthStore()
 const { preference, setTheme, setAccent } = useTheme()
 const { mutate: saveSettings } = useUpdateSettingsMutation()
+const { appVersion } = useRuntimeConfig().public
 
 function changeTheme(value: ThemeSetting) {
   setTheme(value)
@@ -81,6 +82,8 @@ async function signOut() {
         <span class="truncate text-xs text-text-mute">{{ authStore.user?.email ?? t('settings.noEmail') }}</span>
       </span>
     </UiCard>
+
+    <InstallSettingsCard />
 
     <UiCard class="gap-5">
       <div class="flex flex-col gap-2">
@@ -156,6 +159,17 @@ async function signOut() {
           @click="openPinSheet('change')"
         />
       </Transition>
+    </UiCard>
+
+    <UiCard :padding="0">
+      <UiSettingRow
+        icon="i-lucide-sparkles"
+        :label="t('settings.whatsNew')"
+        :sub="t('settings.version', { version: appVersion })"
+        clickable
+        last
+        @click="navigateTo('/settings/changelog')"
+      />
     </UiCard>
 
     <button

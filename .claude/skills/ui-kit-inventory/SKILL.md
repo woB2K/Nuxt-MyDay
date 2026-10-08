@@ -14,7 +14,9 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | Компонент | API | Заметки |
 |---|---|---|
 | `UiButton` | `size` sm/md/lg (по умолчанию lg), `variant` primary/secondary/ghost/danger, `loading`, `disabled`, `to` | С `to` рендерится `NuxtLink`. `loading` показывает спиннер вместо слота |
-| `UiInput` | `v-model`, `label`, `placeholder`, `type` text/password/email/number, `multiline` + `rows`, `error`; слоты `icon`, `trailing` | Для `password` сам рисует кнопку показа. Поля даты — не сюда: нужен нативный `input[type=date]` с `[color-scheme:dark]` |
+| `UiInput` | `v-model`, `label`, `placeholder`, `type` text/password/email/number, `multiline` + `rows`, `error`; слоты `icon`, `trailing` | Для `password` сам рисует кнопку показа. Поля даты — не сюда, а в `UiDateInput` |
+| `UiDateInput` | `v-model` (`YYYY-MM-DD`), классы пробрасываются на `input` | Нативный `input[type=date]`, голый `<input type="date">` не пишем: на десктопе Chrome открывает календарь только по иконке, а этот — кликом по всему полю (`showPicker()` при `pointer: fine`) |
+| `UiAmountInput` | `v-model` — строка `'245000.5'` (точка, без пробелов; `Number()` даёт сумму) | Большое поле суммы в шитах денег. Показывает с разрядами (`245 000,5`), принимает `,` и `.`, держит каретку на месте, ширина по содержимому. Размер и цвет шрифта — классами снаружи |
 | `UiPillSelect` | `v-model`, `options: { value, label, color?, inkColor? }[]`, `full`, `bgClass` | `color` красит активную пилюлю (расход — danger, доход — success) |
 | `UiDateStrip` | `v-model` (`YYYY-MM-DD` или `''`), `days` (7) | Семь дней от сегодня, горизонтальный скролл. Повторный тап по выбранному дню снимает дату. Отдаёт календарный день строкой, не `Date` |
 | `UiSwitch` | `v-model` (boolean) | iOS-стиль, 51×31 |
@@ -44,11 +46,13 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 
 | Компонент | API | Заметки |
 |---|---|---|
-| `UiSheet` | `v-model:open`, `title` | Базовый нижний шит: скрим, ручка, блокировка скролла. Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
+| `UiSheet` | `v-model:open`, `title` (необязательный) | Базовый нижний шит: скрим, ручка, блокировка скролла. Без `title` заголовок не рисуется — для шитов со своей шапкой (`InstallSheet`). Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
 | `UiToast` / `UiToastItem` | через `useAppToast()` | Не монтировать вручную — см. skill `ui-feedback-patterns` |
 | `UiTabBar` | — | Нижняя навигация, берёт пункты из `app/utils/routes.ts` |
 | `UiSkeleton` | `w`, `h` (14), `r` (6) | Плюс готовые `UiSkeletonRow`, `UiSkeletonFinanceHero` |
-| `UiLogoMark` | `size` (40) | |
+| `UiLogoMark` | `size` (40) | Он же иконка приложения в гайде установки |
+| `UiInstallStep` | `n`, `title`, `hint`, `visual`, `label` | Нумерованный шаг инструкции с мини-мокапом справа |
+| `UiStepVisual` | `kind` share/menuAdd/menuInstall/add/kebab/install, `label` | Схема 76×56 без привязки к реальному UI браузера. Тип `StepVisualKind` — в `app/utils/pwaInstall.ts` |
 
 ## Куда класть новое
 
@@ -56,4 +60,5 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 - Экранное, знает про запросы и стор → `app/components/features/{finance,tasks,auth,settings}/X.vue` без префикса.
 - Автоимпорт настроен с `pathPrefix: false`, поэтому имя файла = имя тега: `PeriodBar.vue` → `<PeriodBar />`.
 - Цвета приоритета задач не хардкодим: `priorityBarClass` / `priorityTextClass` из `app/utils/priority.ts`.
+- Гайд установки PWA (`features/install/`): `InstallHint`, `InstallBanner`, `InstallSettingsCard` сами решают, показываться ли (`usePwaInstall`), и каждый держит свой `InstallSheet` — вставлять одной строкой без обёрток.
 - Feature-компоненты задач (`features/tasks/`): `FocusCard`, `TaskSheet`, `TemplateSheet`, `TaskFilterBar`, `TagPicker`. Выбор тегов не дублируем — в обоих шитах стоит `<TagPicker v-model="tagIds" />`, он же сам создаёт новые теги.

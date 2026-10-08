@@ -1,4 +1,5 @@
 export * from './auth'
+export * from './changelog'
 export * from './finance'
 export * from './settings'
 export * from './tag'

@@ -52,6 +52,18 @@ describe('signRefreshToken / verifyRefreshToken', () => {
     expect(result).toBe(userId)
   })
 
+  // Баг 08.10.2026: два токена в одну секунду совпадали байт в байт → одинаковый tokenHash →
+  // unique constraint в refreshToken.create() → 500 на входе сразу после регистрации
+  it('issues distinct tokens for the same user within the same second', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-08T12:00:00.000Z'))
+
+    const first = await signRefreshToken('user-123')
+    const second = await signRefreshToken('user-123')
+
+    expect(second).not.toBe(first)
+  })
+
   it('access token is rejected by verifyRefreshToken (different secrets)', async () => {
     // ACCESS_SECRET !== REFRESH_SECRET so cross-verification must fail
     const token = await signAccessToken('user-123')

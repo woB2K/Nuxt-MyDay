@@ -56,10 +56,9 @@ watch(type, (next, previous) => {
 const amountError = ref('')
 const categoryError = ref('')
 
-function onAmountInput(event: Event) {
-  amount.value = (event.target as HTMLInputElement).value.replace(/[^\d.]/g, '')
+watch(amount, () => {
   amountError.value = ''
-}
+})
 
 watch(categoryId, () => {
   categoryError.value = ''
@@ -125,16 +124,12 @@ function remove() {
       />
 
       <div class="flex flex-col items-center gap-1.5">
-        <div class="flex items-baseline justify-center gap-1.5">
-          <input
-            :value="amount"
-            class="w-44 text-center bg-transparent outline-none text-[48px] font-bold tracking-[-0.03em]"
+        <div class="flex max-w-full items-baseline justify-center gap-1.5">
+          <UiAmountInput
+            v-model="amount"
+            class="text-[48px] font-bold tracking-[-0.03em]"
             :class="type === 'INCOME' ? 'text-success' : 'text-text'"
-            inputmode="decimal"
-            placeholder="0"
-            type="text"
-            @input="onAmountInput"
-          >
+          />
           <span class="text-[34px] font-bold text-text-mute">₽</span>
         </div>
         <span v-if="amountError" class="text-sm text-danger">{{ amountError }}</span>
@@ -160,11 +155,10 @@ function remove() {
 
       <label class="flex flex-col gap-2">
         <span class="text-[13px] text-text-dim">{{ t('finance.date') }}</span>
-        <input
+        <UiDateInput
           v-model="date"
           class="h-12 w-full px-3.5 rounded-xl border border-hairline bg-elev2 text-text text-base outline-none"
-          type="date"
-        >
+        />
       </label>
 
       <UiButton class="w-full" type="submit" :loading="isPending">

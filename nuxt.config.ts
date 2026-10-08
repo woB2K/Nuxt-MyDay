@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import process from 'node:process'
 import { apiCacheName } from './app/utils/swCache'
+import pkg from './package.json'
 
 export default defineNuxtConfig({
   modules: [
@@ -46,7 +47,8 @@ export default defineNuxtConfig({
     googleClientId: '',
     googleClientSecret: '',
     public: {
-      appUrl: ''
+      appUrl: '',
+      appVersion: pkg.version
     }
   },
 

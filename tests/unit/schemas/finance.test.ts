@@ -291,9 +291,10 @@ describe('createSavingsSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('accepts both DEPOSIT and WITHDRAWAL types', () => {
+  it('accepts DEPOSIT, WITHDRAWAL and OPENING types', () => {
     expect(createSavingsSchema.safeParse({ ...valid, type: 'DEPOSIT' }).success).toBe(true)
     expect(createSavingsSchema.safeParse({ ...valid, type: 'WITHDRAWAL' }).success).toBe(true)
+    expect(createSavingsSchema.safeParse({ ...valid, type: 'OPENING' }).success).toBe(true)
   })
 
   it('rejects negative amount', () => {
