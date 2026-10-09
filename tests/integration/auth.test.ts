@@ -47,10 +47,19 @@ describe('auth api', async () => {
       expect(result.accessToken).toBeTruthy()
     })
 
-    it('answers 400 to an email that is already taken', async () => {
+    it('answers 409 to an email that is already taken', async () => {
       await post('/api/auth/register', valid)
 
-      await expect(post('/api/auth/register', valid)).rejects.toMatchObject({ statusCode: 400 })
+      await expect(post('/api/auth/register', valid)).rejects.toMatchObject({ statusCode: 409 })
+      expect(await prisma.user.count()).toBe(1)
+    })
+
+    it('answers 409, not 500, when two registrations race for one email', async () => {
+      const results = await Promise.allSettled(Array.from({ length: 5 }, () => post('/api/auth/register', valid)))
+
+      const rejected = results.filter(result => result.status === 'rejected') as PromiseRejectedResult[]
+      expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1)
+      expect(rejected.map(result => (result.reason as { statusCode: number }).statusCode)).toEqual([409, 409, 409, 409])
       expect(await prisma.user.count()).toBe(1)
     })
   })

@@ -1,19 +1,14 @@
 import type { APIRequestContext, Page } from '@playwright/test'
+import { randomInt, randomUUID } from 'node:crypto'
 
 export const PASSWORD = 'password123'
 
-let counter = 0
-
 export function uniqueEmail(): string {
-  counter += 1
-
-  return `e2e-${Date.now()}-${counter}@test.local`
+  return `e2e-${randomUUID()}@test.local`
 }
 
 export function fakeIp(): string {
-  counter += 1
-
-  return `10.20.${Math.floor(counter / 250)}.${counter % 250}`
+  return `10.${randomInt(20, 250)}.${randomInt(0, 250)}.${randomInt(1, 250)}`
 }
 
 export async function registerViaApi(request: APIRequestContext, email: string) {
