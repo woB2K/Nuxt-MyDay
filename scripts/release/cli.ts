@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import process from 'node:process'
 import { changelog } from '../../shared/changelog'
-import { checkRelease, nextVersion, releasableCommits, renderNotes } from './release'
+import { checkRelease, nextVersion, releasableCommits, releaseName, renderNotes } from './release'
 
 function git(...args: string[]): string {
   return execFileSync('git', args, { encoding: 'utf8' }).trim()
@@ -62,7 +62,7 @@ function check() {
   print(`✓ changelog is up to date (last tag: ${tag ?? 'none'}, version: ${packageVersion()})`)
 }
 
-function notes(version: string | undefined) {
+function findRelease(version: string | undefined) {
   const release = changelog.find(entry => entry.version === version)
 
   if (!release) {
@@ -70,15 +70,16 @@ function notes(version: string | undefined) {
     process.exit(1)
   }
 
-  process.stdout.write(renderNotes(release))
+  return release
 }
 
 const [command, argument] = process.argv.slice(2)
 
 if (command === 'status') status()
 else if (command === 'check') check()
-else if (command === 'notes') notes(argument)
+else if (command === 'notes') process.stdout.write(renderNotes(findRelease(argument)))
+else if (command === 'title') print(releaseName(findRelease(argument)))
 else {
-  process.stderr.write('Usage: tsx scripts/release/cli.ts <status|check|notes VERSION>\n')
+  process.stderr.write('Usage: tsx scripts/release/cli.ts <status|check|notes VERSION|title VERSION>\n')
   process.exit(1)
 }

@@ -19,7 +19,8 @@
     "test:e2e": "playwright test",
     "release:status": "tsx scripts/release/cli.ts status",
     "release:check": "tsx scripts/release/cli.ts check",
-    "release:notes": "tsx scripts/release/cli.ts notes"
+    "release:notes": "tsx scripts/release/cli.ts notes",
+    "release:title": "tsx scripts/release/cli.ts title"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.105",

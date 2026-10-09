@@ -4,7 +4,7 @@ export const changelog: Release[] = [
   {
     version: '1.2.0',
     date: '2026-10-09',
-    title: { en: 'Recently deleted', ru: 'Недавно удалённые' },
+    title: { en: 'No-Loss Day', ru: 'День без потерь' },
     changes: [
       {
         type: 'new',
@@ -80,6 +80,7 @@ export const changelog: Release[] = [
   {
     version: '1.1.0',
     date: '2026-10-08',
+    title: { en: 'Moving Day', ru: 'День переезда' },
     changes: [
       {
         type: 'new',

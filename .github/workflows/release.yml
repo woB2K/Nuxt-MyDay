@@ -50,4 +50,4 @@ jobs:
           fi
 
           pnpm -s release:notes "$version" > notes.md
-          gh release create "v$version" --target "$GITHUB_SHA" --title "v$version" --notes-file notes.md
+          gh release create "v$version" --target "$GITHUB_SHA" --title "$(pnpm -s release:title "$version")" --notes-file notes.md
