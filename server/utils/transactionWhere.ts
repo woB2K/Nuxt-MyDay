@@ -4,7 +4,7 @@ import type { TransactionFilterQuery } from '~~/shared/schemas'
 export function transactionWhere(userId: string, filters: TransactionFilterQuery): Prisma.TransactionWhereInput {
   const { type, from, to, search, categoryIds } = filters
 
-  const where: Prisma.TransactionWhereInput = { userId }
+  const where: Prisma.TransactionWhereInput = { userId, deletedAt: null }
 
   if (type) where.type = type
 

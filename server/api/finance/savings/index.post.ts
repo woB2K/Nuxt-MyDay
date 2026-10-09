@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, createSavingsSchema.parse)
 
   if (body.type === 'OPENING') {
-    const existing = await prisma.savingsEntry.count({ where: { userId, type: 'OPENING' } })
+    const existing = await prisma.savingsEntry.count({ where: { userId, type: 'OPENING', deletedAt: null } })
 
     if (existing > 0) throw createError({ statusCode: 409, message: 'Opening balance already set' })
   }

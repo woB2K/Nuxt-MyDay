@@ -1,5 +1,6 @@
 import { orNotFound } from '~~/server/utils/dbError'
 import { mapAmount } from '~~/server/utils/mapper'
+import { inTrash } from '~~/server/utils/trash'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
@@ -10,9 +11,9 @@ export default defineEventHandler(async (event) => {
       where: {
         id: transactionId,
         userId,
-        deletedAt: null
+        deletedAt: inTrash()
       },
-      data: { deletedAt: new Date() }
+      data: { deletedAt: null }
     }),
     'Transaction not found'
   )

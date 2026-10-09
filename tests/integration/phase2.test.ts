@@ -200,7 +200,7 @@ describe('phase 2 api', async () => {
       })).rejects.toMatchObject({ statusCode: 400 })
     })
 
-    it('removes own transaction via DELETE', async () => {
+    it('moves own transaction to the trash via DELETE', async () => {
       const { token } = await registerUser()
       const catId = await categoryId(token, 'EXPENSE')
       const tx = await $fetch<Tx>('/api/finance/transactions', {
@@ -210,7 +210,7 @@ describe('phase 2 api', async () => {
       })
 
       await $fetch(`/api/finance/transactions/${tx.id}`, { method: 'DELETE', headers: authHeaders(token) })
-      expect(await prisma.transaction.findUnique({ where: { id: tx.id } })).toBeNull()
+      expect((await prisma.transaction.findUnique({ where: { id: tx.id } }))?.deletedAt).not.toBeNull()
     })
 
     it('rejects an unknown categoryId with 400', async () => {

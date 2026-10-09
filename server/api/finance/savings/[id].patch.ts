@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
     prisma.savingsEntry.update({
       where: {
         id: savingsId,
-        userId
+        userId,
+        deletedAt: null
       },
       data: body
     }),
