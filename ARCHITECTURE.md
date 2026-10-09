@@ -343,10 +343,6 @@ FAB живёт в `layouts/default.vue`, а действие ему даёт с�
 
 - **Юнит-тесты `jwt.ts` зависели от локального `.env`** (там же). Секреты берутся из `useRuntimeConfig()`, в CI они пустые, и `jose` падал с `DataError: Zero-length key is not supported` — 6 тестов из 7. Лечится через `environmentOptions.nuxt.overrides.runtimeConfig` в `vitest.config.ts`. Важно: override задаёт **дефолт**, а `NUXT_JWT_ACCESS_SECRET` из `.env` его перебивает, поэтому привязывать тесты к конкретному значению секрета нельзя — результат разойдётся между локалью и CI. Тест `runs against non-empty signing secrets` сторожит именно непустоту, а не значение.
 
-- **`POST /api/auth/register` отвечает 500 на невалидное тело** (найдено 09.10.2026). Хендлер зовёт `registerSchema.parse` напрямую, и `ZodError` уходит как необработанная ошибка. Лечится `readValidatedBody` — как в остальных хендлерах.
-
-- **E2E флакают на холодном dev-сервере** (найдено 09.10.2026). На старте Vite пересобирает зависимости (`new dependencies optimized: @tanstack/vue-query, zod … reloading`), и параллельные регистрации в этот момент получают «Something went wrong» — каждый прогон роняет случайную спеку, в CI это маскируют `retries: 2`. Кандидат на лечение — `vite.optimizeDeps.include` для этих пакетов в `nuxt.config.ts`.
-
 ---
 
 ## Журнал реализации
