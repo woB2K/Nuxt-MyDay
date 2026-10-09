@@ -2,6 +2,69 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '1.2.0',
+    date: '2026-10-09',
+    title: { en: 'Recently deleted', ru: 'Недавно удалённые' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Deleted tasks, transactions and savings entries go to Recently deleted in Settings, where you can restore them within 30 days',
+          ru: 'Удалённые задачи, транзакции и записи о накоплениях попадают в «Недавно удалённые» в настройках, откуда их можно вернуть в течение 30 дней'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'Deleted something by mistake? Tap Undo in the notification right away',
+          ru: 'Удаление вышло случайным? Нажми «Отменить» прямо в уведомлении'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'Tags can be deleted in Settings → Tags',
+          ru: 'Теги можно удалять в «Настройки → Теги»'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Sign-up and sign-in tell you when an email is already registered or there were too many attempts, instead of a generic error',
+          ru: 'Регистрация и вход сообщают, что email уже занят или попыток было слишком много, вместо общей ошибки'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Notifications now pop up at the bottom of the screen, and the + button moves up to make room',
+          ru: 'Уведомления теперь появляются внизу экрана, а кнопка «+» поднимается, чтобы их не закрывать'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Text and date fields no longer blend into the background',
+          ru: 'Поля ввода и даты больше не сливаются с фоном'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Removed the Continue with Google button: it didn\'t work yet',
+          ru: 'Убрали кнопку входа через Google: она пока не работала'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The date field no longer sticks out of the form on iPhone',
+          ru: 'Поле даты больше не вылезает за край формы на iPhone'
+        }
+      }
+    ]
+  },
+  {
     version: '1.1.1',
     date: '2026-10-09',
     changes: [
