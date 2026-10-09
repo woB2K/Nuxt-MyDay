@@ -35,8 +35,12 @@ async function handleSubmit() {
   try {
     await authStore.register(result.data)
     await navigateTo('/today')
-  } catch {
-    formError.value = t('auth.errorGeneric')
+  } catch (e: any) {
+    const status = e?.statusCode ?? e?.data?.statusCode
+
+    if (status === 409) emailError.value = t('auth.errorEmailTaken')
+    else if (status === 429) formError.value = t('auth.errorTooManyAttempts')
+    else formError.value = t('auth.errorGeneric')
   } finally {
     loading.value = false
   }

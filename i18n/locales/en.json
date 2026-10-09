@@ -252,6 +252,8 @@
     "errorInvalidEmail": "Please enter a valid email address.",
     "errorShortPassword": "Password must be at least 8 characters.",
     "errorShortName": "Name must be at least 2 characters.",
+    "errorEmailTaken": "This email is already registered.",
+    "errorTooManyAttempts": "Too many attempts. Try again in a few minutes.",
     "alreadyHaveAccount": "Already have an account?"
   },
   "settings": {
