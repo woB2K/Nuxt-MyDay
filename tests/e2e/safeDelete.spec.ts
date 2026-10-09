@@ -1,10 +1,9 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
-import { registerViaUi, uniqueEmail } from './helpers'
+import { fakeIp, registerViaUi, uniqueEmail } from './helpers'
 
-test.beforeEach(async ({ page }, testInfo) => {
-  const ip = `10.30.${testInfo.workerIndex % 250}.${Math.floor(Math.random() * 250)}`
-  await page.setExtraHTTPHeaders({ 'x-forwarded-for': ip })
+test.beforeEach(async ({ page }) => {
+  await page.setExtraHTTPHeaders({ 'x-forwarded-for': fakeIp() })
 })
 
 async function addTask(page: Page, title: string, tag?: string) {
