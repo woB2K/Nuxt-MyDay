@@ -136,6 +136,7 @@ sequenceDiagram
 | Счётчик попыток внутри `assertPin()` | Вынесешь обратно в middleware — либо успешные действия начнут тратить лимит, либо `DELETE /api/settings/pin` снова станет каналом для перебора |
 | `bottom-fab` / `bottom-toast` / `pb-shell` вместо чисел | Высота таб-бара растёт на `env(safe-area-inset-bottom)`; фиксированные `bottom-[100px]` и `pb-28` загоняют FAB под бар на устройствах с вырезом |
 | `min-w-0` + `grid-cols-2` у полей периода | Flex-элемент не сжимается меньше содержимого, а заполненный `input[type=date]` на iOS шире колонки — поля наезжают друг на друга |
+| `appearance-none` в `UiDateInput` | С нативным оформлением iOS Safari игнорирует `w-full` у `input[type=date]` и добавляет свой отступ — поле вылезает за правый край формы |
 
 ### Кэш service worker и приватность данных
 
