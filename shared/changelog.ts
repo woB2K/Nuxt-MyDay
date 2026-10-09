@@ -2,6 +2,19 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '1.1.1',
+    date: '2026-10-09',
+    changes: [
+      {
+        type: 'improved',
+        text: {
+          en: 'Savings entries can be edited: tap an entry to change its amount or note',
+          ru: 'Записи о накоплениях можно редактировать: нажми на запись, чтобы поменять сумму или заметку'
+        }
+      }
+    ]
+  },
+  {
     version: '1.1.0',
     date: '2026-10-08',
     changes: [
