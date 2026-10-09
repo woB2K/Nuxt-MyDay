@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { AccentSetting, LangSetting, ThemeSetting } from '~~/shared/types'
+import { TRASH_RETENTION_DAYS } from '~~/shared/schemas'
 import { themePreferences } from '~/composables/useTheme'
 
 definePageMeta({ hideFab: true })
@@ -125,6 +126,22 @@ async function signOut() {
         :sub="t('settings.categoriesSub')"
         clickable
         @click="navigateTo('/settings/categories')"
+      />
+
+      <UiSettingRow
+        icon="i-lucide-tags"
+        :label="t('settings.tags')"
+        :sub="t('settings.tagsSub')"
+        clickable
+        @click="navigateTo('/settings/tags')"
+      />
+
+      <UiSettingRow
+        icon="i-lucide-trash-2"
+        :label="t('settings.trash')"
+        :sub="t('settings.trashSub', { days: TRASH_RETENTION_DAYS })"
+        clickable
+        @click="navigateTo('/settings/trash')"
       />
 
       <UiSettingRow

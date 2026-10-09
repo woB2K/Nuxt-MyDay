@@ -1,14 +1,16 @@
 import type { QueryClient, QueryKey } from '@tanstack/vue-query'
 import type { Transaction } from '~~/prisma/.generated/prisma'
-import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse } from '~~/shared/types'
+import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse, TrashResponse } from '~~/shared/types'
 import type { SavingsCache, TransactionCache } from '~/utils/financeCache'
 import type { Period } from '~/utils/period'
 import type { TransactionFilters } from '~/utils/transactionFilters'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { cachedTransactions, dropFromSummary, dropSavingsEntry, dropTransaction } from '~/utils/financeCache'
+import { statusOf } from '~/utils/httpStatus'
 import { invalidateWhenSettled, restoreQueries, snapshotQueries } from '~/utils/optimistic'
 import { periodKey, periodRange } from '~/utils/period'
 import { filterKey, filterQuery } from '~/utils/transactionFilters'
+import { dropFromTrash } from '~/utils/trash'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
 
@@ -149,11 +151,43 @@ export function useUpdateTransactionMutation() {
   })
 }
 
+export function useRestoreTransactionMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<TransactionItem>(`/api/finance/transactions/${id}/restore`, { method: 'POST' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['trash'])
+
+      queryClient.setQueryData<TrashResponse>(queryKeys.trash(), cache => cache && dropFromTrash(cache, 'transaction', id))
+
+      return { previous }
+    },
+    onSuccess: () => {
+      toast.success(t('toast.transactions.restoreSuccess'))
+    },
+    onError: (_error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
+      toast.error(t('toast.transactions.restoreError'))
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['summary'] })
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
+    }
+  })
+}
+
 export function useDeleteTransactionMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
   const toast = useAppToast()
+  const { mutate: restore } = useRestoreTransactionMutation()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -165,14 +199,15 @@ export function useDeleteTransactionMutation() {
 
       return { previous }
     },
-    onSuccess: () => {
-      toast.success(t('toast.transactions.deleteSuccess'))
+    onSuccess: (_transaction, id) => {
+      toast.success(t('toast.transactions.deleteSuccess'), { label: t('general.undo'), run: () => restore(id) })
     },
     onError: (_error, _id, context) => {
       restoreQueries(queryClient, context?.previous)
       toast.error(t('toast.transactions.deleteError'))
     },
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
       invalidateWhenSettled(queryClient, ['transactions'], ['summary'])
     }
   })
@@ -216,11 +251,44 @@ export function useUpdateSavingsMutation() {
   })
 }
 
+export function useRestoreSavingsMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<SavingsEntryItem>(`/api/finance/savings/${id}/restore`, { method: 'POST' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['trash'])
+
+      queryClient.setQueryData<TrashResponse>(queryKeys.trash(), cache => cache && dropFromTrash(cache, 'savings', id))
+
+      return { previous }
+    },
+    onSuccess: () => {
+      toast.success(t('toast.savings.restoreSuccess'))
+    },
+    onError: (error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
+      toast.error(statusOf(error) === 409
+        ? t('toast.savings.restoreOpeningConflict')
+        : t('toast.savings.restoreError'))
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['savings'] })
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
+    }
+  })
+}
+
 export function useDeleteSavingsMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
   const toast = useAppToast()
+  const { mutate: restore } = useRestoreSavingsMutation()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -235,14 +303,15 @@ export function useDeleteSavingsMutation() {
 
       return { previous }
     },
-    onSuccess: () => {
-      toast.success(t('toast.savings.deleteSuccess'))
+    onSuccess: (_entry, id) => {
+      toast.success(t('toast.savings.deleteSuccess'), { label: t('general.undo'), run: () => restore(id) })
     },
     onError: (_error, _id, context) => {
       restoreQueries(queryClient, context?.previous)
       toast.error(t('toast.savings.deleteError'))
     },
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
       invalidateWhenSettled(queryClient, ['savings'])
     }
   })
