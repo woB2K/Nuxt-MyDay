@@ -238,6 +238,8 @@
     "errorInvalidEmail": "Введите корректный email.",
     "errorShortPassword": "Пароль должен содержать не менее 8 символов.",
     "errorShortName": "Имя должно содержать не менее 2 символов.",
+    "errorEmailTaken": "Этот email уже зарегистрирован.",
+    "errorTooManyAttempts": "Слишком много попыток. Повторите через несколько минут.",
     "alreadyHaveAccount": "Уже есть аккаунт?"
   },
   "settings": {

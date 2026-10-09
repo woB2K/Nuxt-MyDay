@@ -33,9 +33,9 @@ async function handleSubmit() {
     await navigateTo('/today')
   } catch (e: any) {
     const status = e?.statusCode ?? e?.data?.statusCode
-    formError.value = status === 401
-      ? t('auth.errorInvalidCredentials')
-      : t('auth.errorGeneric')
+    if (status === 401) formError.value = t('auth.errorInvalidCredentials')
+    else if (status === 429) formError.value = t('auth.errorTooManyAttempts')
+    else formError.value = t('auth.errorGeneric')
   } finally {
     loading.value = false
   }
