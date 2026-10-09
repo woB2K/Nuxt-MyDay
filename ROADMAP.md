@@ -1,6 +1,6 @@
 # ROADMAP.md — MyDay
 
-Чеклист фаз реализации. Правила работы, конвенции и текущая архитектура — в `CLAUDE.md` и `ARCHITECTURE.md`.
+Чеклист фаз реализации: **один пункт — одна строка**. Как пункт сделан на самом деле, чем отличается от плана и что починено попутно, — в `ARCHITECTURE.md` → «Журнал реализации». Правила работы и конвенции — в `CLAUDE.md`.
 
 Чтобы начать сессию — скажи "приступаем к шагу N". Чтобы завершить шаг — напиши "Идем дальше": Claude отмечает текущий шаг `[x]` и предлагает следующий.
 
@@ -10,49 +10,49 @@
 
 ## Фаза 0 — Фундамент
 
-- [x] **0.1** Создать Nuxt 4 проект: `pnpm dlx nuxi@latest init myday`, выбрать `ui` template
-- [x] **0.2** Настроить `nuxt.config.ts`: `compatibilityVersion: 4`, `ssr: false` (SPA режим — все страницы за авторизацией, SSR не нужен), модули (`@pinia/nuxt`, `@vite-pwa/nuxt`), `runtimeConfig` с секретами
-- [x] **0.3** Установить и настроить Tailwind v4: токены через `@theme` и CSS-переменные тем в `assets/css/main.css` (конфиг-файла нет — CSS-first подход v4)
-- [x] **0.4** Настроить Pinia: проверить auto-import, создать структуру `stores/`
-- [x] **0.5** Инициализировать Prisma: `pnpm prisma init`, скопировать схему из `CLAUDE.md`, запустить первую миграцию `pnpm prisma migrate dev --name init`
-- [x] **0.6** Создать `server/utils/prisma.ts` (singleton паттерн)
-- [x] **0.7** Создать `.env.example`, подключиться к удалённой БД, проверить `pnpm prisma studio`
-- [x] **0.8** Создать структуру `shared/types/` и `shared/schemas/` с базовыми Zod-схемами (auth, tasks, finance)
-- [x] **0.9** *(Claude пишет)* Настроить тестовое окружение: установить `vitest`, `@nuxt/test-utils`, `@vue/test-utils`, `playwright`; создать `vitest.config.ts` и `playwright.config.ts`
+- [x] **0.1** Nuxt 4 проект (`ui` template)
+- [x] **0.2** `nuxt.config.ts`: `compatibilityVersion: 4`, `ssr: false` (SPA), модули, `runtimeConfig` с секретами
+- [x] **0.3** Tailwind v4: токены через `@theme` и CSS-переменные тем в `assets/css/main.css`
+- [x] **0.4** Pinia: auto-import, структура `stores/`
+- [x] **0.5** Prisma: `init` + первая миграция
+- [x] **0.6** `server/utils/prisma.ts` (singleton)
+- [x] **0.7** `.env.example`, подключение к удалённой БД
+- [x] **0.8** `shared/types/` и `shared/schemas/` с базовыми Zod-схемами
+- [x] **0.9** *(Claude пишет)* Тестовое окружение: vitest, `@nuxt/test-utils`, `@vue/test-utils`, Playwright
 
 ---
 
 ## Фаза 1 — Auth & Shell
 
-**Сервер (делать в этом порядке, проверять через curl/Postman):**
+**Сервер:**
 
-- [x] **1.1** `server/utils/jwt.ts` — функции `signAccessToken`, `signRefreshToken`, `verifyToken`
+- [x] **1.1** `server/utils/jwt.ts` — `signAccessToken`, `signRefreshToken`, `verifyToken`
 - [x] **1.2** `server/utils/password.ts` — `hashPassword`, `comparePassword` (bcrypt, cost 12)
-- [x] **1.3** `server/middleware/01.auth.ts` — извлечение и верификация Bearer токена, запись `event.context.userId`
-- [x] **1.4** `POST /api/auth/register` — валидация Zod, создание User + AppSettings + seed Categories (в `prisma.$transaction`)
-- [x] **1.5** `POST /api/auth/login` — поиск по email, bcrypt.compare, выдача токенов
-- [x] **1.6** `POST /api/auth/logout` — удаление RefreshToken из БД, очистка cookie. **Дополнено 16.09.2026:** опции refresh-куки были продублированы в четырёх хендлерах с захардкоженным `secure: true`; на `http://<LAN-IP>` с телефона браузер такую куку молча выбрасывает, и сессия не переживала перезагрузку. Собрано в `server/utils/authCookie.ts`, `secure` стал `!import.meta.dev`
-- [x] **1.7** `POST /api/auth/refresh` — ротация refresh токена, выдача нового access токена
-- [ ] **1.8** `GET /api/auth/oauth/google` + `GET /api/auth/oauth/google/callback` — Google OAuth flow
-- [x] **1.9** `GET /api/users/me` — возврат профиля текущего пользователя
+- [x] **1.3** `server/middleware/01.auth.ts` — Bearer → `event.context.userId`
+- [x] **1.4** `POST /api/auth/register` — User + AppSettings + seed Categories в одной `$transaction`
+- [x] **1.5** `POST /api/auth/login`
+- [x] **1.6** `POST /api/auth/logout` — удаление RefreshToken, очистка cookie
+- [x] **1.7** `POST /api/auth/refresh` — ротация refresh-токена
+- [ ] **1.8** `GET /api/auth/oauth/google` + callback — Google OAuth flow (объём v2, см. Фазу 7)
+- [x] **1.9** `GET /api/users/me`
 
 **Клиент:**
 
-- [x] **1.10** `stores/auth.ts` — `useAuthStore` с `accessToken`, `user`, `init()`, `refresh()`, `logout()`
-- [x] **1.11** ~~`app/middleware/auth.ts` и `guest.ts`~~ → заменены на `app/middleware/auth.global.ts` (16.09.2026). **История:** файлы были написаны в 1.11, но не подключены ни к одной странице; в 4.5 мидлвар починен (стал дожидаться `init()`) и навешен на настройки — и на этом остановился. Баг нашёлся с телефона: `/today`, `/tasks`, `/finance` и их подстраницы открывались **без авторизации** — пустыми, потому что API отдавал 401, а Settings единственный требовал вход. Поштучная навеска здесь не работает в принципе: новую страницу забудут пометить, и это уже случилось дважды. Теперь мидлвар глобальный со списком публичных маршрутов, `guest.ts` в него же (залогиненного не пускает на формы входа) — оба старых файла удалены. `init()` перестал переспрашивать сервер после ответа «сессии нет»: глобальный мидлвар зовёт его на каждой навигации, и без защёлки аноним слал бы `/api/auth/refresh` на каждый переход (замерено: было 4 на 4 перехода, стало 1). Сбой транспорта защёлку не ставит — сеть могла просто отвалиться. Сторож — `tests/e2e/guard.spec.ts`
-- [x] **1.12** `layouts/auth.vue` — чистый layout без навигации
-- [x] **1.13** `pages/auth/welcome.vue` — Welcome screen с Google OAuth + email кнопками
-- [x] **1.14** Все `components/ui/` базовые компоненты: `UiButton`, `UiInput`, `UiCard`, `UiBadge`, `UiPillSelect`, `UiSwitch`, `UiCheckCircle`, `UiLogoMark`
-- [x] **1.15** Все `components/ui/` лэйаутные: `UiTabBar`, `UiFab`, `UiEmptyState`, `UiSectionHeader`, `UiSheet`
-- [x] **1.16** `pages/auth/login.vue` — форма Sign In (переписать с `UiButton`, `UiInput`)
-- [x] **1.17** `pages/auth/register.vue` — форма Create Account
-- [x] **1.18** `layouts/default.vue` — TabBar + FAB (использует `UiTabBar`, `UiFab`). **Баг найден 16.09.2026 с телефона:** действие FAB регистрировалось парой `onMounted`/`onUnmounted`, а Vue монтирует входящую страницу раньше, чем размонтирует уходящую — уходящая затирала действие входящей, и после перехода по табу FAB висел на экране, но не открывал шит. Не ловилось ничем, потому что E2E всегда шёл `auth → today`, а у страниц входа FAB нет. Заменено на `composables/useFabAction.ts` со сверкой идентичности при снятии; сторож — `tests/e2e/fab.spec.ts` (переход по всем трём табам + создание задачи со страницы, открытой переходом) плюс юнит на порядок хуков
-- [x] **1.19** *(Claude пишет)* Unit тесты для `jwt.ts` — sign/verify roundtrip, истёкший токен, невалидная подпись
-- [x] **1.20** *(Claude пишет)* Unit тесты для `password.ts` — hash/compare, неверный пароль
-- [x] **1.21** *(Claude пишет)* Unit тесты для Zod-схем auth — граничные случаи: пустой email, короткий пароль, лишние поля
-- [x] **1.22** *(Claude пишет)* Store тесты для `useAuthStore` — `init()` при валидном cookie, `init()` при истёкшем cookie, `logout()` очищает состояние
-- [x] **1.23** `server/middleware/02.rateLimit.ts` — rate limiting на auth endpoints (`/api/auth/login`, `/api/auth/register`): максимум 10 попыток за 15 минут с одного IP, ответ `429 Too Many Requests`
-- [x] **1.24** `composables/useAppToast.ts` + глобальный обработчик ошибок — toast-очередь в `useUiStore`, Nuxt `app:error` hook для непойманных ошибок, компонент `UiToast`
+- [x] **1.10** `stores/auth.ts` — `useAuthStore`: `accessToken`, `user`, `init()`, `refresh()`, `logout()`
+- [x] **1.11** Защита маршрутов — глобальный `app/middleware/auth.global.ts` (вместо поштучных `auth.ts`/`guest.ts`)
+- [x] **1.12** `layouts/auth.vue`
+- [x] **1.13** `pages/auth/welcome.vue`
+- [x] **1.14** Базовые `components/ui/`: `UiButton`, `UiInput`, `UiCard`, `UiBadge`, `UiPillSelect`, `UiSwitch`, `UiCheckCircle`, `UiLogoMark`
+- [x] **1.15** Лэйаутные `components/ui/`: `UiTabBar`, `UiFab`, `UiEmptyState`, `UiSectionHeader`, `UiSheet`
+- [x] **1.16** `pages/auth/login.vue`
+- [x] **1.17** `pages/auth/register.vue`
+- [x] **1.18** `layouts/default.vue` — TabBar + FAB (`composables/useFabAction.ts`)
+- [x] **1.19** *(Claude пишет)* Unit-тесты `jwt.ts`
+- [x] **1.20** *(Claude пишет)* Unit-тесты `password.ts`
+- [x] **1.21** *(Claude пишет)* Unit-тесты Zod-схем auth
+- [x] **1.22** *(Claude пишет)* Store-тесты `useAuthStore`
+- [x] **1.23** `server/middleware/02.rateLimit.ts` — 10 попыток за 15 минут с IP на login/register, `429`
+- [x] **1.24** `useAppToast` + глобальный обработчик ошибок + `UiToast`
 
 ---
 
@@ -60,36 +60,36 @@
 
 **Сервер:**
 
-- [x] **2.1** `prisma/seeds/categories.ts` — seed-функция стандартных категорий (10 штук из дизайна)
-- [x] **2.2** `GET/POST /api/categories` + `PATCH/DELETE /api/categories/[id]`
-- [x] **2.3** `GET/POST /api/finance/transactions` + `PATCH/DELETE /api/finance/transactions/[id]` (с пагинацией)
-- [x] **2.4** `GET /api/finance/summary` — агрегация SQL: income, expense, net, breakdown by category
-- [x] **2.5** `GET/POST/DELETE /api/finance/savings` — операции накопительного счёта
-- [x] **2.6** `GET/POST/PATCH /api/finance/budgets` — бюджеты по категориям
+- [x] **2.1** `prisma/seeds/categories.ts` — стандартные категории
+- [x] **2.2** CRUD `/api/categories`
+- [x] **2.3** CRUD `/api/finance/transactions` с пагинацией
+- [x] **2.4** `GET /api/finance/summary` — income, expense, net, breakdown
+- [x] **2.5** `GET/POST/DELETE /api/finance/savings` (PATCH добавлен в v1.1.1)
+- [x] **2.6** `GET/POST/PATCH /api/finance/budgets`
 
 **Клиент:**
 
-- [x] **2.7** `composables/useApi.ts` — `$fetch.create()` с `onRequest` interceptor для подстановки `Authorization: Bearer` из `useAuthStore`. Создать до всех защищённых запросов.
-- [x] **2.7.5** Установить `@tanstack/vue-query`, создать `plugins/vue-query.ts` (QueryClient с staleTime 5 мин), создать `composables/queryKeys.ts` с централизованными ключами
-- [x] **2.8** `stores/finance.ts` — `useFinanceStore` (Pinia, **только client state**: `currentMonth`, `activeTab`). Серверные данные — НЕ здесь.
-- [x] **2.8.5** `composables/useFinance.ts` — все TanStack Query хуки: `useTransactionsQuery`, `useSummaryQuery`, `useSavingsQuery`, `useBudgetsQuery` + мутации с `invalidateQueries`
-- [x] **2.8.6** `composables/useCategories.ts` — TanStack Query хуки для CRUD категорий (используется и в Finance и в Settings)
-- [x] **2.9** `components/ui/UiTxRow`, `UiCategoryTile`, `UiCategoryBar`
-- [x] **2.10** `pages/finance/index.vue` — hero баланс (всегда) + `UiPillSelect` для переключения табов + `components/features/finance/FinanceTransactionsTab.vue` (breakdown + recent). Структура: hero → pill tabs → контент таба. `financeStore.activeTab` управляет видимостью табов.
-- [x] **2.11** `components/features/finance/AddTransactionSheet.vue` — тип + сумма + категория + заметка
-- [x] **2.12** `components/features/finance/FinanceSavingsTab.vue` — раздел Savings (таб внутри Finance страницы)
-- [~] **2.13** ~~Раздел Budgets~~ → отложено до v2 (**Фаза 7**, решение 28.07.2026). Option `budgets` убран из `tabOptions` в `pages/finance/index.vue` (таб рендерера не имел — выбор показывал пустоту); ключ `finance.tabs.budgets` в i18n оставлен для v2. Дата-слой (модель `Budget`, `GET/POST /api/finance/budgets`, `useBudgetQuery`/`useUpsertBudgetMutation`, queryKey `budgets`) не удалять
-- [~] **2.14** ~~Управление категориями в Settings~~ → перенесено в Фазу 4 (**4.5.1**). Settings делаем целиком одним блоком, чтобы не строить каркас настроек в два захода. Дата-слой (`useCategories.ts`) уже готов.
-- [x] **2.15** *(Claude пишет)* Unit тесты для Zod-схем finance — невалидная сумма (отрицательная, строка), неизвестная категория
-- [x] **2.15.5** *(Claude пишет)* Интеграционные тесты для API эндпоинтов Фазы 2 — `tests/integration/phase2.test.ts`. Инфра: `docker-compose.test.yml` (Postgres :5434), `vitest.integration.config.ts`, env из `.env.test`. Запуск: `pnpm test:db:up && pnpm test:integration`. **Нашли баг:** `POST /api/categories` всегда 500 — `createCategorySchema` без `color` и с опциональным `icon`, а в БД оба required; починено 10.09.2026 (`icon` + hex-`color` обязательны в схеме), skip снят. (через `@nuxt/test-utils`, тестовая БД): `GET/POST /api/categories`, `PATCH/DELETE /api/categories/[id]`, `GET/POST /api/finance/transactions`, `PATCH/DELETE /api/finance/transactions/[id]`, `GET /api/finance/summary`, `GET/POST/DELETE /api/finance/savings`, `GET/POST/PATCH /api/finance/budgets` — проверить: `userId` изоляция (нельзя получить чужие данные), валидация входных данных, корректность агрегации в summary
-- [x] **2.16** *(Claude пишет)* Тесты для TanStack Query хуков из `useFinance.ts` — `tests/unit/composables/useFinance.test.ts`: инвалидация `transactions`+`summary` в `onSuccess`, тост-ошибка в `onError`, реальный рефетч активного `useSummaryQuery` после добавления транзакции. **Тест на оптимистичный откат → перенесён в 4.3** (в текущем коде мутаций нет `onMutate`/rollback — оптимистика появится в Фазе 4)
-- [x] **2.17** Унифицировать фильтрацию транзакций: `GET /api/finance/transactions` принимает `from`/`to` (сейчас игнорирует даты полностью — переключение месяца не фильтрует список). Режимы UI: конкретный месяц (по умолчанию текущий — главная Finance), произвольный диапазон, все подряд (без `from`/`to`). Границы вычисляет клиент (см. «Таймзоны» в `ARCHITECTURE.md`). Совпадает с моделью периода из дизайна v3 (`{ mode: 'month' | 'range' | 'all' }`, DESIGN.md → Finance v3). Заодно серверные параметры фильтров v3: `type`, `categoryIds`, `search` (по notes). **Сделать до вёрстки периодов и фильтров (2.19–2.21)**
-- [x] **2.18** Проверка принадлежности `categoryId` в `POST/PATCH /api/finance/transactions` и `POST /api/finance/budgets` (см. `.claude/skills/auth-security-patterns/`); заодно 400 вместо 500 при несуществующей категории. Сверх пункта: транзакция не может ссылаться на категорию другого типа (EXPENSE под «Salary» искажал бы breakdown) — PATCH проверяет итоговую пару type+categoryId; одиночные PATCH/DELETE отдают 404 вместо 500 через `orNotFound`/`orConflict` из `server/utils/dbError.ts` (применено и к tasks/tags/templates/categories/savings)
-- [x] **2.19** Период (дизайн v3): `financeStore` — заменить `currentMonth: Date` на объект `period` (модель в DESIGN.md → Finance v3); `PeriodBar.vue` + `PeriodSheet.vue` (features/finance, контент внутри `UiSheet`) + базовые `UiChip.vue`, `UiRoundBtn.vue`; PeriodBar на табах Transactions и Savings (Budgets — v2); hero → net за период (danger при минусе, stacked bar income/expense). Утилиты периода (`periodRange` и т.п.) — отдельным файлом, в v2 их переиспользуют бюджеты. Требует 2.17. **Сделано с отличиями:** утилиты в `app/utils/period.ts`, `period.month` — date-only строка, а не `Date` (см. DESIGN.md → Модель периода); `useSummaryQuery`/`useTransactionQuery`/`useBudgetQuery` принимают `Ref<Period>`, ключи запросов — `periodKey`; hero переехал с уровня страницы в `FinanceTransactionsTab` (на табе Savings своя карточка, net-hero там по дизайну нет); PeriodBar пока только на табе Transactions — на Savings он появится в **2.23**, когда `GET /api/finance/savings` научится фильтровать историю по `from`/`to` (иначе контрол был бы мёртвым). Заодно снят `bg-elev1` с `NuxtPage`: подложка страницы обрывалась по высоте контента, фон страницы по токенам — `--c-bg`
-- [x] **2.20** Фильтры (дизайн v3): `FilterBar.vue` (тип + чип категорий + поиск, Reset) + `CategoryFilterSheet.vue` (multi-select с Clear / Show · N); состояние фильтров — client state (`financeStore.filters` + `filtersActive`/`resetFilters`, утилиты в `app/utils/transactionFilters.ts`). **Сверх пункта:** `GET /api/finance/summary` принял те же фильтры, что и список (`transactionFilterQuerySchema` + `server/utils/transactionWhere.ts`) — иначе hero и breakdown считались бы по всему периоду, а список под ними по отфильтрованному; это же закрывает вопрос про `ResultSummary` из «Известных багов» (см. `ARCHITECTURE.md`). Поиск по заметке — с дебаунсом 300 мс; ключи запросов теперь `queryKeys.transactions(period, filters)`
-- [x] **2.21** `pages/finance/transactions.vue` — All Transactions (дизайн v3): группировка по дням со sticky-заголовками и дневным net, ResultSummary, `UiSwipeRow` с `rightAction` accent «Edit», empty state с «Clear filters». Точка входа «See all →» из секции Recent. Период и фильтры уже общие (`financeStore`), PeriodBar/FilterBar переиспользуются, ResultSummary берёт income/expense из `GET /api/finance/summary` с теми же фильтрами. Дневная группировка обязана разбирать `date` как календарную строку (см. решение о `YYYY-MM-DD` в `ARCHITECTURE.md`), не через локальные геттеры `new Date()` — сделано через `toDayKey` + `groupByDay` в `app/utils/`. **Сделано с отличиями:** `UiSwipeRow` написан здесь, а не в 3.5 (там теперь только переиспользование); правый свайп «Edit» включится в **2.22** вместе с `TransactionEditSheet` — сейчас у строки только удаление, чтобы не было кнопки в никуда; список постраничный (`useTransactionPagesQuery` на `useInfiniteQuery`, 30 на страницу + кнопка «Показать ещё») — без этого «Всё время» молча обрезалось бы лимитом. Заодно появились русские правила плюрализации (`i18n/i18n.config.ts` + `i18n/pluralRules.ts`) — счётчик «N операций» иначе выглядел бы как «1 операций»
-- [x] **2.22** `AddTransactionSheet` → `TransactionEditSheet.vue` (дизайн v3): dual-mode create/edit, новое поле даты (бэкдейт), кнопка «Delete transaction» в режиме edit. `AddTransactionSheet.vue` удалён. Точки входа: FAB (создание), тап по строке в Recent и в All Transactions, правый свайп «Edit» — он же включил `rightAction` у `UiSwipeRow`, отложенный в 2.21. Смена типа переставляет категорию на первую подходящую (иначе PATCH вернул бы 400 на несовпадении типов, см. решение в `ARCHITECTURE.md`); форма инициализируется из транзакции при каждом открытии шита
-- [x] **2.23** Savings v3: история операций за период (PeriodBar + список deposit/withdrawal), delta badge за период; `AddSavingsSheet` → `SavingsOpSheet.vue` (deposit | withdraw, quick amounts, «Available · $X»). Баланс — всегда total (решение не меняется). `GET /api/finance/savings` принимает `from`/`to`, валидирует `page`/`limit` через `savingsQuerySchema` и больше не берёт «этот месяц» из серверных часов; ответ — `{ balance, delta, entries, total, page, limit }` (`thisMonth` больше нет). Период по `createdAt` считается по UTC-границам — почему так, записано в `ARCHITECTURE.md`. `useSavingsQuery(period)` постраничный, как список транзакций. **Сверх пункта:** снятие больше доступного отбивается на клиенте — копилка не должна уходить в минус
+- [x] **2.7** `composables/useApi.ts` — `$fetch` с `Authorization: Bearer`
+- [x] **2.7.5** TanStack Query: `plugins/vue-query.ts` + `composables/queryKeys.ts`
+- [x] **2.8** `stores/finance.ts` — только client state
+- [x] **2.8.5** `composables/useFinance.ts` — query-хуки и мутации финансов
+- [x] **2.8.6** `composables/useCategories.ts`
+- [x] **2.9** `UiTxRow`, `UiCategoryTile`, `UiCategoryBar`
+- [x] **2.10** `pages/finance/index.vue` — pill-табы + `FinanceTransactionsTab`
+- [x] **2.11** `AddTransactionSheet.vue` (заменён на `TransactionEditSheet` в 2.22)
+- [x] **2.12** `FinanceSavingsTab.vue`
+- [~] **2.13** Budgets UI — отложено в Фазу 7 (дата-слой не удалять)
+- [~] **2.14** Категории в Settings — перенесено в **4.5.1**
+- [x] **2.15** *(Claude пишет)* Unit-тесты Zod-схем finance
+- [x] **2.15.5** *(Claude пишет)* Интеграционные тесты API Фазы 2 — `tests/integration/phase2.test.ts`
+- [x] **2.16** *(Claude пишет)* Тесты хуков `useFinance.ts`
+- [x] **2.17** Фильтрация транзакций: `from`/`to`, `type`, `categoryIds`, `search`
+- [x] **2.18** Проверка принадлежности `categoryId` в транзакциях и бюджетах
+- [x] **2.19** Период (дизайн v3): `period` в `financeStore`, `PeriodBar` + `PeriodSheet`, `UiChip`, `UiRoundBtn`, net-hero
+- [x] **2.20** Фильтры (дизайн v3): `FilterBar` + `CategoryFilterSheet`
+- [x] **2.21** `pages/finance/transactions.vue` — All Transactions с группировкой по дням
+- [x] **2.22** `TransactionEditSheet.vue` — create/edit, дата, удаление
+- [x] **2.23** Savings v3: история за период, delta badge, `SavingsOpSheet.vue`
 
 ---
 
@@ -97,109 +97,102 @@
 
 **Сервер:**
 
-- [x] **3.1** `GET/POST /api/tags` + `PATCH/DELETE /api/tags/[id]`
-- [x] **3.2** `GET/POST /api/tasks` + `PATCH/DELETE /api/tasks/[id]` (с поиском и фильтром). **Не забыть:** проверка принадлежности `tagIds` (см. `.claude/skills/auth-security-patterns/`)
-- [x] **3.3** `GET/POST /api/templates` + `PATCH/DELETE /api/templates/[id]`
+- [x] **3.1** CRUD `/api/tags`
+- [x] **3.2** CRUD `/api/tasks` с поиском и фильтром (проверка принадлежности `tagIds`)
+- [x] **3.3** CRUD `/api/templates`
 
 **Клиент:**
 
-- [x] **3.4** `stores/tasks.ts` — `useTasksStore` (Pinia, **только client state**: `searchQuery`, `activeFilter`). Серверные данные — в `useTasks.ts`. **Сверх пункта:** логика фильтров вынесена в `app/utils/taskFilters.ts` (`TaskFilter`, `taskFilterKeys`, `hasActiveTaskFilters`, `taskQuery`) — как в финансах, стор только хранит выбор, а query-параметры и ключ кэша собираются из чистых функций; `filtersActive` + `resetFilters()` понадобятся пустому состоянию списка в 3.9 («Сбросить фильтры»)
-- [x] **3.4.5** `composables/useTasks.ts` — TanStack Query хуки: `useTasksQuery`, `useTagsQuery`, `useTemplatesQuery` + мутации `useToggleTaskMutation`, `useDeleteTaskMutation`, `useAddTaskMutation` с оптимистичными апдейтами и `invalidateQueries`. **Сверх пункта:** `useUpdateTaskMutation` — без неё dual-mode `TaskSheet` (3.8) не смог бы сохранять правку; оптимистика правит **все** закэшированные списки сразу (`setQueriesData` по префиксу `['tasks']`), иначе вкладка, открытая с другим фильтром, осталась бы со старой копией задачи; у toggle нет success-тоста — тост на каждый чекбокс это шум, ошибка по-прежнему всплывает и откатывает кэш. **Попутно починен сервер:** `PATCH /api/tasks/[id]` с `{ done: true }` проставлял только `doneAt`, а колонку `done` не писал — задача помечалась выполненной в UI и возвращалась открытой после рефетча (`GET` фильтрует по `done`). Фикс + интеграционные тесты `tests/integration/phase3.test.ts` (toggle в обе стороны, фильтры, поиск, изоляция между пользователями, чужие теги → 400)
-- [x] **3.5** `components/ui/UiTaskRow`, `UiDateStrip`, `UiTaskTemplateRow`, `UiStatsCard`. `UiSwipeRow` уже написан в 2.21 (порог 90px, `rightAction`, блокировка оси по вертикали) — здесь только переиспользование: задачам нужен правый свайп «Done ✓» (`completable`), он же дефолтный вариант правого слоя. **Неочевидное:** чекбокс в `UiTaskRow` обёрнут в `@click.stop` — `UiCheckCircle` это `<button>` внутри кликабельной строки, без этого отметка «выполнено» заодно открывала бы шит; просроченный дедлайн красится в danger (сверх дизайна) и сравнивается календарными днями через `toLocalDate` + `toDateString`, поэтому переживёт любое решение по `dueDate` в 3.8; повторный тап по выбранному дню в `UiDateStrip` снимает дату (`modelValue: ''`). Цвета приоритета — `app/utils/priority.ts` (`priorityBarClass`, `priorityTextClass`, `priorityKeys`), чтобы 3.8 брал их оттуда же; `toLocalDate` теперь экспортируется из `app/utils/formatDate.ts`. Свайп-обёртка задач появится вместе со списками (3.7, 3.9) — отдельный компонент под неё не нужен
-- [x] **3.6** `components/features/tasks/FocusCard.vue` — hero-карточка задачи дня: оверлайн «Фокус», заголовок title2, `UiCheckCircle` size=32, мета из приоритета, дедлайна и тегов. Компонент получает задачу пропсом и ничего не выбирает сам — какая задача попадает в фокус, решает `pages/today.vue` (3.7). Появились ключи `tasks.priority.*` — ими же будет пользоваться пикер приоритета в 3.8
-- [x] **3.7** `pages/today.vue` — greeting + stats cards + focus card + flat task list. **Починено попутно:** страницы `/today` не существовало, хотя логин и регистрация уже редиректили на неё (после входа был 404), а таб-бар вёл на `/auth/welcome`; `/` со стартовым шаблоном Nuxt теперь редиректит на `/today`. **Правила «что такое сегодня»** — чистые функции в `app/utils/taskStats.ts`, не в шаблоне: список = задачи без дедлайна + дедлайн ≤ сегодня + выполненные сегодня (иначе отмеченная задача исчезала бы из-под пальца и обнуляла прогресс); focus — самая срочная открытая (приоритет, затем дедлайн, затем возраст); streak считается по `doneAt` и не обрывается, пока сегодняшний день не закончился; progress = выполнено сегодня / размер списка. Страница намеренно не читает `useTasksStore`: фильтр и поиск принадлежат `/tasks`, у Today всегда весь список. FAB скрыт (`hideFab`) и тап по строке пока ничего не открывает — включается в **3.8** вместе с `TaskSheet`
-- [x] **3.8** `components/features/tasks/TaskSheet.vue` — dual-mode create/edit: название, приоритет (`UiPillSelect`), дедлайн (`UiDateStrip` + нативный `input[type=date]` для дальних дат), теги, заметки, «Удалить задачу» в режиме правки. Точки входа с Today: FAB (создание), тап по строке и по фокус-карточке (правка) — `hideFab` со страницы снят. **Контракт `dueDate` решён в пользу календарного дня:** миграция `20260914102443_task_due_date_as_calendar_day` (`DateTime? @db.Date`), `createTaskSchema.dueDate` → `z.iso.date()`, в `updateTaskSchema` он nullable — иначе дедлайн нечем было бы снять; хендлеры конвертируют через `new Date(...)`, как транзакции. Timestamp оставлять было нельзя: дедлайн — календарный день, и на нём повторился бы баг «вечерняя дата уезжает на сутки». **Сверх пункта:** `useAddTagMutation` и создание тега прямо в шите — иначе теги не создаются нигде в приложении и чипы всегда были бы пустыми
-- [x] **3.9** `pages/tasks/index.vue` — поиск + фильтр All/Open/Done + SwipeRow список. Здесь наконец работает `useTasksStore` из 3.4: фильтр и поиск живут в сторе, поэтому переживают уход на другой таб. Поиск вынесен в `features/tasks/TaskFilterBar.vue` с дебаунсом 300 мс — иначе каждый символ уходил бы в сеть отдельным запросом (и отдельной записью в кэше). Список сортируется теми же `sortTasks`, что и Today: открытые выше, дальше приоритет → дедлайн → возраст, чтобы порядок не прыгал между экранами. Пустое состояние отличает «ничего не нашлось» (со сбросом фильтров) от «задач пока нет»
-- [x] **3.10** `pages/tasks/templates.vue` + `components/features/tasks/TemplateSheet.vue`. Мутации шаблонов добавлены в `useTasks.ts` (`useAddTemplateMutation`, `useUpdateTemplateMutation`, `useDeleteTemplateMutation`). «Применить» — это `POST /api/tasks` полями шаблона (отдельного эндпоинта инстанцирования нет и не нужно); в шите применяются текущие значения формы, а не сохранённые, иначе правка перед применением молча терялась бы. **Сверх пункта:** выбор тегов вынесен из `TaskSheet` в общий `features/tasks/TagPicker.vue` — оба шита используют его; в шите шаблона добавлена кнопка «Удалить шаблон», иначе шаблон нельзя было бы убрать (в строке только Use/Edit). **Точка входа:** круглая кнопка со значком repeat в шапке `/tasks` — в дизайне вход в шаблоны живёт в настройках, но экрана настроек ещё нет (4.5), и без этого страница была бы недостижима
-- [x] **3.11** *(Claude пишет)* Unit тесты для mapper-функции нормализации тегов из Prisma
-- [x] **3.12** *(Claude пишет)* Store тесты для `useTasksStore` — написаны вместе с 3.4 (стартовое состояние, `filtersActive`, `resetFilters`) + тесты `taskFilters`. **Формулировка пункта устарела:** после разделения Pinia / TanStack Query стор не содержит мутаций, поэтому оптимистичный `toggleTask` и откат при ошибке проверяются на мутациях — 3.4.5 и 4.3
-- [x] **3.13** *(Claude пишет)* E2E тест: регистрация → создание задачи → отметить выполненной (Playwright). Отметка проверяется и после `reload` — это страховка от бага 3.4.5, где `done` не доезжал до БД и задача возвращалась открытой
-- [x] **3.14** *(Claude пишет)* E2E тест: логин → добавление транзакции → проверка что баланс обновился (hero `0 ₽` → `−150 ₽`). **Инфраструктура E2E настроена здесь:** `playwright.config.ts` поднимает собственный `nuxt dev --dotenv .env.test --port 3100` (`reuseExistingServer: false`) — иначе тесты писали бы в удалённую dev-базу и конфликтовали с запущенным `pnpm dev`; `tests/e2e/global-setup.ts` накатывает миграции на тестовую БД и понятно ругается, если контейнер не поднят; у каждого спека свой `x-forwarded-for`, чтобы не выесть общий rate-limit бакет. Единственная уступка разметки — `data-testid="finance-net"` на hero-сумме
+- [x] **3.4** `stores/tasks.ts` — только client state (`searchQuery`, `activeFilter`)
+- [x] **3.4.5** `composables/useTasks.ts` — хуки и мутации задач, тегов, шаблонов с оптимистикой
+- [x] **3.5** `UiTaskRow`, `UiDateStrip`, `UiTaskTemplateRow`, `UiStatsCard`
+- [x] **3.6** `FocusCard.vue`
+- [x] **3.7** `pages/today.vue` — greeting, stats, focus, список
+- [x] **3.8** `TaskSheet.vue` — create/edit задачи
+- [x] **3.9** `pages/tasks/index.vue` — поиск, фильтр, свайп-список
+- [x] **3.10** `pages/tasks/templates.vue` + `TemplateSheet.vue`
+- [x] **3.11** *(Claude пишет)* Unit-тесты маппера тегов
+- [x] **3.12** *(Claude пишет)* Store-тесты `useTasksStore`
+- [x] **3.13** *(Claude пишет)* E2E: регистрация → задача → выполнена
+- [x] **3.14** *(Claude пишет)* E2E: логин → транзакция → баланс обновился
 
 ---
 
 ## Фаза 4 — PWA + Polish
 
-- [x] **4.1** `@vite-pwa/nuxt`: манифест (`start_url: /today`, `display: standalone`, `orientation: portrait`, `theme_color`/`background_color` `#0F0F14`, `scope: /`, `id: /today`). Иконки сгенерированы из фирменной марки `UiLogoMark` — исходники `public/icon.svg` и `public/icon-maskable.svg`, растр 192/512 `any` + 512 `maskable` (full-bleed градиент, глиф ужат до 80% под безопасную зону) + `apple-touch-icon` 180. `<link rel="manifest">` даёт компонент `<VitePwaManifest />` из `app.vue`: в SPA-режиме он появляется в DOM в рантайме, а не в предрендеренном HTML — проверено браузером на прод-сборке (манифест 200, три иконки 200). Workbox не трогал, он в **4.2**; `devOptions.enabled: false`, чтобы SW не мешал разработке. Попутно убраны заглушки стартового шаблона в `app.vue` (`<title>` был «Nuxt Starter Template»), title/description переведены на `t('app.*')`, `htmlAttrs.lang` привязан к локали вместо захардкоженного `en`. **Дополнено 16.09.2026:** в `viewport` не было `viewport-fit=cover`, из-за чего `env(safe-area-inset-*)` возвращал нули — то есть `pb-safe` из 4.9 на айфоне с вырезом не работал вовсе, а `black-translucent` статус-бар в standalone заезжал бы на контент. Добавлены `viewport-fit=cover` и утилита `pt-safe` на `main` в `layouts/default.vue` и на `layouts/auth.vue`. В обычной вкладке браузера инсеты нулевые, поэтому вёрстка там не меняется (проверено: `pt-safe` = 0px)
-- [x] **4.2** Workbox: `NetworkFirst` для `/api/*` (кроме `/api/auth/*`, только GET, таймаут сети 5 с, кэш `myday-api` на сутки, кэшируются только ответы 200) и `CacheFirst` для шрифтов и изображений (`myday-static`). Прекэш поднят с 3 служебных JSON до 63 записей: шелл `/`, все чанки `_nuxt`, 14 шрифтов, иконки — до этого офлайн не работал вовсе, а `navigateFallback` ссылался на непрекэшированный `/`. Добавлен `navigateFallbackDenylist: [/^\/api\//]`, иначе офлайн-запросы к API получали бы HTML-шелл вместо ошибки. **Безопасность:** Workbox кэширует по URL и игнорирует заголовок `Authorization`, поэтому ответы одного пользователя достались бы следующему в том же браузере — `authStore.logout()` чистит кэш через `clearApiCache()` (`app/utils/swCache.ts`), покрыто тестами. Проверено на прод-сборке с **убитым** сервером: `/today` отдаётся из кэша, приложение монтируется и гидратируется без ошибок, `GET /api/tasks` получает сетевую ошибку, а не шелл
-- [x] **4.3** Аудит оптимистичных апдейтов во всех мутациях TanStack Query. Оптимистику получили удаление транзакции и накопления (задачи её уже имели); создание и редактирование осознанно оставлены на `invalidateQueries` — сервер владеет `id`, `createdAt`, позицией в сортировке и JOIN-нутыми связями, клиент их не выведет. Общий каркас вынесен в `app/utils/optimistic.ts`, чистые функции пересчёта кэшей финансов — в `app/utils/financeCache.ts`. **Три неочевидные вещи** (подробно в `ARCHITECTURE.md`): транзакции лежат в двух разных формах кэша под одним префиксом `['transactions']`; `summary` патчится по `scope` с дедупликацией, иначе сумма вычитается дважды; `invalidateWhenSettled` не инвалидирует, пока `isMutating() > 1`, иначе рефетч от первого удаления возвращает строку, которую второе уже убрало. **Тест из 2.16 закрыт**: `useDeleteTransactionMutation` правит кэш до ответа сервера и откатывается при ошибке
-- [x] **4.4** Светлая тема доведена до значений `DESIGN.md` (surfaces, текст, семантика, приоритеты, затемнённые под WCAG акценты) + 5 палитр акцентов через `[data-accent]` + тени, зависящие от темы. `useTheme` — **обёртка над `useColorMode()`**, а не свой механизм: `@nuxtjs/color-mode` уже приезжает с `@nuxt/ui` и сам ставит класс `light`/`dark` на `<html>`. `colorMode.preference` выставлен в `dark` — приложение dark-first и `AppSettings.theme` тоже `@default("dark")`, иначе новый пользователь со светлой ОС получал светлую тему. Акцент хранится **именем**, не hex (у каждого два значения — под тёмную и светлую тему); `toAccentName()` понимает legacy-hex из `AppSettings`, так что миграция не нужна. **Попутно починено то, что светлая тема ломала:** TabBar был захардкожен `rgba(15,15,20,0.85)` и `border-white/10` → токен `--c-chrome` + `border-hairline2`; теги задач и трек прогресса на `bg-white/5` были невидимы на светлом → `bg-hairline`; `body` красился палитрой Nuxt UI, а не `--c-bg` (видно на оверскролле); глиф FAB был `text-white` вместо `text-accent-ink` — на светло-фиолетовом фоне это низкий контраст и в тёмной теме тоже. Проверено браузером в 4 сценариях (новый посетитель при светлой и тёмной ОС, выбор `system`, явный `light` + акцент) и скриншотами обеих тем. Переключатели в UI — **4.6** и **4.7**, синхронизация с `AppSettings` там же
-- [x] **4.5** `pages/settings.vue` — профиль, Appearance (тема + акцент), Preferences (язык + шаблоны задач), кнопка выхода. `hideFab: true` на месте. Таб «Settings» до этого вёл в 404 — страницы не существовало. Переключатели темы, акцента и языка сделаны **сразу рабочими** (локально), потому что `useTheme` из 4.4 и куки i18n это уже позволяют; на **4.6–4.8** остаётся только синхронизация с `AppSettings`. Новый `UiSettingRow` по спеке `DESIGN.md`, акцент-пикер — `features/settings/AccentPicker.vue`. Ряд «Категории» намеренно не добавлен: страницы `/settings/categories` ещё нет, её точку входа ставит **4.5.1**; PIN-секция — **4.13**; уведомления не делаем (v2). **Попутно починено (см. `ARCHITECTURE.md`):** `middleware/auth.ts` из 1.11 не был подключён ни к одной странице и в таком виде не работал — он выполняется раньше `app.vue`, поэтому жёсткая перезагрузка защищённой страницы выкидывала на `/auth/welcome` даже с валидной кукой; теперь мидлвар сам дожидается `init()`. А так как `/api/auth/refresh` **ротирует** токен, `init()` получил ранний выход при уже существующем токене и дедупликацию параллельных вызовов — иначе две точки входа ротировали бы токен дважды за загрузку (проверено: 1 запрос `/api/auth/refresh` на загрузку). Проверено браузером: тема, акцент и язык переживают перезагрузку, 0 ошибок страницы, скриншоты обеих тем в EN и RU
-- [x] **4.5.0** Категории: `isSystem` + `key` одной миграцией `20260915134550_categories_system_and_keys`. Сид даёт две системные «Другое» (EXPENSE + INCOME), бэкфилл проставляет `key` сидовым строкам по английскому имени и досоздаёт недостающую `other-income` каждому пользователю. **Пришлось сменить уникальный индекс** `[userId, name]` → `[userId, name, type]`: двух «Другое» под одним именем старый индекс не пускал. Побочно это разрешает одноимённые категории разных типов («Подарки» и как расход, и как доход). `DELETE` на системной → 400; на обычной — перенос транзакций на «Другое» того же типа, удаление бюджетов и самой категории в одной `$transaction`; если «Другое» нет — 409 и ничего не удаляется. `PATCH` запрещает смену типа у системной и обнуляет `key` при переименовании (цвет и иконка ключ не трогают). Хелпер `categoryLabel()` подставлен в `UiTxRow`, `UiCategoryBar`, `UiCategoryTile`, `CategoryFilterSheet`; `CategoryInfo` в breakdown получил `key`. Ключи `categories.*` в `en`/`ru`. Если перевода под `key` нет, хелпер откатывается на `name` — иначе в списке был бы виден сырой `categories.food`. **Прогонов:** 8 интеграционных тестов на чистой БД (перенос транзакций, удаление бюджетов, запрет удаления и смены типа системной, обнуление ключа, одноимённые категории разных типов) + юнит на хелпер и на `UiTxRow`. Бэкфилл проверен на dev-базе: сидовых строк без `key` не осталось, у каждого пользователя есть обе системные «Другое»
-- [x] **4.5.1** `pages/settings/categories.vue` — список с локализованными именами, создание, редактирование и удаление свайпом; `CategoryEditSheet` по спеке `DESIGN.md` (превью 80px, 12 иконок, палитра из 8 цветов). Точка входа — ряд «Категории» в хабе настроек. У системной «Другое» свайп-удаление выключено (`:deletable="!category.isSystem"`), а селектор типа показывает только её текущий тип — сменить его сервер всё равно запретит. **Поле имени открывается с локализованным названием**, и если пользователь его не трогал, на сервер уходит исходный `name` — иначе простое открытие шита у «Еда и напитки» обнуляло бы `key` и категория навсегда переставала переводиться. **Пришлось перенести** `pages/settings.vue` → `pages/settings/index.vue`: файл-страница рядом с одноимённой папкой превращается во вложенный роут-родитель, и без `<NuxtPage />` внутри ребёнок не рендерился вовсе — URL менялся на `/settings/categories`, а на экране оставался хаб настроек. **Попутно починено:** `useDeleteCategoryMutation` инвалидировал только `categories`, хотя после 4.5.0 удаление переносит транзакции — добавлены `transactions`, `summary`, `budgets`; у date-input в `TransactionEditSheet` был захардкожен `[color-scheme:dark]`, из-за чего нативный пикер оставался тёмным на светлой теме. Проверено браузером: вход через хаб, оба языка, создание и переименование категории, возврат по кнопке назад, 0 ошибок страницы
-- [x] **4.6** Тема (Light / Dark / System) сохраняется в `AppSettings` и применяется при старте. Реализовано вместе с **4.6–4.8** одним куском: эндпоинт `PATCH /api/settings` (частичное обновление, пустое тело отвергается), применение — `app/plugins/settings.client.ts`, запись — явными вызовами со страницы настроек. Подробности и обоснования в `ARCHITECTURE.md`.
-- [x] **4.7** Акцент (5 вариантов) сохраняется в `AppSettings`. В колонку пишется **имя** акцента, а не hex; старые строки с hex читаются через `toAccentName()`, поэтому миграция не понадобилась — колонка переезжает на имена при первом изменении. Реализовано вместе с **4.6–4.8** одним куском: эндпоинт `PATCH /api/settings` (частичное обновление, пустое тело отвергается), применение — `app/plugins/settings.client.ts`, запись — явными вызовами со страницы настроек. Подробности и обоснования в `ARCHITECTURE.md`.
-- [x] **4.8** Язык EN / RU сохраняется в `AppSettings` и применяется при старте. Реализовано вместе с **4.6–4.8** одним куском: эндпоинт `PATCH /api/settings` (частичное обновление, пустое тело отвергается), применение — `app/plugins/settings.client.ts`, запись — явными вызовами со страницы настроек. Подробности и обоснования в `ARCHITECTURE.md`. Применение висит на watcher'е `authStore.user?.settings`, а не на разовом вызове в `app.vue`: профиль появляется и при восстановлении сессии, и при логине — после входа под другим аккаунтом его настройки тоже должны примениться. **Проверено:** после очистки кук и localStorage повторный вход возвращает тему, акцент и язык с сервера.
-- [x] **4.9** Анимации: `UiSwipeRow` жесты, `UiSheet` slide-up/down, `UiTabBar` active indicator. **`UiSwipeRow`:** pointer capture (палец, ушедший за пределы строки, больше не обрывает свайп — заодно снят `@pointerleave`, который обрывал его на десктопе); резинка после 132px (`0.28` от остатка), чтобы строка не уезжала на всю ширину; слой действия живёт до `transitionend`, а не до сброса `offset` — раньше цветная подложка исчезала мгновенно и строка пружинила назад по пустому месту. **Погашен клик после свайпа:** браузер шлёт `click` после `pointerup` даже при большом сдвиге, поэтому свайп по строке ещё и открывал шит редактирования; теперь `@click.capture` съедает этот клик (флаг сбрасывается на `pointerdown`, так что обычный тап не страдает). **`UiSheet`:** длительность приведена к `dur-sheet` из `DESIGN.md`, протяжка вниз за ручку/заголовок закрывает шит (порог 96px, скрим гаснет пропорционально), Escape закрывает, `pb-safe` под home indicator. **Полоса-подложка под шитом обязательна:** `ease-spring` перелетает конечную точку на ~70px (замерено), и без неё под шитом на миг зияла дыра до низа экрана. **`UiTabBar`:** круг `bg-accent-soft` 40px со spring scale-in по спеке, иконка активной вкладки чуть крупнее, неактивные — `text-text-mute`. **Попутно:** утилиты `pb-safe` не существовало вовсе — класс в `UiTabBar` висел мёртвым с первой вёрстки; добавлен `@utility` в `main.css`. Добавлен блок `prefers-reduced-motion` — **через `!important` на `transition-duration`, а не через переопределение токенов**: Tailwind v4 инлайнит значение `duration-*` в правило, а не читает `var(--duration-*)`, так что переопределение переменной на утилиты не действует (проверено замером в браузере). Токен `--duration-swipe: 280ms` — значение из `DESIGN.md`, раньше было зашито в компонент. Палитра цветов в `CategoryEditSheet` переведена на `grid-cols-8`: восемь кружков по 36px не влезали в 390px и последний переносился на вторую строку. **Проверено браузером:** один индикатор 40×40 под активной вкладкой на всех четырёх маршрутах, перелёт шита перекрыт подложкой, протяжка и Escape закрывают, 200px хода пальца дают 151px сдвига, свайп не открывает шит, короткий свайп возвращает строку и гасит слой, длинный — выполняет и удаляет задачу, 0 ошибок страницы
-- [x] **4.10** ~~Миграция Prisma: добавить `pinEnabled`, `pinHash` в `AppSettings`~~ — поля уже в схеме с init-миграции, отдельная миграция не нужна
-- [x] **4.11** `pages/auth/pin.vue` — экран блокировки: `UiPinScreen` по спеке `DESIGN.md` (ambient glow, замок 56px в accent-soft круге, 4 точки, клавиатура 3×3 + 0 + backspace, shake 460 мс). Внутри — `UiPinPad`, вынесенный отдельно, потому что та же клавиатура нужна шиту установки PIN в **4.13**, а полноэкранная обвязка там не нужна. Пад принимает и физическую клавиатуру, а не только тапы. Родитель управляет им через `defineExpose({ clear, reject })` — `reject()` трясёт точки и чистит ввод; так родителю не нужно держать состояние цифр. Индикатор попыток считается на клиенте и **носит справочный характер** — настоящий предел держит сервер (10 попыток на 5 минут по `userId`), клиентский счётчик обнуляется перезагрузкой. Кнопка «Выйти» в углу добавлена сверх пункта: без неё OAuth-аккаунт, забывший PIN, запирался бы в приложении насовсем (сброс по паролю ему недоступен — см. **4.14**)
-- [x] **4.12** `composables/useAppLock.ts` + `middleware/lock.global.ts` + `plugins/appLock.client.ts`. Состояние `isLocked`, `lockPrimed`, `lockReturn` — в `useUiStore`. **Решение о блокировке принимает мидлвар, а не вотчер.** Сначала блокировка висела на `watch(user.settings)` в плагине, и E2E это уронил: на холодном старте вотчер срабатывает уже после того, как роутер отработал навигацию, поэтому после перезагрузки приложение оставалось открытым. Теперь `lock.global.ts` дожидается `authStore.init()` (тот же дедуплицированный вызов, что и в `middleware/auth.ts` — замерено: по-прежнему 1 запрос `/api/auth/refresh` на загрузку) и вызывает идемпотентный `prime()`. Плагин остался только ради второго сценария — замок по таймеру, когда навигации нет вовсе. **Явный вход считается разблокировкой:** `login()` и `register()` поднимают `lockPrimed`, иначе сразу после ввода пароля приложение требовало бы ещё и PIN — трения много, безопасности ноль. Автоблокировка: 5 минут бездействия (`setTimeout`, сбрасывается на `pointerdown`/`keydown`/`touchstart`/`wheel`) **плюс** сверка по таймметке на `visibilitychange` — в фоне таймеры троттлятся, и на один `setTimeout` полагаться нельзя. Проверено в браузере с подменой часов: 4 м 30 с — открыто, 5 м 30 с — замок
-- [x] **4.13** PIN setup в Settings: секция Privacy с переключателем и рядом «Сменить PIN», который появляется анимацией только при включённом PIN (по спеке `DESIGN.md`). Эндпоинты `PUT/DELETE /api/settings/pin` и `POST /api/settings/pin/verify`, хеш — тот же `bcrypt` с 12 раундами, что и у паролей. **Смена и выключение требуют текущий PIN** (в роадмапе не оговорено; так делает любая ОС и это защищает от того, кто взял разблокированный телефон). Включение — 2 шага (ввод + подтверждение), смена — 3 (текущий → новый → подтверждение), выключение — 1. **Попутно закрыта утечка:** `toPublicSettings()` отдавал клиенту `pinHash`, а bcrypt-хеш четырёхзначного PIN перебирается за секунды офлайн — поле убрано из ответа и из типа `UserSettings`, проверка переехала на сервер. Офлайн это ничего не ломает: `/api/auth/refresh` и так не кэшируется service worker'ом, то есть без сети защищённые экраны недоступны независимо от PIN
-- [x] **4.14** Сброс PIN: `POST /api/settings/pin/reset` по паролю аккаунта, точка входа — «Забыли PIN?» на экране блокировки, `PinResetSheet`. `GET /api/settings/pin` отдаёт `resetVia`, и шит по нему выбирает между вводом пароля и объяснением. **Провайдер определяется по наличию `passwordHash`, а не по наличию `OAuthAccount`**, как написано в пункте: у аккаунта может быть и пароль, и привязанный Google, и тогда проверка по `OAuthAccount` без нужды гнала бы его в OAuth. **Ветка Google re-auth не реализована и реализована быть не может:** шага **1.8** (`/api/auth/oauth/google`) ещё нет, значит ни одной строки `OAuthAccount` в базе не существует и ветка недостижима. Сервер на такой аккаунт отвечает 409, шит показывает понятный текст, а выход из приложения доступен кнопкой на экране блокировки. Доделать вместе с **1.8**
-- [x] **4.15** *(Claude пишет)* E2E `tests/e2e/pin.spec.ts`: включить PIN → перезагрузка (для SPA это и есть «закрыть и открыть») → экран PIN → неверный код показывает ошибку и не пускает → верный возвращает ровно на ту страницу, откуда выкинуло. Второй тест: заблокированное приложение не пускает на `/finance` по прямой ссылке. **Этот же прогон поймал баг 4.9**, который не видели ни lint, ни typecheck, ни юниты: `setPointerCapture` в `UiSwipeRow` вызывался на каждом `pointerdown`, а захват указателя перенацеливает и совместимые mouse-события, поэтому `click` уходил не на вложенную кнопку, а на саму строку — чекбокс задачи перестал работать. Захват перенесён на момент фиксации горизонтальной оси; на это добавлен юнит-тест, но воспроизвести баг он не может (happy-dom не реализует pointer capture) — настоящий сторож здесь `tasks.spec.ts`
+- [x] **4.1** PWA-манифест и иконки
+- [x] **4.2** Workbox: `NetworkFirst` для `/api/*`, `CacheFirst` для статики, прекэш шелла
+- [x] **4.3** Аудит оптимистичных апдейтов в мутациях
+- [x] **4.4** Светлая тема + 5 палитр акцентов (`useTheme`)
+- [x] **4.5** `pages/settings/index.vue` — профиль, Appearance, Preferences, выход
+- [x] **4.5.0** Категории: `isSystem` + `key`, системные «Другое», удаление с переносом транзакций
+- [x] **4.5.1** `pages/settings/categories.vue` + `CategoryEditSheet`
+- [x] **4.6** Тема сохраняется в `AppSettings`
+- [x] **4.7** Акцент сохраняется в `AppSettings`
+- [x] **4.8** Язык сохраняется в `AppSettings`
+- [x] **4.9** Анимации: `UiSwipeRow`, `UiSheet`, `UiTabBar`
+- [x] **4.10** ~~Миграция под PIN~~ — поля были в схеме с init-миграции
+- [x] **4.11** `pages/auth/pin.vue` — экран блокировки (`UiPinScreen`, `UiPinPad`)
+- [x] **4.12** Автоблокировка: `useAppLock` + `lock.global.ts` + `appLock.client.ts`
+- [x] **4.13** PIN setup в Settings + `PUT/DELETE /api/settings/pin`, `POST /api/settings/pin/verify`
+- [x] **4.14** Сброс PIN по паролю — `POST /api/settings/pin/reset`, `PinResetSheet`
+- [x] **4.15** *(Claude пишет)* E2E `tests/e2e/pin.spec.ts`
 
 ---
 
 ## Фаза 5 — CI/CD
 
-- [x] **5.1** `.github/workflows/ci.yml` — pipeline: `lint → typecheck → build`. Переписан 14.09.2026: триггеры стояли только на `main`, поэтому за всю Фазу 3 pipeline не запускался ни разу. Добавлены `dev`, `workflow_dispatch` и `concurrency: cancel-in-progress` (частые пуши в `dev` иначе копят очередь прогонов). С 08.10.2026 push-триггер только на `dev`: в `main` попадают лишь через PR, его чеки уже проверили то же дерево, и прогон на merge-коммите был дублем
-- [x] **5.1.1** Тесты в CI. Три независимых job, идут параллельно: `quality` (lint → typecheck → `pnpm test` → build), `integration` (`pnpm test:integration` против service-контейнера Postgres, порт 5434 как в `docker-compose.test.yml`), `e2e` (Playwright; только на PR в `main` и по `workflow_dispatch` — поднимает дев-сервер плюс Chromium, для каждого пуша в `dev` слишком долго). Build не переиспользуется между job: `@nuxt/test-utils` собирает свой фикстурный билд, шарить нечего
-- [x] **5.1.3** Починены оба падения первого реального прогона CI: юнит-тесты `jwt.ts` молча зависели от локального `.env`, а интеграционным нужен `pnpm typecheck` перед запуском — `nuxt prepare` на чистом клоне создаёт не все `tsconfig.*`. Разбор обоих — в `ARCHITECTURE.md` → «Известные баги». Оба воспроизведены локально перед починкой: первое — запуском без `.env`, второе — через `rm -rf .nuxt node_modules/.cache/nuxt`
-- [x] **5.1.2** Починен `nuxt build`, который не завершался после успешной сборки — без этого job `quality` висел бы до таймаута на зелёном билде, а в Фазе 6 так же вис бы `docker build`. Диагностика и обход описаны в `ARCHITECTURE.md` → «Известные баги»
-- [~] **5.2** ~~Настроить GitHub Secrets для переменных окружения~~ → не нужно для CI, реальные секреты требуются только деплою (**6.3**). `runtimeConfig` в `nuxt.config.ts` объявлен с пустыми дефолтами и читается в рантайме, так что `pnpm build` секретов не требует; job `quality` работает с фейковым `DATABASE_URL` (Prisma нужен он только для `generate`, коннекта нет), тестовые job — с адресом service-контейнера. **Важно:** `process.loadEnvFile` не перетирает уже заданные переменные, поэтому фейковый `DATABASE_URL` на уровне workflow молча увёл бы интеграционные тесты мимо тестовой БД — URL задаётся только внутри job
-- [x] **5.3** Branch protection rule на `main` — поставлено 14.09.2026 через REST API (classic-правило, репозиторий публичный). Обязательные чеки: `lint · typecheck · unit · build`, `integration api`, `e2e`; PR обязателен, аппрувов 0 (соло-проект); force-push и удаление ветки запрещены. `enforce_admins` включён (08.10.2026): правила действуют и на владельца, аварийного обхода нет — до этого на GitHub по факту стояли 1 обязательный аппрув и ни одного обязательного чека, то есть свой PR смержить было невозможно; `strict` (require up to date) тоже выключен, иначе каждый мерж требовал бы лишнего подтягивания `main`. Рабочий цикл теперь: `dev` → PR в `main` → три чека (E2E здесь запускается по-настоящему, в отличие от пушей в `dev`) → мерж
+- [x] **5.1** `.github/workflows/ci.yml`
+- [x] **5.1.1** Тесты в CI: `quality`, `integration`, `e2e`
+- [x] **5.1.2** Починен зависающий `nuxt build`
+- [x] **5.1.3** Починены первые падения CI
+- [~] **5.2** ~~GitHub Secrets~~ — CI секреты не нужны
+- [x] **5.3** Branch protection на `main`
 
 ---
 
 ## Фаза 6 — Docker + Деплой
 
-- [x] **6.1** `Dockerfile` — multi-stage build: `deps → migrate / build → runtime`. Отдельный таргет `migrate` (только зависимости + `prisma/`) нужен, чтобы миграции катились тем же образом, но без исходников приложения; `runtime` — голый `.output` под пользователем `node` с `HEALTHCHECK`
-- [x] **6.2** `docker-compose.yml` — `db` (postgres:16) + `migrate` (одноразовый, `prisma migrate deploy`) + `app`. `app` стартует только после `service_completed_successfully` у `migrate`, поэтому миграции применяются на каждом `up` сами — руками `migrate deploy` на сервере не запускаем. Порт по умолчанию слушает `127.0.0.1` — наружу только через reverse proxy
-- [x] **6.3** Деплой на сервер настроен (закрыто 08.10.2026). Образ собирается на сервере (`docker compose up -d --build`), registry нет — в compose стоит `build:`, а не `image:`
+- [x] **6.1** `Dockerfile` — multi-stage `deps → migrate / build → runtime`
+- [x] **6.2** `docker-compose.yml` — `db` + `migrate` + `app`
+- [x] **6.3** Деплой на сервер (`docker compose up -d --build`)
 
 ---
 
 ## Фаза 7 — v2 (после MVP)
 
-Budgets и Notifications осознанно вынесены за MVP (решение 28.07.2026). Что уже проложено и что нельзя ломать: модель `Budget` + `GET/POST /api/finance/budgets` + `useBudgetQuery`/`useUpsertBudgetMutation` + queryKey `budgets`; утилиты периода из 2.19 (переиспользуются бюджетами); `UiChip`/`UiRoundBtn`/`PeriodBar`; спеки UI в DESIGN.md → Finance v3 (BudgetsTab, BudgetEditSheet).
+Budgets и Notifications вынесены за MVP (решение 28.07.2026). Не ломать: модель `Budget`, `GET/POST /api/finance/budgets`, `useBudgetQuery`/`useUpsertBudgetMutation`, утилиты периода, `PeriodBar`, спеки Finance v3 в `DESIGN.md`.
 
-**Порядок внутри фазы важнее нумерации** (нумерация историческая, менять её не стали). Правильная последовательность: **7.5 → 7.6 → 7.1–7.3**, дальше остальное. Причина: бюджет сравнивает траты с лимитом, и если аренда с подписками не введены, сравнение врёт — бюджеты поверх неполного реестра показывают красивый прогресс-бар не про то. А планировщик из **7.5** нужен трём пунктам сразу (**7.4**, **7.6**, **7.7**), поэтому делать его в одиночку под пуши расточительно.
+**Порядок: 7.5 → 7.6 → 7.1–7.3**, дальше остальное. Бюджеты поверх реестра без аренды и подписок показывают прогресс не про то, а планировщик из 7.5 нужен сразу трём пунктам. **1.8** (Google OAuth) — тоже объём v2.
 
-**Отдельно:** **1.8** (Google OAuth) висит незакрытым с Фазы 1 и тянет хвост — из-за него недостижима ветка сброса PIN через провайдера в **4.14**. Считаем его частью объёма v2, а не долгом MVP.
+- [ ] **7.1** Budgets — модель: помесячная (`Budget.month`) vs повторяющийся лимит на категорию; делать после 7.6
+- [ ] **7.2** Budgets UI: `FinanceBudgetsTab` + `BudgetEditSheet`, вернуть таб `budgets`
+- [ ] **7.3** *(Claude пишет)* Интеграционные тесты budgets: spent по периоду, перерасход, upsert
+- [ ] **7.4** Notifications — Web Push (`PushSubscription`, VAPID, тумблер в Settings); iOS только для установленной PWA ≥ 16.4
+- [ ] **7.5** Планировщик Nitro (`scheduledTasks`) — идемпотентный и догоняющий, одна реплика
+- [ ] **7.6** Повторяющиеся операции: `RecurringTransaction` → материализация в `Transaction` планировщиком; до 7.1
+- [ ] **7.7** Повторяющиеся задачи: правило повтора на `TaskTemplate`
+- [ ] **7.8** Связь задач и финансов: сумма на задаче → транзакция при выполнении; траты дня на Today
+- [ ] **7.9** Тренды: месяц к месяцу, динамика по категориям, первый график
+- [ ] **7.10** Экспорт CSV/JSON + `DELETE /api/users/me`
 
-- [ ] **7.1** Budgets — решить модель: помесячная (`Budget.month`, как в БД сейчас) vs повторяющийся лимит на категорию (как в дизайне v3 — тогда миграция: убрать `month`, unique `[userId, categoryId]`, upsert упрощается; теряем историю лимитов по месяцам). Делать **после 7.6**
-- [ ] **7.2** Budgets UI по DESIGN.md → Finance v3: `FinanceBudgetsTab.vue` (Total card + карточки с прогрессом + empty state) + `BudgetEditSheet.vue`; вернуть option `budgets` в `tabOptions` на `pages/finance/index.vue`
-- [ ] **7.3** *(Claude пишет)* Интеграционные тесты budgets: агрегация spent по периоду, перерасход, upsert
-- [ ] **7.4** Notifications — Web Push: модель `PushSubscription`, VAPID-ключи, отправка из Nitro, планировщик из **7.5** для проверки дедлайнов; поле `notifications` в `AppSettings` + тумблер в Settings. Кандидаты: напоминания по dueDate, утренний дайджест Today, превышение бюджета. Ограничение iOS: push только для PWA, установленной на домашний экран (iOS ≥ 16.4)
-- [ ] **7.5** Планировщик Nitro (`scheduledTasks` в `nuxt.config.ts`) — общая инфраструктура для **7.4**, **7.6** и **7.7**; сейчас в конфиге нет ничего. Два требования несущие: прогон **идемпотентен** (при рестарте контейнера задача может выполниться повторно, дубли транзакций недопустимы) и **догоняющий** — хранить отметку последнего успешного прогона и досчитывать пропущенные дни, иначе сутки простоя сервера молча съедают повторяющиеся операции. Учесть, что в Фазе 6 приложение переезжает в Docker: при нескольких репликах планировщик должен работать в одной
-- [ ] **7.6** Повторяющиеся операции: модель `RecurringTransaction` (категория, сумма, тип, правило повтора, `nextRunAt`), материализация планировщиком в обычные `Transaction`, CRUD + UI по образцу шаблонов задач. **Самая большая дыра в финансах:** аренда, зарплата и подписки вбиваются руками каждый месяц — у задач для этого есть `TaskTemplate`, у денег нет ничего. Ставить **до 7.1–7.2**
-- [ ] **7.7** Повторяющиеся задачи: правило повтора на `TaskTemplate` + создание задач планировщиком. Сейчас шаблон есть, но применяется вручную кнопкой — «каждый понедельник» не выражается никак
-- [ ] **7.8** Связь задач и финансов: сумма на задаче → при отметке о выполнении создаётся транзакция; блок сегодняшних трат на `today.vue` рядом с прогрессом по задачам. **Это то, ради чего два раздела живут в одном приложении:** слоган — «Tasks & finances, one place», а на деле у них общий только шелл — у транзакции нет связи с задачей, у задачи нет стоимости
-- [ ] **7.9** Тренды: месяц к месяцу, динамика по категориям, первый график в проекте (в `components/ui/` сейчас нет ни одного). **Новых моделей не нужно** — данные уже лежат в `Transaction`, `summary` просто считает один период вместо ряда. Ценность копится после третьего месяца использования, поэтому раньше делать смысла нет
-- [ ] **7.10** Экспорт данных (CSV/JSON) + `DELETE /api/users/me`. В `server/api/users/` сейчас только `me.get.ts`: удалить аккаунт нельзя никак, выгрузить свои деньги тоже. Для личных финансов это вопрос доверия — данные, которые нельзя забрать, заложники; удаление вдобавок нужно по GDPR-гигиене
-
-**Что сознательно НЕ берём в v2** (чтобы не возвращаться к обсуждению):
-
-- **Мультивалютность.** Поля `currency` нет нигде, `amount` — просто `Decimal`. Это не пункт, а отдельная фаза: переписывается каждая агрегация, вся SQL в `summary`, сравнения, форматирование и оптимистичные пересчёты кэша из 4.3
-- **Фото чеков на транзакции.** Слоя хранения файлов нет вообще — пришлось бы поднимать S3-совместимое хранилище с нуля ради одной фичи
+**Не берём в v2:** мультивалютность (это отдельная фаза — переписывается каждая агрегация) и фото чеков (нет слоя хранения файлов).
 
 ---
 
 ## Бэклог (вне фаз)
 
-Пункты из заметок 08.10.2026, которые не вписываются в фазы: хвосты после релиза v1.0, мелкие баги и сырые идеи. Идеи — не задачи: сначала решить, что брать в фазу 7.
-
 **Баги:**
 
-- [x] **B.3** Карточка накоплений: когда появляется бейдж (`+245 000 ₽`), он отжимает сумму, и `₽` переносится на вторую строку. Без бейджа всё влезает. Причина: в `UiSavingsCard` сумма и бейдж стоят в одном `flex justify-between`, сумма 44px переносится. Идея: перенести бейдж в строку с подписью «НАКОПЛЕНИЯ», чтобы сумма занимала всю ширину, плюс `whitespace-nowrap` на сумме. Попутно: подпись «За выбранный период» стоит под балансом, хотя баланс всегда за всё время, за период только бейдж. Подпись надо привязать к бейджу. **Сделано 08.10.2026** иначе, чем в идее: бейдж уехал не в строку «НАКОПЛЕНИЯ», а в отдельную строку под суммой вместе с подписью «за выбранный период». Строка «НАКОПЛЕНИЯ» + бейдж + подпись не влезает в ~318px контента, а без подписи рядом бейдж снова теряет смысл
+- [x] **B.3** Карточка накоплений: бейдж отжимал сумму, `₽` переносился
 
 **Задачи:**
 
-- [x] **B.4** Гайд для новых пользователей: MyDay — это PWA, его можно сохранить на рабочий стол. Микро-гайд: iOS — Safari → «Поделиться» → «На экран Домой», Android — меню браузера → «Установить приложение». Как оформить — не решено. Вариант: баннер только в мобильном браузере и только если приложение не в standalone (`display-mode: standalone`). На Android есть `beforeinstallprompt` (нативная кнопка «Установить»), на iOS его нет, там подсказка со стрелкой на «Поделиться». **Сделано 08.10.2026** по дизайну из Claude Design: подсказка на Welcome, закрываемый баннер на Today (скрытие 14 → 30 дней → навсегда), строка в настройках, шит с ветками iOS Safari / iOS другой браузер / Android с промптом / Android без промпта / платформа не определена. iPad и Android-планшеты исключены, in-app браузеры отдельно не обрабатываем. Решения — в `ARCHITECTURE.md` → «Гайд по установке PWA», спека — в `DESIGN.md`
+- [x] **B.4** Гайд по установке PWA на домашний экран
 
 **Идеи (решить, что брать в фазу 7):**
 
-- [ ] **B.5** Экспорт CSV → сводка по месяцу в Obsidian. Сам экспорт — пункт **7.10**. Потом скармливать выгрузку Claude Code, чтобы он делал заметку-сводку за месяц. Самая полезная из идей, делать первой
-- [ ] **B.6** Patch notes в настройках. Коммиты уже в Conventional Commits, поэтому changelog можно собирать автоматически (`git-cliff` или `release-please`) в CI по тегу и класть в сборку JSON, а экран в настройках его рендерит. Минус: тексты коммитов технические и на английском, как пользовательские заметки придётся переписывать
-- [ ] **B.7** Обратная связь / «сообщить о баге». Без TG-бота: сервер создаёт GitHub Issue в репозитории через fine-grained токен (в репо `issues: write`). Или проще: таблица `Feedback` в своей БД. Пока делиться приложением не планирую, поэтому в самый конец
-- [ ] **B.8** LLM (DeepSeek и т.п.) внутри приложения. Сначала ответить «зачем». Единственный реально полезный сценарий: быстрый ввод текстом («кофе 350» → транзакция с категорией). Аналитику закрывает B.5, тащить её в приложение не нужно
+- [ ] **B.5** Экспорт CSV → сводка месяца в Obsidian через Claude Code (после 7.10); делать первой
+- [x] **B.6** Patch notes в настройках — сделано в v1.1.0 через скилл `/release`, а не генератором из коммитов
+- [ ] **B.7** «Сообщить о баге»: GitHub Issue через fine-grained токен или таблица `Feedback`; в самый конец
+- [ ] **B.8** LLM в приложении — только быстрый ввод текстом («кофе 350» → транзакция); сначала ответить «зачем»
