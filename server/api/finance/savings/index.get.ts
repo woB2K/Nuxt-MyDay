@@ -1,5 +1,6 @@
 import type { Prisma } from '~~/prisma/.generated/prisma'
 import { timestampRange } from '~~/server/utils/dateRange'
+import { getHousehold, savingsScope } from '~~/server/utils/household'
 import { mapAmount } from '~~/server/utils/mapper'
 import { savingsQuerySchema } from '~~/shared/schemas'
 
@@ -15,16 +16,17 @@ function net(rows: SumRows): number {
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
+  const scope = savingsScope(userId, await getHousehold(event))
 
   const { from, to, page, limit } = await getValidatedQuery(event, savingsQuerySchema.parse)
 
   const createdAt = timestampRange(from, to)
-  const where: Prisma.SavingsEntryWhereInput = { userId, deletedAt: null, ...(createdAt && { createdAt }) }
+  const where: Prisma.SavingsEntryWhereInput = { ...scope, deletedAt: null, ...(createdAt && { createdAt }) }
 
   const [allTime, inPeriod, entries, total] = await Promise.all([
     prisma.savingsEntry.groupBy({
       by: ['type'],
-      where: { userId, deletedAt: null },
+      where: { ...scope, deletedAt: null },
       _sum: { amount: true }
     }),
     createdAt

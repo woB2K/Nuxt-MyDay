@@ -1,7 +1,9 @@
 import { orNotFound } from '~~/server/utils/dbError'
 
+import { getHousehold } from '~~/server/utils/household'
+
 export default defineEventHandler(async (event) => {
-  const userId = event.context.userId
+  const household = await getHousehold(event)
 
   const tagId = getRouterParam(event, 'id')
 
@@ -9,7 +11,7 @@ export default defineEventHandler(async (event) => {
     prisma.tag.delete({
       where: {
         id: tagId,
-        userId
+        householdId: household.id
       }
     }),
     'Tag not found'

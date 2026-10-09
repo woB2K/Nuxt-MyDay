@@ -80,10 +80,10 @@ myday/
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts
+│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts, household.ts, householdView.ts, invite.ts
 │
 ├── shared/                            # изоморфный слой (client + server)
-│   ├── types/                         # singular: task.ts, tag.ts, finance.ts
+│   ├── types/                         # singular: task.ts, tag.ts, finance.ts, household.ts
 │   ├── schemas/                       # Zod — одна схема на клиент и сервер
 │   └── changelog.ts                   # patch notes en/ru — пишет скилл /release
 │
@@ -304,5 +304,7 @@ const userId = event.context.userId // проставляет server/middleware/
 ```
 
 Иначе любой аутентифицированный пользователь может передать чужой `userId` и получить доступ к чужим данным.
+
+Финансы и теги принадлежат **семье**: scope — `householdId` из `await getHousehold(event)` (`server/utils/household.ts`), никогда не из запроса. Задачи и шаблоны — личные, scope `userId`. Копилка — `savingsScope(userId, household)`.
 
 Полный паттерн проверки `categoryId`/`tagIds` и других relation-id из body на принадлежность пользователю — в `.claude/skills/auth-security-patterns/`.

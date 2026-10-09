@@ -1,10 +1,10 @@
 import type { Prisma } from '~~/prisma/.generated/prisma'
 import type { TransactionFilterQuery } from '~~/shared/schemas'
 
-export function transactionWhere(userId: string, filters: TransactionFilterQuery): Prisma.TransactionWhereInput {
+export function transactionWhere(householdId: string, filters: TransactionFilterQuery): Prisma.TransactionWhereInput {
   const { type, from, to, search, categoryIds } = filters
 
-  const where: Prisma.TransactionWhereInput = { userId, deletedAt: null }
+  const where: Prisma.TransactionWhereInput = { householdId, deletedAt: null }
 
   if (type) where.type = type
 

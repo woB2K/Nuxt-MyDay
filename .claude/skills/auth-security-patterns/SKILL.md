@@ -105,17 +105,20 @@ const userId = event.context.userId // проставляет server/middleware/
 Продолжение того же правила. `userId` — доверенный (из JWT). Но `categoryId`, `tagIds` и любые другие id связанных сущностей приходят из body — это пользовательский ввод. FK-констрейнт проверит только существование записи, но не владельца: без явной проверки можно привязать свою транзакцию к чужой категории или чужой тег к своей задаче (IDOR).
 
 ```ts
-// Одиночный id — findFirst с userId в where
-const category = await prisma.category.findFirst({ where: { id: body.categoryId, userId } })
+// Финансы и теги принадлежат семье: scope — householdId из getHousehold(event)
+const household = await getHousehold(event)
+
+// Одиночный id — findFirst со scope владельца в where
+const category = await prisma.category.findFirst({ where: { id: body.categoryId, householdId: household.id } })
 if (!category) throw createError({ statusCode: 400, message: 'Unknown category' })
 
 // Массив id — дедуп через Set, затем count и сравнение длин
 const ids = [...new Set(body.tagIds)]
-const owned = await prisma.tag.count({ where: { id: { in: ids }, userId } })
+const owned = await prisma.tag.count({ where: { id: { in: ids }, householdId: household.id } })
 if (owned !== ids.length) throw createError({ statusCode: 400, message: 'Unknown tag' })
 ```
 
-Для update/delete самих сущностей принцип уже соблюдается через `where: { id, userId }` (см. `tags/[id].delete.ts`) — здесь то же самое, но для связей. Бонус: явная проверка возвращает 400 вместо 500 от FK-констрейнта при несуществующем id.
+Для update/delete самих сущностей принцип уже соблюдается через `where: { id, householdId }` (см. `tags/[id].delete.ts`); для задач и шаблонов scope — `userId`, для копилки — `savingsScope(userId, household)` — здесь то же самое, но для связей. Бонус: явная проверка возвращает 400 вместо 500 от FK-констрейнта при несуществующем id.
 
 Актуальные точки применения: `2.18` (`ROADMAP.md`) для finance, `3.2` для `tagIds` в tasks.
 

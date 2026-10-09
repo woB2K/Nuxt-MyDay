@@ -20,11 +20,51 @@ model User {
   settings      AppSettings?
   tasks         Task[]
   templates     TaskTemplate[]
-  tags          Tag[]
   transactions  Transaction[]
   savings       SavingsEntry[]
-  categories    Category[]
-  budgets       Budget[]
+  membership    HouseholdMember?
+  invites       HouseholdInvite[]
+}
+
+model Household {
+  id           String   @id @default(cuid())
+  shareSavings Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  members      HouseholdMember[]
+  invites      HouseholdInvite[]
+  transactions Transaction[]
+  savings      SavingsEntry[]
+  categories   Category[]
+  budgets      Budget[]
+  tags         Tag[]
+}
+
+model HouseholdMember {
+  userId      String        @id
+  householdId String
+  role        HouseholdRole @default(MEMBER)
+  joinedAt    DateTime      @default(now())
+
+  user      User      @relation(fields: [userId], references: [id])
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([householdId])
+}
+
+model HouseholdInvite {
+  id          String   @id @default(cuid())
+  householdId String
+  createdById String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  createdBy User      @relation(fields: [createdById], references: [id])
+
+  @@index([householdId])
 }
 
 model OAuthAccount {
@@ -116,84 +156,90 @@ model TaskTemplateTag {
 }
 
 model Tag {
-  id        String   @id @default(cuid())
-  userId    String
-  name      String
-  color     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  householdId String
+  name        String
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user      User              @relation(fields: [userId], references: [id])
+  household Household         @relation(fields: [householdId], references: [id], onDelete: Cascade)
   tasks     TaskTag[]
   templates TaskTemplateTag[]
 
-  @@unique([userId, name])
+  @@unique([householdId, name])
 }
 
 model Transaction {
-  id         String          @id @default(cuid())
-  userId     String
-  type       TransactionType
-  amount     Decimal         @db.Decimal(12, 2)
-  categoryId String
-  notes      String?
-  date       DateTime        @db.Date
-  deletedAt  DateTime?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  id          String          @id @default(cuid())
+  householdId String
+  userId      String
+  type        TransactionType
+  amount      Decimal         @db.Decimal(12, 2)
+  categoryId  String
+  notes       String?
+  date        DateTime        @db.Date
+  deletedAt   DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  user     User     @relation(fields: [userId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+  category  Category  @relation(fields: [categoryId], references: [id])
 
+  @@index([householdId, deletedAt])
   @@index([userId, deletedAt])
 }
 
 model SavingsEntry {
-  id        String   @id @default(cuid())
-  userId    String
-  amount    Decimal  @db.Decimal(12, 2)
-  type      SavingsType
-  notes     String?
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
+  id          String      @id @default(cuid())
+  householdId String
+  userId      String
+  amount      Decimal     @db.Decimal(12, 2)
+  type        SavingsType
+  notes       String?
+  deletedAt   DateTime?
+  createdAt   DateTime    @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
 
+  @@index([householdId, deletedAt])
   @@index([userId, deletedAt])
 }
 
 model Category {
-  id        String          @id @default(cuid())
-  userId    String
-  name      String
-  key       String?
-  icon      String
-  color     String
-  type      TransactionType
-  isSystem  Boolean         @default(false)
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  id          String          @id @default(cuid())
+  householdId String
+  name        String
+  key         String?
+  icon        String
+  color       String
+  type        TransactionType
+  isSystem    Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id])
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
   transactions Transaction[]
   budgets      Budget[]
 
-  @@unique([userId, name, type])
+  @@unique([householdId, name, type])
 }
 
 model Budget {
-  id         String   @id @default(cuid())
-  userId     String
-  categoryId String
-  amount     Decimal  @db.Decimal(12, 2)
-  month      DateTime @db.Date
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  householdId String
+  categoryId  String
+  amount      Decimal  @db.Decimal(12, 2)
+  month       DateTime @db.Date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user     User     @relation(fields: [userId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id])
 
-  @@unique([userId, categoryId, month])
+  @@unique([householdId, categoryId, month])
 }
 
 enum Priority {
@@ -201,6 +247,11 @@ enum Priority {
   MEDIUM
   LOW
   NONE
+}
+
+enum HouseholdRole {
+  OWNER
+  MEMBER
 }
 
 enum TransactionType {

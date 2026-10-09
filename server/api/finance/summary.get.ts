@@ -1,12 +1,13 @@
+import { getHousehold } from '~~/server/utils/household'
 import { transactionWhere } from '~~/server/utils/transactionWhere'
 import { transactionFilterQuerySchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const userId = event.context.userId
+  const household = await getHousehold(event)
 
   const filters = await getValidatedQuery(event, transactionFilterQuerySchema.parse)
 
-  const where = transactionWhere(userId, filters)
+  const where = transactionWhere(household.id, filters)
 
   const withIncome = filters.type !== 'EXPENSE'
   const withExpense = filters.type !== 'INCOME'
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event) => {
   const categories = await prisma.category.findMany({
     where: {
       id: { in: categoryIds },
-      userId
+      householdId: household.id
     }
   })
 

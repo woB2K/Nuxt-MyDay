@@ -1,8 +1,9 @@
 import { orConflict, orNotFound } from '~~/server/utils/dbError'
+import { getHousehold } from '~~/server/utils/household'
 import { updateTagSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const userId = event.context.userId
+  const household = await getHousehold(event)
 
   const tagId = getRouterParam(event, 'id')
 
@@ -13,7 +14,7 @@ export default defineEventHandler(async (event) => {
       prisma.tag.update({
         where: {
           id: tagId,
-          userId
+          householdId: household.id
         },
         data: { ...body }
       }),

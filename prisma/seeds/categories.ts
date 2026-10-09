@@ -1,6 +1,6 @@
 import type { Prisma } from '~~/prisma/.generated/prisma'
 
-const DEFAULT_CATEGORIES: Omit<Prisma.CategoryCreateManyInput, 'userId'>[] = [
+const DEFAULT_CATEGORIES: Omit<Prisma.CategoryCreateManyInput, 'householdId'>[] = [
   { name: 'Food & Drink', key: 'food', icon: 'i-lucide-utensils', color: '#FB923C', type: 'EXPENSE' },
   { name: 'Transport', key: 'transport', icon: 'i-lucide-car', color: '#60A5FA', type: 'EXPENSE' },
   { name: 'Shopping', key: 'shopping', icon: 'i-lucide-shopping-cart', color: '#F472B6', type: 'EXPENSE' },
@@ -19,8 +19,8 @@ export const systemCategoryKeys = {
   INCOME: 'other-income'
 } as const
 
-export async function seedCategories(tx: Prisma.TransactionClient, userId: string) {
+export async function seedCategories(tx: Prisma.TransactionClient, householdId: string) {
   await tx.category.createMany({
-    data: DEFAULT_CATEGORIES.map(cat => ({ ...cat, userId }))
+    data: DEFAULT_CATEGORIES.map(cat => ({ ...cat, householdId }))
   })
 }

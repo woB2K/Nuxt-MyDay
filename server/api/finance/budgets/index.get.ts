@@ -1,13 +1,14 @@
 import type { Prisma } from '~~/prisma/.generated/prisma'
+import { getHousehold } from '~~/server/utils/household'
 import { mapAmount } from '~~/server/utils/mapper'
 import { dateRangeQuerySchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const userId = event.context.userId
+  const household = await getHousehold(event)
 
   const { from, to } = await getValidatedQuery(event, dateRangeQuerySchema.parse)
 
-  const where: Prisma.BudgetWhereInput = { userId }
+  const where: Prisma.BudgetWhereInput = { householdId: household.id }
 
   if (from || to) {
     where.month = {
