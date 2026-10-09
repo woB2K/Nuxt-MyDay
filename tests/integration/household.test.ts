@@ -297,6 +297,50 @@ describe('household api', async () => {
     })
   })
 
+  describe('concurrent joins', () => {
+    const statusOf = (result: PromiseSettledResult<unknown>) =>
+      result.status === 'rejected' ? (result.reason as { statusCode: number }).statusCode : 200
+
+    it('lets only one of two people use the same invite', async () => {
+      const owner = await registerUser()
+      const first = await registerUser()
+      const second = await registerUser()
+      const { token } = await invite(owner)
+
+      const results = await Promise.allSettled([join(first, token), join(second, token)])
+
+      expect(results.map(statusOf).sort()).toEqual([200, 404])
+      expect((await household(owner)).members).toHaveLength(2)
+    })
+
+    it('merges only one way when two people accept each other at once', async () => {
+      const a = await registerUser()
+      const b = await registerUser()
+      const fromA = await invite(a)
+      const fromB = await invite(b)
+
+      const results = await Promise.allSettled([join(a, fromB.token), join(b, fromA.token)])
+
+      expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1)
+      expect(await householdOf(a.userId)).toBe(await householdOf(b.userId))
+      expect((await household(a)).members).toHaveLength(2)
+    })
+
+    it('never drags someone who joined the joiner into a family that did not invite them', async () => {
+      const host = await registerUser()
+      const joiner = await registerUser()
+      const tagalong = await registerUser()
+      const toHost = await invite(host)
+      const toJoiner = await invite(joiner)
+
+      const results = await Promise.allSettled([join(joiner, toHost.token), join(tagalong, toJoiner.token)])
+
+      expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1)
+      expect(await householdOf(tagalong.userId)).not.toBe(await householdOf(host.userId))
+      expect((await household(host)).members.length).toBeLessThanOrEqual(2)
+    })
+  })
+
   describe('leaving', () => {
     it('gives the leaver a copy of their own records and leaves the family intact', async () => {
       const { owner, member } = await family()

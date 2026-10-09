@@ -32,6 +32,22 @@ export function requireOwner(household: HouseholdContext) {
   if (household.role !== 'OWNER') throw createError({ statusCode: 403, message: 'Only the family owner can do this' })
 }
 
+export async function lockHouseholds(tx: Prisma.TransactionClient, ids: string[]) {
+  for (const id of [...new Set(ids)].sort())
+    await tx.$queryRaw`SELECT 1 FROM "Household" WHERE "id" = ${id} FOR UPDATE`
+}
+
+export async function lockMembership(tx: Prisma.TransactionClient, householdId: string, userId: string, { owner = false } = {}) {
+  await lockHouseholds(tx, [householdId])
+
+  const member = await tx.householdMember.findUnique({ where: { userId } })
+
+  if (member?.householdId !== householdId) throw createError({ statusCode: 409, message: 'Family has changed, try again' })
+  if (owner && member.role !== 'OWNER') throw createError({ statusCode: 403, message: 'Only the family owner can do this' })
+
+  return member
+}
+
 export function savingsScope(userId: string, household: HouseholdContext): Prisma.SavingsEntryWhereInput {
   return household.shareSavings
     ? { householdId: household.id }
@@ -107,7 +123,9 @@ export async function mergeHousehold(tx: Prisma.TransactionClient, fromId: strin
   await tx.household.delete({ where: { id: fromId } })
 }
 
-export async function detachMember(tx: Prisma.TransactionClient, householdId: string, userId: string) {
+export async function detachMember(tx: Prisma.TransactionClient, householdId: string, userId: string, actorId = userId) {
+  await lockMembership(tx, householdId, actorId, { owner: actorId !== userId })
+
   const household = await tx.household.findUniqueOrThrow({
     where: { id: householdId },
     include: { members: { orderBy: { joinedAt: 'asc' } } }

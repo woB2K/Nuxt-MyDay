@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   if (userId === event.context.userId) throw createError({ statusCode: 400, message: 'Use leave to exit the family' })
 
-  await prisma.$transaction(tx => detachMember(tx, household.id, userId))
+  await prisma.$transaction(tx => detachMember(tx, household.id, userId, event.context.userId))
 
   return householdView(household.id, household.role)
 })
