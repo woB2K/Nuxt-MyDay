@@ -76,12 +76,16 @@ export function checkRelease({ lastTag, version, commits, changelog }: CheckInpu
 
   if (releasableCommits(commits).length === 0) return errors
 
-  if (lastTag && compareVersions(version, lastTag) <= 0) {
+  const bumped = !lastTag || compareVersions(version, lastTag) > 0
+
+  if (!bumped) {
     errors.push(`package.json version ${version} is not newer than ${lastTag}: there are feat/fix/perf commits since the last release, run /release`)
   }
 
   if (versions[0] !== version) {
     errors.push(`shared/changelog.ts has no entry for ${version} on top: run /release`)
+  } else if (bumped && parseVersion(version)[2] === 0 && !releases[0]!.title) {
+    errors.push(`shared/changelog.ts entry for ${version} needs a title: minor and major releases are named`)
   }
 
   return errors
@@ -93,6 +97,10 @@ const typeLabels: Record<'en' | 'ru', Record<ChangeType, string>> = {
 }
 
 const languageTitles = { en: 'English', ru: 'Русский' }
+
+export function releaseName(release: Release): string {
+  return release.title ? `v${release.version} — ${release.title.en}` : `v${release.version}`
+}
 
 export function renderNotes(release: Release): string {
   const sections = (['en', 'ru'] as const).map((lang) => {

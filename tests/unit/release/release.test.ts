@@ -7,6 +7,7 @@ import {
   compareVersions,
   nextVersion,
   releasableCommits,
+  releaseName,
   renderNotes
 } from '../../../scripts/release/release'
 
@@ -94,7 +95,23 @@ describe('checkRelease', () => {
       lastTag: 'v1.0.0',
       version: '1.1.0',
       commits: [commit('feat: a')],
+      changelog: [release('1.1.0', { title: { en: 'Savings Day', ru: 'День накоплений' } }), release('1.0.0')]
+    })).toEqual([])
+  })
+
+  it('требует название у minor и major, но не у патча', () => {
+    expect(checkRelease({
+      lastTag: 'v1.0.0',
+      version: '1.1.0',
+      commits: [commit('feat: a')],
       changelog: [release('1.1.0'), release('1.0.0')]
+    })).toEqual(['shared/changelog.ts entry for 1.1.0 needs a title: minor and major releases are named'])
+
+    expect(checkRelease({
+      lastTag: 'v1.1.0',
+      version: '1.1.1',
+      commits: [commit('fix: a')],
+      changelog: [release('1.1.1'), release('1.1.0')]
     })).toEqual([])
   })
 
@@ -138,6 +155,13 @@ describe('checkRelease', () => {
       'shared/changelog.ts has duplicate versions',
       'shared/changelog.ts must list releases from newest to oldest'
     ])
+  })
+})
+
+describe('releaseName', () => {
+  it('добавляет к версии английское название, если оно есть', () => {
+    expect(releaseName(release('1.2.0', { title: { en: 'No-Loss Day', ru: 'День без потерь' } }))).toBe('v1.2.0 — No-Loss Day')
+    expect(releaseName(release('1.1.1'))).toBe('v1.1.1')
   })
 })
 
