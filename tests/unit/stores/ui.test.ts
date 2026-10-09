@@ -54,4 +54,23 @@ describe('очередь тостов', () => {
     expect(ui.queue[0]?.duration).toBe(3000)
     expect(ui.queue[1]?.duration).toBe(8000)
   })
+
+  it('тосту с действием даёт 5 секунд — время на «Отменить»', () => {
+    const ui = useUiStore()
+
+    ui.addToast({ message: 'Удалено', type: 'success', action: { label: 'Отменить', run: () => {} } })
+    ui.addToast({ message: 'Своя', type: 'success', duration: 9000, action: { label: 'Отменить', run: () => {} } })
+
+    expect(ui.queue[0]?.duration).toBe(5000)
+    expect(ui.queue[1]?.duration).toBe(9000)
+  })
+
+  it('хранит действие тоста', () => {
+    const ui = useUiStore()
+    const run = () => {}
+
+    ui.addToast({ message: 'Удалено', type: 'success', action: { label: 'Отменить', run } })
+
+    expect(ui.queue[0]?.action).toEqual({ label: 'Отменить', run })
+  })
 })

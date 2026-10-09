@@ -223,11 +223,34 @@ export function useToggleTaskMutation() {
   })
 }
 
+export function useRestoreTaskMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<TaskItem>(`/api/tasks/${id}/restore`, { method: 'POST' }),
+    onSuccess: () => {
+      toast.success(t('toast.tasks.restoreSuccess'))
+    },
+    onError: () => {
+      toast.error(t('toast.tasks.restoreError'))
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
+    }
+  })
+}
+
 export function useDeleteTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
   const toast = useAppToast()
+  const { mutate: restore } = useRestoreTaskMutation()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -239,14 +262,15 @@ export function useDeleteTaskMutation() {
 
       return { previous }
     },
-    onSuccess: () => {
-      toast.success(t('toast.tasks.deleteSuccess'))
+    onSuccess: (_task, id) => {
+      toast.success(t('toast.tasks.deleteSuccess'), { label: t('general.undo'), run: () => restore(id) })
     },
     onError: (_error, _id, context) => {
       restoreQueries(queryClient, context?.previous)
       toast.error(t('toast.tasks.deleteError'))
     },
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
       invalidateWhenSettled(queryClient, ['tasks'])
     }
   })

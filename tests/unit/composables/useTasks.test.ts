@@ -10,6 +10,7 @@ import {
   useAddTaskMutation,
   useDeleteTagMutation,
   useDeleteTaskMutation,
+  useRestoreTaskMutation,
   useTasksQuery,
   useToggleTaskMutation
 } from '../../../app/composables/useTasks'
@@ -266,6 +267,98 @@ describe('useDeleteTagMutation', () => {
     expect(queryClient.getQueryData<Tag[]>(queryKeys.tags())).toHaveLength(1)
     expect(queryClient.getQueryData<TaskItem[]>(listKey)![0]!.tags).toHaveLength(1)
     expect(toastError).toHaveBeenCalledWith('toast.tags.deleteError')
+    expect(toastSuccess).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+})
+
+describe('undo удаления задачи', () => {
+  it('после удаления показывает тост с действием «Отменить»', async () => {
+    mockApi.mockResolvedValueOnce(task('t-1'))
+    const { result, wrapper } = withQueryClient(() => useDeleteTaskMutation())
+
+    await result.mutateAsync('t-1')
+
+    expect(toastSuccess).toHaveBeenCalledWith('toast.tasks.deleteSuccess', {
+      label: 'general.undo',
+      run: expect.any(Function)
+    })
+    wrapper.unmount()
+  })
+
+  it('«Отменить» восстанавливает именно удалённую задачу', async () => {
+    mockApi.mockResolvedValueOnce(task('t-1'))
+    const { result, wrapper } = withQueryClient(() => useDeleteTaskMutation())
+    await result.mutateAsync('t-1')
+    mockApi.mockResolvedValueOnce(task('t-1'))
+
+    toastSuccess.mock.calls[0]![1].run()
+
+    await vi.waitFor(() => expect(mockApi).toHaveBeenLastCalledWith('/api/tasks/t-1/restore', { method: 'POST' }))
+    wrapper.unmount()
+  })
+
+  it('удаление инвалидирует корзину', async () => {
+    mockApi.mockResolvedValueOnce(task('t-1'))
+    const { result, queryClient, wrapper } = withQueryClient(() => useDeleteTaskMutation())
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await result.mutateAsync('t-1')
+
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['trash'] })
+    wrapper.unmount()
+  })
+
+  it('при ошибке удаления тоста с «Отменить» нет', async () => {
+    mockApi.mockRejectedValueOnce(new Error('500'))
+    const { result, wrapper } = withQueryClient(() => useDeleteTaskMutation())
+
+    await expect(result.mutateAsync('t-1')).rejects.toThrow()
+
+    expect(toastSuccess).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+})
+
+describe('useRestoreTaskMutation', () => {
+  it('восстанавливает задачу, показывает тост и обновляет задачи и корзину', async () => {
+    mockApi.mockResolvedValueOnce(task('t-1'))
+    const { result, queryClient, wrapper } = withQueryClient(() => useRestoreTaskMutation())
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await result.mutateAsync('t-1')
+
+    expect(mockApi).toHaveBeenCalledWith('/api/tasks/t-1/restore', { method: 'POST' })
+    expect(toastSuccess).toHaveBeenCalledWith('toast.tasks.restoreSuccess')
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tasks'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['trash'] })
+    wrapper.unmount()
+  })
+
+  it('обновляет списки, даже если параллельно идёт другая мутация', async () => {
+    const pending = deferred<unknown>()
+    mockApi.mockImplementation((url: string) => url.endsWith('/restore') ? Promise.resolve(task('t-1')) : pending.promise)
+    const { result, queryClient, wrapper } = withQueryClient(() => ({
+      remove: useDeleteTaskMutation(),
+      restore: useRestoreTaskMutation()
+    }))
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    result.remove.mutate('t-2')
+    await result.restore.mutateAsync('t-1')
+
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tasks'] })
+    pending.resolve(undefined)
+    wrapper.unmount()
+  })
+
+  it('показывает ошибку, если восстановить не вышло', async () => {
+    mockApi.mockRejectedValueOnce(new Error('404'))
+    const { result, wrapper } = withQueryClient(() => useRestoreTaskMutation())
+
+    await expect(result.mutateAsync('t-1')).rejects.toThrow()
+
+    expect(toastError).toHaveBeenCalledWith('toast.tasks.restoreError')
     expect(toastSuccess).not.toHaveBeenCalled()
     wrapper.unmount()
   })

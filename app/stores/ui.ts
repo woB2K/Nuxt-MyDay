@@ -3,12 +3,21 @@ import { defaultAccent } from '~/utils/accents'
 
 type ToastType = 'success' | 'error' | 'info'
 
+export interface ToastAction {
+  label: string
+  run: () => void
+}
+
 interface Toast {
   id: string
   message: string
   type: ToastType
   duration?: number
+  action?: ToastAction
 }
+
+const TOAST_DURATION = 3000
+const ACTION_TOAST_DURATION = 5000
 
 export const useUiStore = defineStore('ui', () => {
   const queue = ref<Toast[]>([])
@@ -23,7 +32,7 @@ export const useUiStore = defineStore('ui', () => {
     toastSeq += 1
 
     queue.value.push({
-      duration: 3000,
+      duration: toast.action ? ACTION_TOAST_DURATION : TOAST_DURATION,
       ...toast,
       id: `toast-${toastSeq}`
     })

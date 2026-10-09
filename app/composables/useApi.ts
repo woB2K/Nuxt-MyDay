@@ -1,9 +1,5 @@
 import type { FetchOptions } from 'ofetch'
-
-function statusOf(error: unknown): number | undefined {
-  return (error as { statusCode?: number, status?: number })?.statusCode
-    ?? (error as { status?: number })?.status
-}
+import { statusOf } from '~/utils/httpStatus'
 
 export function useApi() {
   const authStore = useAuthStore()

@@ -10,6 +10,8 @@ import {
   useAddTransactionMutation,
   useDeleteSavingsMutation,
   useDeleteTransactionMutation,
+  useRestoreSavingsMutation,
+  useRestoreTransactionMutation,
   useSummaryQuery
 } from '../../../app/composables/useFinance'
 import { monthPeriod, periodKey } from '../../../app/utils/period'
@@ -274,7 +276,8 @@ describe('оптимистичное удаление транзакции', () 
     first.resolve(undefined)
     await firstDone
 
-    expect(invalidate).not.toHaveBeenCalled()
+    expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ['transactions'] })
+    expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ['summary'] })
 
     second.resolve(undefined)
     await secondDone
@@ -333,6 +336,115 @@ describe('оптимистичное удаление накопления', () 
     expect(page.entries).toHaveLength(2)
     expect(page.balance).toBe(1000)
     expect(toastError).toHaveBeenCalledTimes(1)
+    wrapper.unmount()
+  })
+})
+
+describe('undo удаления в финансах', () => {
+  it('после удаления транзакции показывает тост с «Отменить», который её восстанавливает', async () => {
+    mockApi.mockResolvedValueOnce(undefined)
+    const { result, wrapper } = withQueryClient(() => useDeleteTransactionMutation())
+    await result.mutateAsync('tx-1')
+    mockApi.mockResolvedValueOnce(undefined)
+
+    const [message, action] = toastSuccess.mock.calls[0]!
+    action.run()
+
+    expect(message).toBe('toast.transactions.deleteSuccess')
+    expect(action.label).toBe('general.undo')
+    await vi.waitFor(() => expect(mockApi).toHaveBeenLastCalledWith('/api/finance/transactions/tx-1/restore', { method: 'POST' }))
+    wrapper.unmount()
+  })
+
+  it('после удаления записи копилки показывает тост с «Отменить», который её восстанавливает', async () => {
+    mockApi.mockResolvedValueOnce(undefined)
+    const { result, wrapper } = withQueryClient(() => useDeleteSavingsMutation())
+    await result.mutateAsync('s-1')
+    mockApi.mockResolvedValueOnce(undefined)
+
+    const [message, action] = toastSuccess.mock.calls[0]!
+    action.run()
+
+    expect(message).toBe('toast.savings.deleteSuccess')
+    expect(action.label).toBe('general.undo')
+    await vi.waitFor(() => expect(mockApi).toHaveBeenLastCalledWith('/api/finance/savings/s-1/restore', { method: 'POST' }))
+    wrapper.unmount()
+  })
+
+  it('удаление транзакции и записи копилки инвалидирует корзину', async () => {
+    mockApi.mockResolvedValue(undefined)
+    const { result, queryClient, wrapper } = withQueryClient(() => ({
+      tx: useDeleteTransactionMutation(),
+      savings: useDeleteSavingsMutation()
+    }))
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await result.tx.mutateAsync('tx-1')
+    await result.savings.mutateAsync('s-1')
+
+    expect(invalidate.mock.calls.filter(([arg]) => JSON.stringify(arg) === '{"queryKey":["trash"]}')).toHaveLength(2)
+    wrapper.unmount()
+  })
+})
+
+describe('useRestoreTransactionMutation', () => {
+  it('восстанавливает транзакцию и обновляет список, сводку и корзину', async () => {
+    mockApi.mockResolvedValueOnce(undefined)
+    const { result, queryClient, wrapper } = withQueryClient(() => useRestoreTransactionMutation())
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await result.mutateAsync('tx-1')
+
+    expect(toastSuccess).toHaveBeenCalledWith('toast.transactions.restoreSuccess')
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['transactions'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['summary'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['trash'] })
+    wrapper.unmount()
+  })
+
+  it('показывает ошибку, если восстановить не вышло', async () => {
+    mockApi.mockRejectedValueOnce(new Error('404'))
+    const { result, wrapper } = withQueryClient(() => useRestoreTransactionMutation())
+
+    await expect(result.mutateAsync('tx-1')).rejects.toThrow()
+
+    expect(toastError).toHaveBeenCalledWith('toast.transactions.restoreError')
+    wrapper.unmount()
+  })
+})
+
+describe('useRestoreSavingsMutation', () => {
+  it('восстанавливает запись и обновляет копилку и корзину', async () => {
+    mockApi.mockResolvedValueOnce(undefined)
+    const { result, queryClient, wrapper } = withQueryClient(() => useRestoreSavingsMutation())
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await result.mutateAsync('s-1')
+
+    expect(mockApi).toHaveBeenCalledWith('/api/finance/savings/s-1/restore', { method: 'POST' })
+    expect(toastSuccess).toHaveBeenCalledWith('toast.savings.restoreSuccess')
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['savings'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['trash'] })
+    wrapper.unmount()
+  })
+
+  it('на 409 объясняет, что начальный остаток уже задан', async () => {
+    mockApi.mockRejectedValueOnce(Object.assign(new Error('Conflict'), { statusCode: 409 }))
+    const { result, wrapper } = withQueryClient(() => useRestoreSavingsMutation())
+
+    await expect(result.mutateAsync('s-1')).rejects.toThrow()
+
+    expect(toastError).toHaveBeenCalledWith('toast.savings.restoreOpeningConflict')
+    wrapper.unmount()
+  })
+
+  it('на прочие ошибки показывает общий текст', async () => {
+    mockApi.mockRejectedValueOnce(Object.assign(new Error('Not found'), { statusCode: 404 }))
+    const { result, wrapper } = withQueryClient(() => useRestoreSavingsMutation())
+
+    await expect(result.mutateAsync('s-1')).rejects.toThrow()
+
+    expect(toastError).toHaveBeenCalledWith('toast.savings.restoreError')
     wrapper.unmount()
   })
 })

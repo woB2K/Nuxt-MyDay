@@ -7,7 +7,8 @@
     "somethingWrong": "Something went wrong",
     "save": "Save",
     "edit": "Edit",
-    "close": "Close"
+    "close": "Close",
+    "undo": "Undo"
   },
   "welcome": {
     "tagline": "Tasks & finances, one place",
@@ -30,7 +31,9 @@
       "updateSuccess": "Transaction updated",
       "updateError": "Failed to update transaction",
       "deleteSuccess": "Transaction deleted",
-      "deleteError": "Failed to delete transaction"
+      "deleteError": "Failed to delete transaction",
+      "restoreSuccess": "Transaction restored",
+      "restoreError": "Failed to restore transaction"
     },
     "savings": {
       "addSuccess": "Savings entry added",
@@ -38,7 +41,10 @@
       "updateSuccess": "Savings entry updated",
       "updateError": "Failed to update savings entry",
       "deleteSuccess": "Savings entry deleted",
-      "deleteError": "Failed to delete savings entry"
+      "deleteError": "Failed to delete savings entry",
+      "restoreSuccess": "Savings entry restored",
+      "restoreError": "Failed to restore savings entry",
+      "restoreOpeningConflict": "Delete the current opening balance first"
     },
     "budgets": {
       "saveSuccess": "Budget saved",
@@ -58,7 +64,9 @@
       "updateSuccess": "Task updated",
       "updateError": "Failed to update task",
       "deleteSuccess": "Task deleted",
-      "deleteError": "Failed to delete task"
+      "deleteError": "Failed to delete task",
+      "restoreSuccess": "Task restored",
+      "restoreError": "Failed to restore task"
     },
     "tags": {
       "addSuccess": "Tag created",
