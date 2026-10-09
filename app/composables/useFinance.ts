@@ -197,6 +197,25 @@ export function useAddSavingsMutation() {
   })
 }
 
+export function useUpdateSavingsMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & UpdateSavingsInput) =>
+      api<SavingsEntryItem>(`/api/finance/savings/${id}`, { method: 'PATCH', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['savings'] })
+      toast.success(t('toast.savings.updateSuccess'))
+    },
+    onError: () => {
+      toast.error(t('toast.savings.updateError'))
+    }
+  })
+}
+
 export function useDeleteSavingsMutation() {
   const api = useApi()
   const queryClient = useQueryClient()

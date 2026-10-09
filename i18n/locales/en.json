@@ -35,6 +35,8 @@
     "savings": {
       "addSuccess": "Savings entry added",
       "addError": "Failed to add savings entry",
+      "updateSuccess": "Savings entry updated",
+      "updateError": "Failed to update savings entry",
       "deleteSuccess": "Savings entry deleted",
       "deleteError": "Failed to delete savings entry"
     },
@@ -113,6 +115,7 @@
       "forPeriod": "for the selected period",
       "addTitle": "Add to savings",
       "withdrawTitle": "Withdraw from savings",
+      "editTitle": "Edit entry",
       "available": "Available",
       "notEnough": "Not enough in savings",
       "opening": "Opening balance",

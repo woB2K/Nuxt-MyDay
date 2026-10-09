@@ -5,6 +5,7 @@ const props = defineProps<{
   open: boolean
   mode: SavingsMode
   balance: number
+  entry?: SavingsEntryItem | null
 }>()
 
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
@@ -12,7 +13,8 @@ const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 const { t } = useI18n()
 const toast = useAppToast()
 
-const { mutate: addSavings, isPending } = useAddSavingsMutation()
+const { mutate: addSavings, isPending: isAdding } = useAddSavingsMutation()
+const { mutate: updateSavings, isPending: isUpdating } = useUpdateSavingsMutation()
 
 const QUICK_AMOUNTS = [500, 1000, 2500, 5000]
 
@@ -25,14 +27,20 @@ const modes = {
 const amount = ref('')
 const note = ref('')
 
-const current = computed(() => modes[props.mode])
-const isOpening = computed(() => props.mode === 'OPENING')
+const type = computed(() => props.entry?.type ?? props.mode)
+const current = computed(() => modes[type.value])
+const isOpening = computed(() => type.value === 'OPENING')
+const isEditing = computed(() => !!props.entry)
+const isPending = computed(() => isAdding.value || isUpdating.value)
+const title = computed(() => isEditing.value && !isOpening.value ? 'finance.savings.editTitle' : current.value.title)
+const submitLabel = computed(() => isEditing.value ? 'general.save' : current.value.submit)
+const available = computed(() => props.entry?.type === 'WITHDRAWAL' ? props.balance + props.entry.amount : props.balance)
 
 watch(() => props.open, (open) => {
   if (!open) return
 
-  amount.value = ''
-  note.value = ''
+  amount.value = props.entry ? String(props.entry.amount) : ''
+  note.value = props.entry?.notes ?? ''
 }, { immediate: true })
 
 function submit() {
@@ -43,8 +51,15 @@ function submit() {
     return
   }
 
-  if (props.mode === 'WITHDRAWAL' && value > props.balance) {
+  if (type.value === 'WITHDRAWAL' && value > available.value) {
     toast.error(t('finance.savings.notEnough'))
+    return
+  }
+
+  const close = { onSuccess: () => emit('update:open', false) }
+
+  if (props.entry) {
+    updateSavings({ id: props.entry.id, amount: value, notes: note.value }, close)
     return
   }
 
@@ -52,16 +67,14 @@ function submit() {
     type: props.mode,
     amount: value,
     notes: note.value || undefined
-  }, {
-    onSuccess: () => emit('update:open', false)
-  })
+  }, close)
 }
 </script>
 
 <template>
   <UiSheet
     :open="props.open"
-    :title="t(current.title)"
+    :title="t(title)"
     @update:open="emit('update:open', $event)"
   >
     <form class="flex flex-col gap-5" @submit.prevent="submit">
@@ -78,7 +91,7 @@ function submit() {
           {{ t('finance.savings.openingHint') }}
         </span>
         <span v-else class="text-xs text-text-mute">
-          {{ t('finance.savings.available') }} · {{ formatAmount(props.balance) }} ₽
+          {{ t('finance.savings.available') }} · {{ formatAmount(available) }} ₽
         </span>
       </div>
 
@@ -95,7 +108,7 @@ function submit() {
       <UiInput v-model="note" :label="t('finance.note')" type="text" />
 
       <UiButton class="w-full" type="submit" :loading="isPending">
-        {{ t(current.submit) }}
+        {{ t(submitLabel) }}
       </UiButton>
     </form>
   </UiSheet>

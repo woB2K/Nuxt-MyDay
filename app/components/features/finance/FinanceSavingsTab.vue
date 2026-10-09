@@ -26,13 +26,20 @@ const entryLooks = {
 
 const sheetOpen = ref(false)
 const sheetMode = ref<SavingsMode>('DEPOSIT')
+const editing = ref<SavingsEntryItem | null>(null)
 const periodSheetOpen = ref(false)
 
 const summary = computed(() => pages.value?.pages[0])
 const entries = computed(() => pages.value?.pages.flatMap(page => page.entries) ?? [])
 
 function openSheet(mode: SavingsMode) {
+  editing.value = null
   sheetMode.value = mode
+  sheetOpen.value = true
+}
+
+function openEdit(entry: SavingsEntryItem) {
+  editing.value = entry
   sheetOpen.value = true
 }
 
@@ -87,7 +94,7 @@ function applyPeriod(next: Period) {
         <template v-for="(entry, index) in entries" :key="entry.id">
           <div v-if="index > 0" class="h-px ml-[66px] bg-hairline" />
           <UiSwipeRow @delete="deleteEntry(entry.id)">
-            <div class="flex items-center gap-3 p-4">
+            <div class="flex items-center gap-3 p-4 cursor-pointer" @click="openEdit(entry)">
               <div
                 class="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
                 :class="entryLooks[entry.type].tile"
@@ -135,6 +142,7 @@ function applyPeriod(next: Period) {
     <SavingsOpSheet
       v-model:open="sheetOpen"
       :mode="sheetMode"
+      :entry="editing"
       :balance="summary?.balance ?? 0"
     />
 

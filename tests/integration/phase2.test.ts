@@ -785,6 +785,60 @@ describe('phase 2 api', async () => {
       })
     })
 
+    describe('editing an entry', () => {
+      const post = (token: string, body: object) => $fetch<{ id: string }>('/api/finance/savings', {
+        method: 'POST', headers: authHeaders(token), body
+      })
+      const patch = (token: string, id: string, body: object) => $fetch<{ amount: number, notes: string | null, type: string }>(`/api/finance/savings/${id}`, {
+        method: 'PATCH', headers: authHeaders(token), body
+      })
+
+      it('updates amount and notes and recalculates the balance', async () => {
+        const { token } = await registerUser()
+        await post(token, { amount: 10000, type: 'DEPOSIT' })
+        const withdrawal = await post(token, { amount: 3000, type: 'WITHDRAWAL', notes: 'Отпуск' })
+
+        const updated = await patch(token, withdrawal.id, { amount: 4000, notes: '' })
+        const res = await $fetch<{ balance: number }>('/api/finance/savings', { headers: authHeaders(token) })
+
+        expect(updated).toMatchObject({ amount: 4000, notes: '', type: 'WITHDRAWAL' })
+        expect(res.balance).toBe(6000)
+      })
+
+      it('keeps the entry type even if the body asks to change it', async () => {
+        const { token } = await registerUser()
+        const entry = await post(token, { amount: 1000, type: 'DEPOSIT' })
+
+        await expect(patch(token, entry.id, { type: 'WITHDRAWAL' })).resolves.toMatchObject({ type: 'DEPOSIT' })
+      })
+
+      it('lets the opening balance be corrected', async () => {
+        const { token } = await registerUser()
+        const opening = await post(token, { amount: 100000, type: 'OPENING' })
+
+        await patch(token, opening.id, { amount: 120000 })
+        const res = await $fetch<{ opening: number }>('/api/finance/savings', { headers: authHeaders(token) })
+
+        expect(res.opening).toBe(120000)
+      })
+
+      it('rejects a non-positive amount', async () => {
+        const { token } = await registerUser()
+        const entry = await post(token, { amount: 1000, type: 'DEPOSIT' })
+
+        await expect(patch(token, entry.id, { amount: 0 })).rejects.toMatchObject({ statusCode: 400 })
+      })
+
+      it('answers 404 for another users entry and leaves it untouched', async () => {
+        const userA = await registerUser()
+        const userB = await registerUser()
+        const entry = await post(userA.token, { amount: 8000, type: 'DEPOSIT' })
+
+        await expect(patch(userB.token, entry.id, { amount: 1 })).rejects.toMatchObject({ statusCode: 404 })
+        expect((await prisma.savingsEntry.findUnique({ where: { id: entry.id } }))?.amount.toNumber()).toBe(8000)
+      })
+    })
+
     it('answers 404 when deleting another users entry', async () => {
       const userA = await registerUser()
       const userB = await registerUser()

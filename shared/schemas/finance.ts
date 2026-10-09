@@ -78,3 +78,5 @@ export const createSavingsSchema = z.object({
   notes: z.string().optional(),
   type: savingTypeEnum
 })
+
+export const updateSavingsSchema = createSavingsSchema.pick({ amount: true, notes: true }).partial()
