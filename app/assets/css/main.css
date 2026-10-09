@@ -8,6 +8,7 @@
   --c-elev1:       #15151C;
   --c-elev2:       #1C1C25;
   --c-elev3:       #26262F;
+  --c-field:       #26262F;
   --c-hairline:    rgba(255, 255, 255, 0.06);
   --c-hairline2:   rgba(255, 255, 255, 0.10);
   --c-chrome:      rgba(15, 15, 20, 0.85);
@@ -44,6 +45,7 @@
   --c-elev1:       #FFFFFF;
   --c-elev2:       #EBEBF0;
   --c-elev3:       #DFDFE8;
+  --c-field:       #FFFFFF;
   --c-hairline:    rgba(0, 0, 0, 0.06);
   --c-hairline2:   rgba(0, 0, 0, 0.10);
   --c-chrome:      rgba(255, 255, 255, 0.85);
@@ -156,6 +158,7 @@ body {
   --color-elev1:       var(--c-elev1);
   --color-elev2:       var(--c-elev2);
   --color-elev3:       var(--c-elev3);
+  --color-field:       var(--c-field);
   --color-hairline:    var(--c-hairline);
   --color-hairline2:   var(--c-hairline2);
   --color-chrome:      var(--c-chrome);
