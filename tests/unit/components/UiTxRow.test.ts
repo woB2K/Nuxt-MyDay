@@ -1,3 +1,4 @@
+import type { TxAuthor } from '../../../app/utils/family'
 import type { Category, Transaction } from '../../../prisma/.generated/prisma'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mount } from '@vue/test-utils'
@@ -41,12 +42,13 @@ function transaction(overrides: Partial<Transaction> = {}): Transaction {
   } as unknown as Transaction
 }
 
-function mountRow(props: { category?: Category, transaction?: Transaction } = {}) {
+function mountRow(props: { category?: Category, transaction?: Transaction, author?: TxAuthor } = {}) {
   return mount(UiTxRow, {
     props: {
       transaction: props.transaction ?? transaction(),
       category: props.category ?? category(),
-      showDate: false
+      showDate: false,
+      author: props.author
     },
     global: { stubs: { UIcon: true } }
   })
@@ -71,5 +73,18 @@ describe('uiTxRow', () => {
 
     expect(text).toContain('Обед с Сашей')
     expect(text).toContain('Еда и напитки')
+  })
+
+  it('свои операции — без бейджа автора', () => {
+    expect(mountRow().find('[data-testid="tx-author"]').exists()).toBe(false)
+  })
+
+  it('у чужой операции бейдж с инициалом, имя в строке — только при совпадении инициалов', () => {
+    const plain = mountRow({ author: { name: 'Маша', colorIndex: 1, named: false } })
+    expect(plain.find('[data-testid="tx-author"]').text()).toBe('М')
+    expect(plain.text()).not.toContain('Маша')
+
+    const named = mountRow({ author: { name: 'Маша', colorIndex: 1, named: true } })
+    expect(named.text()).toContain('Еда и напитки · Маша')
   })
 })

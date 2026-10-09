@@ -10,6 +10,7 @@ const tabOptions = computed(() => [
 ])
 
 const financeStore = useFinanceStore()
+const { members, isFamily } = useFamily()
 
 const sheetOpen = ref(false)
 const editing = ref<TransactionItem | null>(null)
@@ -24,9 +25,20 @@ useFabAction(() => openSheet())
 
 <template>
   <div class="flex flex-col p-4 gap-3">
-    <h1 class="text-3xl font-bold text-text">
-      {{ t('finance.title') }}
-    </h1>
+    <div class="flex items-center justify-between gap-3">
+      <h1 class="text-3xl font-bold text-text">
+        {{ t('finance.title') }}
+      </h1>
+      <NuxtLink
+        v-if="isFamily"
+        to="/settings/family"
+        class="flex items-center min-h-11 px-1"
+        :aria-label="t('family.screen.title')"
+        data-testid="finance-family"
+      >
+        <UiAvatarStack :members="members" :size="28" />
+      </NuxtLink>
+    </div>
 
     <UiPillSelect v-model="financeStore.activeTab" :options="tabOptions" full />
 

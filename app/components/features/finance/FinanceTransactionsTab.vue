@@ -6,6 +6,7 @@ import type { TransactionFilters } from '~/utils/transactionFilters'
 const emit = defineEmits<{ edit: [transaction: TransactionItem] }>()
 
 const { t } = useI18n()
+const { authorFor } = useFamily()
 
 const financeStore = useFinanceStore()
 const period = toRef(financeStore, 'period')
@@ -161,6 +162,7 @@ function applyCategories(ids: string[]) {
           class="cursor-pointer"
           :category="categories.find(c => c.id === tx.categoryId)!"
           :transaction="tx"
+          :author="authorFor(tx.userId)"
           @click="emit('edit', tx)"
         />
       </UiCard>

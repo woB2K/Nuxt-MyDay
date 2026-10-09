@@ -13,7 +13,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 
 | Компонент | API | Заметки |
 |---|---|---|
-| `UiButton` | `size` sm/md/lg (по умолчанию lg), `variant` primary/secondary/ghost/danger, `loading`, `disabled`, `to` | С `to` рендерится `NuxtLink`. `loading` показывает спиннер вместо слота |
+| `UiButton` | `size` sm/md/lg (по умолчанию lg), `variant` primary/secondary/ghost/danger/destructive, `loading`, `disabled`, `to` | С `to` рендерится `NuxtLink`. `loading` показывает спиннер вместо слота |
 | `UiInput` | `v-model`, `label`, `placeholder`, `type` text/password/email/number, `multiline` + `rows`, `error`; слоты `icon`, `trailing` | Для `password` сам рисует кнопку показа. Поля даты — не сюда, а в `UiDateInput` |
 | `UiDateInput` | `v-model` (`YYYY-MM-DD`), классы пробрасываются на `input` | Нативный `input[type=date]`, голый `<input type="date">` не пишем: на десктопе Chrome открывает календарь только по иконке, а этот — кликом по всему полю (`showPicker()` при `pointer: fine`) |
 | `UiAmountInput` | `v-model` — строка `'245000.5'` (точка, без пробелов; `Number()` даёт сумму) | Большое поле суммы в шитах денег. Показывает с разрядами (`245 000,5`), принимает `,` и `.`, держит каретку на месте, ширина по содержимому. Размер и цвет шрифта — классами снаружи |
@@ -30,24 +30,27 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | Компонент | API | Заметки |
 |---|---|---|
 | `UiSwipeRow` | `rightAction?: { label, icon, gradient, inkColor }`, `completable`, `deletable` (true), `completed`; события `complete`, `delete` | Порог 90px, ось лочится на первом движении (вертикаль отдаётся скроллу). Правый слой рисуется только при `rightAction` или `completable`. Денежные строки — accent «Edit», зелёный «Done ✓» зарезервирован за задачами |
-| `UiTxRow` | `transaction`, `category`, `showDate` (true) | В сгруппированном по дням списке дату выключать. Собственный `border-b` пропадает, если строка — единственный ребёнок обёртки: разделители в таких списках рисуй сам |
+| `UiTxRow` | `transaction`, `category`, `showDate` (true), `author` (`TxAuthor` из `authorFor()`), `authorRing` (фон под бейджем) | В сгруппированном по дням списке дату выключать. Собственный `border-b` пропадает, если строка — единственный ребёнок обёртки: разделители в таких списках рисуй сам |
 | `UiTaskRow` | `task` (с плоскими `tags`), `showDate` (true); события `toggle(done)`, `open` | Строка кликабельна целиком (`open`), чекбокс обёрнут в `@click.stop`. Просроченный дедлайн красится danger. Полоска приоритета справа — цвет из `priorityBarClass` |
 | `UiTaskTemplateRow` | `template`; события `use`, `edit` | Тап по строке — `edit`, кнопка «Применить» — `use` (со `@click.stop`) |
 | `UiStatsCard` | `type` streak/progress, `value`, `total` (progress) | Подписи свои, через `t('tasks.stats.*')`; стрик плюрализуется. Прогресс не уходит за 100% и не делит на ноль |
 | `UiCategoryTile` | `category`, `selected` | Плитка сетки категорий 4 в ряд |
 | `UiCategoryBar` | `category`, `amount`, `maxAmount`, `totalAmount` | Строка разбивки расходов с полосой и процентом |
-| `UiSavingsCard` | `balance`, `delta`; события `add`, `withdraw` | `balance` — всегда за всё время, `delta` — за выбранный период |
+| `UiSavingsCard` | `balance`, `delta`, `sharedWith` (участники — бейдж «Общая»); события `add`, `withdraw` | `balance` — всегда за всё время, `delta` — за выбранный период |
 | `UiCard` | `padding` (16), `hero`, `pressable` | Радиус фиксированный (`rounded-2xl`), фон `bg-elev2` или градиент при `hero`. Для списков `:padding="0"` + `class="overflow-hidden border border-hairline"` |
 | `UiSectionHeader` | `title`, `caption`; слот `action` | В `action` кладут «See all →», «+» и т.п. |
 | `UiEmptyState` | `icon`, `title`, `subtitle`; слот `action` | В `action` — например «Сбросить фильтры» |
 | `UiBadge` | `color` accent/success/danger/info/neutral/warning | |
+| `UiAvatar` | `name`, `colorIndex` (0–3, `null` — ушедший автор), `size` (40), `dashed`, `ring` | Цвет участника — токены `m0…m3`. `ring` — цвет фона под аватаром: даёт и обводку, и непрозрачную подложку (иначе в стопке перекрытие просвечивает) |
+| `UiAvatarStack` | `members: { name, colorIndex }[]`, `size` (24), `ring` (`var(--c-bg)`) | Перекрытие −30% размера |
+| `UiIconDisc` | `icon`, `tone` accent/success/warning/danger/neutral, `size` (36) | Круг с иконкой: шапки шторок, последствия, пункты списков |
 
 ## Оболочки и обратная связь
 
 | Компонент | API | Заметки |
 |---|---|---|
 | `UiSheet` | `v-model:open`, `title` (необязательный) | Базовый нижний шит: скрим, ручка, блокировка скролла. Без `title` заголовок не рисуется — для шитов со своей шапкой (`InstallSheet`). Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
-| `UiToast` / `UiToastItem` | через `useAppToast()`; `success(message, { label, run })` добавляет кнопку действия | Не монтировать вручную — см. skill `ui-feedback-patterns`. Тост с действием живёт 5 с, действие закрывает тост — так сделано «Отменить» после удаления |
+| `UiToast` / `UiToastItem` | через `useAppToast()`; `success(message, { label, run })` добавляет кнопку действия, `info(message, { persistent: true })` — тост без автоскрытия | Не монтировать вручную — см. skill `ui-feedback-patterns`. Тост с действием живёт 5 с, действие закрывает тост — так сделано «Отменить» после удаления |
 | `UiTabBar` | — | Нижняя навигация, берёт пункты из `app/utils/routes.ts` |
 | `UiSkeleton` | `w`, `h` (14), `r` (6) | Плюс готовые `UiSkeletonRow`, `UiSkeletonFinanceHero` |
 | `UiLogoMark` | `size` (40) | Он же иконка приложения в гайде установки |
@@ -62,4 +65,5 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 - Цвета приоритета задач не хардкодим: `priorityBarClass` / `priorityTextClass` из `app/utils/priority.ts`.
 - Гайд установки PWA (`features/install/`): `InstallHint`, `InstallBanner`, `InstallSettingsCard` сами решают, показываться ли (`usePwaInstall`), и каждый держит свой `InstallSheet` — вставлять одной строкой без обёрток.
 - `features/settings/TrashRow.vue` — строка корзины (плитка-иконка, заголовок, подпись, сумма). Свайпы — снаружи, в `UiSwipeRow`.
+- Семья (`features/family/`): шторки `InviteSheet`, `MemberSheet`, `LeaveSheet`, `SavingsModeSheet` строятся из `FamilySheetHead` + `FamilyConsequences`; экраны вступления — `JoinInvite`, `JoinStatus`, `JoinSuccess` с липким `JoinFooter`. Автор операции — `useFamily().authorFor(userId)`, логика в `app/utils/family.ts`.
 - Feature-компоненты задач (`features/tasks/`): `FocusCard`, `TaskSheet`, `TemplateSheet`, `TaskFilterBar`, `TagPicker`. Выбор тегов не дублируем — в обоих шитах стоит `<TagPicker v-model="tagIds" />`, он же сам создаёт новые теги.

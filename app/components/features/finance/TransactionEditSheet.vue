@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { TransactionItem } from '~~/shared/types'
-import { toDateString, toDayKey } from '~/utils/formatDate'
+import { formatLongDay, toDateString, toDayKey } from '~/utils/formatDate'
 
 const props = defineProps<{
   open: boolean
@@ -9,8 +9,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useAppToast()
+const { members, isFamily } = useFamily()
 
 const { data: categories } = useCategoriesQuery()
 const { mutate: addTransaction, isPending: isAdding } = useAddTransactionMutation()
@@ -24,6 +25,18 @@ const note = ref('')
 const date = ref(toDateString())
 
 const isEdit = computed(() => !!props.transaction)
+
+const authorLine = computed(() => {
+  const tx = props.transaction
+  if (!tx || !isFamily.value) return ''
+
+  const author = members.value.find(member => member.userId === tx.userId)
+
+  return t('family.author', {
+    name: author?.name ?? t('family.formerMember'),
+    date: formatLongDay(tx.createdAt, locale.value)
+  })
+})
 const isPending = computed(() => isAdding.value || isUpdating.value || isDeleting.value)
 
 const typeOptions = computed(() => [
@@ -133,6 +146,7 @@ function remove() {
           <span class="text-[34px] font-bold text-text-mute">₽</span>
         </div>
         <span v-if="amountError" class="text-sm text-danger">{{ amountError }}</span>
+        <span v-if="authorLine" class="text-[13px] text-text-mute" data-testid="tx-author-line">{{ authorLine }}</span>
       </div>
 
       <div class="flex flex-col gap-2.5">

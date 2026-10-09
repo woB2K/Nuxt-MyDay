@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import TransactionEditSheet from '../../../app/components/features/finance/TransactionEditSheet.vue'
 
-const { state, addMutate, updateMutate, deleteMutate, toastError } = vi.hoisted(() => ({
+const { state, family, addMutate, updateMutate, deleteMutate, toastError } = vi.hoisted(() => ({
   state: {
     categories: {
       value: [
@@ -13,13 +13,21 @@ const { state, addMutate, updateMutate, deleteMutate, toastError } = vi.hoisted(
       ]
     }
   },
+  family: {
+    members: { value: [] as Array<{ userId: string, name: string }> },
+    isFamily: { value: false }
+  },
   addMutate: vi.fn(),
   updateMutate: vi.fn(),
   deleteMutate: vi.fn(),
   toastError: vi.fn()
 }))
 
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useI18n', () => () => ({
+  t: (key: string, params?: Record<string, string>) => params ? `${key}:${Object.values(params).join('|')}` : key,
+  locale: { value: 'ru' }
+}))
+mockNuxtImport('useFamily', () => () => family)
 mockNuxtImport('useAppToast', () => () => ({ success: () => {}, error: toastError, info: () => {} }))
 mockNuxtImport('useCategoriesQuery', () => () => ({ data: state.categories }))
 mockNuxtImport('useAddTransactionMutation', () => () => ({ mutate: addMutate, isPending: { value: false } }))
@@ -32,7 +40,9 @@ const existing = {
   amount: 250,
   categoryId: 'exp-2',
   notes: 'Такси',
-  date: '2026-05-08T00:00:00.000Z'
+  date: '2026-05-08T00:00:00.000Z',
+  userId: 'masha',
+  createdAt: '2026-05-08'
 }
 
 function mountSheet(transaction: unknown = null) {
@@ -195,5 +205,31 @@ describe('transactionEditSheet — обратная связь при незап
       { id: 'exp-2', name: 'Transport', type: 'EXPENSE', icon: 'i-lucide-car', color: '#60A5FA' },
       { id: 'inc-1', name: 'Salary', type: 'INCOME', icon: 'i-lucide-wallet', color: '#34D399' }
     ]
+  })
+})
+
+describe('transactionEditSheet — автор в семье', () => {
+  afterEach(() => {
+    family.isFamily.value = false
+    family.members.value = []
+  })
+
+  it('без семьи строки автора нет', () => {
+    expect(mountSheet(existing).find('[data-testid="tx-author-line"]').exists()).toBe(false)
+  })
+
+  it('в семье пишет автора и день создания, ушедшего — «бывший участник»', () => {
+    family.isFamily.value = true
+    family.members.value = [{ userId: 'max', name: 'Максим' }, { userId: 'masha', name: 'Маша' }]
+
+    expect(mountSheet(existing).find('[data-testid="tx-author-line"]').text()).toBe('family.author:Маша|8 мая')
+    expect(mountSheet({ ...existing, userId: 'gone' }).find('[data-testid="tx-author-line"]').text())
+      .toBe('family.author:family.formerMember|8 мая')
+  })
+
+  it('в режиме создания автора не показывает', () => {
+    family.isFamily.value = true
+
+    expect(mountSheet().find('[data-testid="tx-author-line"]').exists()).toBe(false)
   })
 })

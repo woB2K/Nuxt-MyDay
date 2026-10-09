@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { TransactionFilters, TransactionFilterType } from '~/utils/transactionFilters'
-import { hasActiveFilters } from '~/utils/transactionFilters'
+import { emptyFilters, hasActiveFilters } from '~/utils/transactionFilters'
 
 const props = defineProps<{ filters: TransactionFilters }>()
 const emit = defineEmits<{
@@ -9,6 +9,11 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { me, isFamily } = useFamily()
+
+function toggleMine() {
+  emit('update:filters', { ...props.filters, mine: !props.filters.mine })
+}
 
 const SEARCH_DEBOUNCE = 300
 
@@ -63,7 +68,7 @@ const isActive = computed(() => hasActiveFilters(props.filters))
 function reset() {
   searching.value = false
   searchInput.value = ''
-  emit('update:filters', { type: 'all', categoryIds: [], search: '' })
+  emit('update:filters', emptyFilters())
 }
 </script>
 
@@ -93,6 +98,21 @@ function reset() {
     </div>
 
     <div class="flex gap-2 overflow-x-auto pb-0.5">
+      <button
+        v-if="isFamily && me"
+        class="shrink-0 inline-flex items-center gap-1.5 h-9 pl-1.5 pr-3 rounded-full border text-[13px] font-semibold transition-colors duration-fast active:scale-[0.96]"
+        :class="props.filters.mine
+          ? 'bg-accent-soft border-accent text-accent'
+          : 'bg-elev1 border-hairline text-text-dim'"
+        type="button"
+        :aria-pressed="props.filters.mine"
+        data-testid="filter-mine"
+        @click="toggleMine"
+      >
+        <UiAvatar :name="me.name" :color-index="me.colorIndex" :size="20" />
+        {{ t('family.finance.onlyMine') }}
+        <UIcon v-if="props.filters.mine" name="i-lucide-x" class="size-3.5" />
+      </button>
       <UiChip
         :label="t('finance.filters.categories')"
         :count="props.filters.categoryIds.length"
