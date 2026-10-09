@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, savingsQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
+import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, savingsQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateSavingsSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
 
 describe('createTransactionSchema', () => {
   const valid = {
@@ -310,6 +310,21 @@ describe('createSavingsSchema', () => {
   it('accepts optional notes', () => {
     const result = createSavingsSchema.safeParse({ ...valid, notes: 'Emergency fund' })
     expect(result.success).toBe(true)
+  })
+})
+
+describe('updateSavingsSchema', () => {
+  it('accepts a partial update', () => {
+    expect(updateSavingsSchema.safeParse({ amount: 100 }).success).toBe(true)
+    expect(updateSavingsSchema.safeParse({ notes: '' }).success).toBe(true)
+  })
+
+  it('rejects a non-positive amount', () => {
+    expect(updateSavingsSchema.safeParse({ amount: 0 }).success).toBe(false)
+  })
+
+  it('drops the type so an entry cannot change its kind', () => {
+    expect(updateSavingsSchema.parse({ amount: 100, type: 'WITHDRAWAL' })).toEqual({ amount: 100 })
   })
 })
 
