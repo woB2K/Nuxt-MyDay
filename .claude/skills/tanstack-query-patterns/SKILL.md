@@ -232,7 +232,16 @@ export function useAddTagMutation() { ... }
 export function useAddTemplateMutation() { ... }
 export function useUpdateTemplateMutation() { ... }
 export function useDeleteTemplateMutation() { ... }
+export function useDeleteTagMutation() { ... }    // оптимистичный: снимает тег и с задач
+export function useRestoreTaskMutation() { ... }  // undo из тоста и восстановление из корзины
+
+// app/composables/useTrash.ts — корзина «Недавно удалённые»
+export function useTrashQuery() { ... }
+export function useDeleteForeverMutation() { ... }
+export function useEmptyTrashMutation() { ... }
 ```
+
+Удаление задачи, транзакции и записи копилки — soft delete: `onSuccess` показывает тост с «Отменить», который зовёт соответствующую `useRestore*Mutation` (см. `ARCHITECTURE.md` → «Корзина и undo").
 
 ## useApi — авторизованные запросы с клиента
 
