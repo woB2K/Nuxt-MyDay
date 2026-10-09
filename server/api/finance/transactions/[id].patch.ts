@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const { date, ...rest } = await readValidatedBody(event, updateTransactionSchema.parse)
 
   const current = await prisma.transaction.findFirst({
-    where: { id: transactionId, userId }
+    where: { id: transactionId, userId, deletedAt: null }
   })
 
   if (!current) throw createError({ statusCode: 404, message: 'Transaction not found' })

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     all: undefined
   }
 
-  const where: Prisma.TaskWhereInput = { userId }
+  const where: Prisma.TaskWhereInput = { userId, deletedAt: null }
 
   where.done = doneByFilter[String(filter)]
 

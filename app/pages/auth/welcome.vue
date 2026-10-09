@@ -33,10 +33,6 @@ const { t } = useI18n()
       <p class="text-text text-xl">
         {{ t('welcome.getStarted') }}
       </p>
-      <UiButton variant="secondary" class="w-full">
-        <UIcon name="i-simple-icons-google" />
-        <span>{{ t('welcome.continueGoogle') }}</span>
-      </UiButton>
       <UiButton variant="secondary" class="w-full" to="/auth/register">
         <UIcon name="i-heroicons-envelope" class="text-accent" />
         <span>{{ t('welcome.continueEmail') }}</span>

@@ -6,11 +6,13 @@ export default defineEventHandler(async (event) => {
   const transactionId = getRouterParam(event, 'id')
 
   const transaction = await orNotFound(
-    prisma.transaction.delete({
+    prisma.transaction.update({
       where: {
         id: transactionId,
-        userId
-      }
+        userId,
+        deletedAt: null
+      },
+      data: { deletedAt: new Date() }
     }),
     'Transaction not found'
   )

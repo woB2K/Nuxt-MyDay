@@ -11,5 +11,10 @@ function openPicker(event: MouseEvent) {
 </script>
 
 <template>
-  <input v-model="model" type="date" @click="openPicker">
+  <input
+    v-model="model"
+    class="appearance-none [&::-webkit-date-and-time-value]:text-left"
+    type="date"
+    @click="openPicker"
+  >
 </template>

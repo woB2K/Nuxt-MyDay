@@ -22,6 +22,7 @@ CSS-переменные: тёмная тема — значения по умо
 --c-bgElev1:   #15151C;
 --c-bgElev2:   #1C1C25;
 --c-bgElev3:   #26262F;
+--c-field:     #26262F;   /* поверхность полей ввода — на ступень светлее шита */
 --c-hairline:  rgba(255,255,255,0.06);
 --c-hairline2: rgba(255,255,255,0.10);
 
@@ -57,6 +58,7 @@ CSS-переменные: тёмная тема — значения по умо
 --c-bgElev1:   #FFFFFF;
 --c-bgElev2:   #EBEBF0;
 --c-bgElev3:   #DFDFE8;
+--c-field:     #FFFFFF;   /* поверхность полей ввода — белая на сером шите */
 --c-hairline:  rgba(0,0,0,0.06);
 --c-hairline2: rgba(0,0,0,0.10);
 
@@ -662,6 +664,7 @@ Imperative API (через useToast composable):
 
 ToastStack:
   position: absolute left/right 16px, bottom 100px (над TabBar), z-index 60
+  FAB на время показа поднимается над стеком (+12px), вниз — когда стек пуст
   стек растёт снизу вверх, gap 8px
 
 Toast анимация: translateY(20px)→0 + opacity 0→1, dur-base, ease-spring

@@ -1,23 +1,16 @@
 import { seedCategories } from '~~/prisma/seeds/categories'
 import { setRefreshCookie } from '~~/server/utils/authCookie'
+import { orConflict } from '~~/server/utils/dbError'
 import { hashToken } from '~~/server/utils/jwt'
 import { toPublicUser } from '~~/server/utils/mapper'
 import { registerSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const body = registerSchema.parse(await readBody(event))
-
-  const isExistUser = await prisma.user.findUnique({
-    where: { email: body.email }
-  })
-
-  if (isExistUser) {
-    throw createError({ statusCode: 400, message: 'User with this email already exists' })
-  }
+  const body = await readValidatedBody(event, registerSchema.parse)
 
   const hashedPassword = await hashPassword(body.password)
 
-  const result = await prisma.$transaction(async (tx) => {
+  return await orConflict(prisma.$transaction(async (tx) => {
     const newUser = await tx.user.create({
       data: {
         name: body.name,
@@ -53,7 +46,5 @@ export default defineEventHandler(async (event) => {
       }),
       accessToken
     }
-  })
-
-  return result
+  }), 'User with this email already exists')
 })

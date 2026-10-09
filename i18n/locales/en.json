@@ -7,12 +7,12 @@
     "somethingWrong": "Something went wrong",
     "save": "Save",
     "edit": "Edit",
-    "close": "Close"
+    "close": "Close",
+    "undo": "Undo"
   },
   "welcome": {
     "tagline": "Tasks & finances, one place",
     "getStarted": "Get started",
-    "continueGoogle": "Continue with Google",
     "continueEmail": "Continue with email",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in"
@@ -30,7 +30,9 @@
       "updateSuccess": "Transaction updated",
       "updateError": "Failed to update transaction",
       "deleteSuccess": "Transaction deleted",
-      "deleteError": "Failed to delete transaction"
+      "deleteError": "Failed to delete transaction",
+      "restoreSuccess": "Transaction restored",
+      "restoreError": "Failed to restore transaction"
     },
     "savings": {
       "addSuccess": "Savings entry added",
@@ -38,7 +40,10 @@
       "updateSuccess": "Savings entry updated",
       "updateError": "Failed to update savings entry",
       "deleteSuccess": "Savings entry deleted",
-      "deleteError": "Failed to delete savings entry"
+      "deleteError": "Failed to delete savings entry",
+      "restoreSuccess": "Savings entry restored",
+      "restoreError": "Failed to restore savings entry",
+      "restoreOpeningConflict": "Delete the current opening balance first"
     },
     "budgets": {
       "saveSuccess": "Budget saved",
@@ -58,7 +63,9 @@
       "updateSuccess": "Task updated",
       "updateError": "Failed to update task",
       "deleteSuccess": "Task deleted",
-      "deleteError": "Failed to delete task"
+      "deleteError": "Failed to delete task",
+      "restoreSuccess": "Task restored",
+      "restoreError": "Failed to restore task"
     },
     "tags": {
       "addSuccess": "Tag created",
@@ -80,6 +87,12 @@
       "saved": "PIN saved",
       "disabled": "PIN turned off",
       "reset": "PIN reset"
+    },
+    "trash": {
+      "deleteSuccess": "Deleted forever",
+      "deleteError": "Failed to delete",
+      "emptySuccess": "Trash emptied",
+      "emptyError": "Failed to empty the trash"
     }
   },
   "finance": {
@@ -238,6 +251,8 @@
     "errorInvalidEmail": "Please enter a valid email address.",
     "errorShortPassword": "Password must be at least 8 characters.",
     "errorShortName": "Name must be at least 2 characters.",
+    "errorEmailTaken": "This email is already registered.",
+    "errorTooManyAttempts": "Too many attempts. Try again in a few minutes.",
     "alreadyHaveAccount": "Already have an account?"
   },
   "settings": {
@@ -279,6 +294,34 @@
       "income": "Income",
       "nameRequired": "Name can't be empty",
       "systemTypeLocked": "Fallback category — its type is fixed"
+    },
+    "tags": "Tags",
+    "tagsSub": "Remove the ones you no longer use",
+    "tagsScreen": {
+      "title": "Tags",
+      "subtitle": "Deleting a tag removes it from every task and template",
+      "hint": "Swipe left to delete",
+      "emptyTitle": "No tags yet",
+      "emptySubtitle": "Create one right in the task form"
+    },
+    "trash": "Recently deleted",
+    "trashSub": "Kept for {days} days",
+    "trashScreen": {
+      "title": "Recently deleted",
+      "subtitle": "Items are deleted forever after {days} days",
+      "hint": "Swipe right to restore, left to delete forever",
+      "tasks": "Tasks",
+      "transactions": "Transactions",
+      "savings": "Savings",
+      "daysLeft": "{count} day left | {count} days left",
+      "restore": "Restore",
+      "empty": "Empty trash",
+      "emptyTitle": "Trash is empty",
+      "emptySubtitle": "Deleted tasks, transactions and savings entries stay here for {days} days",
+      "confirmTitle": "Empty the trash?",
+      "confirmText": "{count} item will be deleted forever. This can't be undone. | {count} items will be deleted forever. This can't be undone.",
+      "confirm": "Delete forever",
+      "cancel": "Cancel"
     },
     "pin": {
       "lock": "PIN lock",

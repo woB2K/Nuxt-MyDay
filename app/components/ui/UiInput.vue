@@ -28,11 +28,11 @@ const inputType = computed(() => {
   <div class="flex flex-col text-text w-full gap-1">
     <label v-if="props.label" class="text-text-dim ml-2">{{ props.label }}</label>
     <div
-      class="flex bg-elev2 p-2 rounded-md gap-2 items-center border"
+      class="flex bg-field p-2 rounded-md gap-2 items-center border"
       :class="{
         'border-accent ring-2 ring-accent-soft': focused && !props.error,
         'border-danger': props.error,
-        'border-hairline': !focused && !props.error
+        'border-hairline2': !focused && !props.error
       }"
     >
       <div v-if="$slots.icon" class="flex items-center" :class="{ 'text-accent': focused }">

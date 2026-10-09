@@ -20,7 +20,8 @@ export default defineEventHandler(async (event) => {
     prisma.task.update({
       where: {
         id,
-        userId
+        userId,
+        deletedAt: null
       },
       data: {
         ...taskData,

@@ -6,11 +6,13 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
 
   return await orNotFound(
-    prisma.task.delete({
+    prisma.task.update({
       where: {
         id,
-        userId
-      }
+        userId,
+        deletedAt: null
+      },
+      data: { deletedAt: new Date() }
     }),
     'Task not found'
   )

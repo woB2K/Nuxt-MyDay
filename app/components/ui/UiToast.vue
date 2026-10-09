@@ -3,14 +3,38 @@ const uiStore = useUiStore()
 
 const { inset: keyboard } = useKeyboardInset()
 
+const stack = ref<HTMLElement | null>(null)
+const stackHeight = ref(0)
+
 const style = computed(() => keyboard.value > 0
   ? { bottom: `calc(${keyboard.value}px + 1rem)` }
   : undefined)
+
+watchEffect(() => {
+  uiStore.toastStackHeight = keyboard.value > 0 ? 0 : stackHeight.value
+})
+
+let observer: ResizeObserver | undefined
+
+onMounted(() => {
+  if (!stack.value) return
+
+  observer = new ResizeObserver(([entry]) => {
+    stackHeight.value = entry ? Math.round(entry.contentRect.height) : 0
+  })
+  observer.observe(stack.value)
+})
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  uiStore.toastStackHeight = 0
+})
 </script>
 
 <template>
   <Teleport to="body">
     <div
+      ref="stack"
       class="fixed bottom-toast inset-x-5 z-[60] flex flex-col gap-2 pointer-events-none"
       :style="style"
     >

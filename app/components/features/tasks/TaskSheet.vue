@@ -141,7 +141,7 @@ function remove() {
 
         <UiDateInput
           v-model="dueDate"
-          class="h-12 w-full min-w-0 px-3.5 rounded-xl border border-hairline bg-elev2 text-text text-base outline-none"
+          class="h-12 w-full min-w-0 px-3.5 rounded-xl border border-hairline2 bg-field text-text text-base outline-none"
         />
       </div>
 

@@ -13,8 +13,8 @@
 | Файл | Что внутри | Когда открывать |
 |---|---|---|
 | `CLAUDE.md` (этот файл) | Правила работы, конвенции, состояние проекта | Загружается всегда — держим лин |
-| `ARCHITECTURE.md` | Решения по БД, ER-диаграмма, auth-flow, зоны риска, известные баги | Работа с БД/архитектурой, риск-рефакторинг |
-| `ROADMAP.md` | Чеклист фаз реализации | Перед стартом/завершением конкретного шага |
+| `ARCHITECTURE.md` | Решения по БД, ER-диаграмма, auth-flow, зоны риска, известные баги, журнал реализации шагов | Работа с БД/архитектурой, риск-рефакторинг, «как на самом деле сделан шаг N» |
+| `ROADMAP.md` | Чеклист фаз реализации, одна строка на пункт | Перед стартом/завершением конкретного шага |
 | `DESIGN.md` | Дизайн-токены, спеки экранов и компонентов | Вёрстка UI |
 | `.claude/skills/*` | Готовые кодовые паттерны проекта (auth, Prisma, TanStack Query, UI feedback, даты и периоды, инвентарь Ui-компонентов) и процесс релиза (`/release`) | Подгружаются автоматически, когда релевантны задаче |
 
@@ -42,7 +42,7 @@
 - **Начало сессии:** говорю "приступаем к шагу N" → открой `ROADMAP.md`, найди пункт N и прочитай контекст его фазы (не весь файл целиком — он большой и почти всегда нерелевантен вне текущей фазы).
 - **Пункт касается решения по БД/security/рисков** → сверься с `ARCHITECTURE.md`, прежде чем реализовывать.
 - **Есть готовый паттерн под задачу** (auth, Prisma, TanStack Query, UI feedback) → используй skill из `.claude/skills/`, не изобретай заново — Claude Code подгружает их сам по релевантности.
-- **Завершение шага:** говорю "Идём дальше" → отметь пункт `[x]` в `ROADMAP.md`, предложи следующий.
+- **Завершение шага:** говорю "Идём дальше" → отметь пункт `[x]` в `ROADMAP.md`, предложи следующий. Строку пункта не расширяй: отличия от плана, «сверх пункта» и попутные фиксы — в `ARCHITECTURE.md` → «Журнал реализации»; архитектурное решение — в тематический раздел там же.
 
 ---
 
@@ -69,18 +69,18 @@ myday/
 │   ├── components/
 │   │   ├── ui/                        # UiButton, UiInput, UiCard... — без бизнес-логики
 │   │   └── features/{auth,tasks,finance,settings}/
-│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useAppToast.ts
+│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useTrash.ts, useAppToast.ts
 │   ├── plugins/                       # errorHandler.ts, vue-query.ts
 │   ├── layouts/                       # default.vue (TabBar+FAB), auth.vue
 │   ├── middleware/                    # auth.global.ts, lock.global.ts — оба глобальные, на страницах не объявляются
 │   ├── pages/
 │   ├── stores/                        # ТОЛЬКО client state — см. «Pinia vs TanStack» ниже
-│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, routes.ts
+│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, trash.ts, routes.ts
 │
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts
+│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts
 │
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, finance.ts

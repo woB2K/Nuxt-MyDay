@@ -46,7 +46,7 @@ function create() {
     <div class="flex items-center gap-2">
       <input
         v-model="newTag"
-        class="flex-1 min-w-0 h-10 px-3.5 rounded-full border border-hairline bg-elev1 text-text text-sm outline-none"
+        class="flex-1 min-w-0 h-10 px-3.5 rounded-full border border-hairline2 bg-field text-text text-sm outline-none"
         :placeholder="t('tasks.newTag')"
         type="text"
         @keydown.enter.prevent="create"

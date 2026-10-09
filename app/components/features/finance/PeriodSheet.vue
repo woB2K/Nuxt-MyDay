@@ -94,14 +94,14 @@ function applyRange() {
           <span class="text-xs font-semibold text-text-dim">{{ t('finance.period.from') }}</span>
           <UiDateInput
             v-model="from"
-            class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none"
+            class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline2 bg-field text-text text-[15px] outline-none"
           />
         </label>
         <label class="min-w-0 flex-1 flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-text-dim">{{ t('finance.period.to') }}</span>
           <UiDateInput
             v-model="to"
-            class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline bg-elev2 text-text text-[15px] outline-none"
+            class="h-12 w-full min-w-0 px-3 rounded-xl border border-hairline2 bg-field text-text text-[15px] outline-none"
           />
         </label>
       </div>

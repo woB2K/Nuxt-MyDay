@@ -1,3 +1,4 @@
+import type { ToastAction } from '~/stores/ui'
 import { useUiStore } from '~/stores/ui'
 
 export const useAppToast = () => {
@@ -10,10 +11,11 @@ export const useAppToast = () => {
     })
   }
 
-  function success(message: string) {
+  function success(message: string, action?: ToastAction) {
     uiStore.addToast({
       message,
-      type: 'success'
+      type: 'success',
+      action
     })
   }
 

@@ -1,9 +1,12 @@
 <script lang="ts" setup>
+import type { ToastAction } from '~/stores/ui'
+
 interface Props {
   id: string
   message: string
   type: 'success' | 'error' | 'info'
   duration?: number
+  action?: ToastAction
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -32,6 +35,11 @@ onMounted(() => {
 onUnmounted(() => {
   clearTimeout(timer)
 })
+
+function runAction() {
+  props.action?.run()
+  emit('close', props.id)
+}
 </script>
 
 <template>
@@ -44,6 +52,14 @@ onUnmounted(() => {
     <p class="flex-1 text-footnote text-text">
       {{ message }}
     </p>
+    <button
+      v-if="action"
+      class="flex-none text-footnote font-semibold text-accent transition-opacity duration-fast active:opacity-60"
+      type="button"
+      @click="runAction"
+    >
+      {{ action.label }}
+    </button>
     <button
       class="flex-none text-text-mute hover:text-text transition-colors duration-fast"
       @click="emit('close', id)"

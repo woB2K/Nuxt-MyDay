@@ -19,12 +19,12 @@ export default defineEventHandler(async (event) => {
   const { from, to, page, limit } = await getValidatedQuery(event, savingsQuerySchema.parse)
 
   const createdAt = timestampRange(from, to)
-  const where: Prisma.SavingsEntryWhereInput = { userId, ...(createdAt && { createdAt }) }
+  const where: Prisma.SavingsEntryWhereInput = { userId, deletedAt: null, ...(createdAt && { createdAt }) }
 
   const [allTime, inPeriod, entries, total] = await Promise.all([
     prisma.savingsEntry.groupBy({
       by: ['type'],
-      where: { userId },
+      where: { userId, deletedAt: null },
       _sum: { amount: true }
     }),
     createdAt

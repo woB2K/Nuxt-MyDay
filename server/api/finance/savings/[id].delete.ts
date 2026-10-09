@@ -7,11 +7,13 @@ export default defineEventHandler(async (event) => {
   const savingsId = getRouterParam(event, 'id')
 
   const entry = await orNotFound(
-    prisma.savingsEntry.delete({
+    prisma.savingsEntry.update({
       where: {
         id: savingsId,
-        userId
-      }
+        userId,
+        deletedAt: null
+      },
+      data: { deletedAt: new Date() }
     }),
     'Savings entry not found'
   )

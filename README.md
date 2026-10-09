@@ -6,7 +6,7 @@ Personal productivity app combining task management and personal finance trackin
 
 - **Frontend:** Nuxt 4 + Vue 3, Tailwind CSS v4, Nuxt UI, Pinia
 - **Backend:** Nuxt server (Nitro), Prisma 7 + PostgreSQL
-- **Auth:** Email/Password + Google OAuth, JWT (access + refresh)
+- **Auth:** Email/Password, JWT (access + refresh)
 - **Other:** Zod, PWA
 
 ## Prerequisites

@@ -3,15 +3,25 @@ import { defaultAccent } from '~/utils/accents'
 
 type ToastType = 'success' | 'error' | 'info'
 
+export interface ToastAction {
+  label: string
+  run: () => void
+}
+
 interface Toast {
   id: string
   message: string
   type: ToastType
   duration?: number
+  action?: ToastAction
 }
+
+const TOAST_DURATION = 3000
+const ACTION_TOAST_DURATION = 5000
 
 export const useUiStore = defineStore('ui', () => {
   const queue = ref<Toast[]>([])
+  const toastStackHeight = ref(0)
   const accent = ref<AccentName>(defaultAccent)
   const isLocked = ref(false)
   const lockPrimed = ref(false)
@@ -23,7 +33,7 @@ export const useUiStore = defineStore('ui', () => {
     toastSeq += 1
 
     queue.value.push({
-      duration: 3000,
+      duration: toast.action ? ACTION_TOAST_DURATION : TOAST_DURATION,
       ...toast,
       id: `toast-${toastSeq}`
     })
@@ -35,6 +45,7 @@ export const useUiStore = defineStore('ui', () => {
 
   return {
     queue,
+    toastStackHeight,
     accent,
     isLocked,
     lockPrimed,

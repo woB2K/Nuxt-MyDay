@@ -6,6 +6,7 @@ import type {
   CreateTemplateInput,
   TaskItem,
   TemplateItem,
+  TrashResponse,
   UpdateTaskInput,
   UpdateTemplateInput
 } from '~~/shared/types'
@@ -13,6 +14,7 @@ import type { TaskFilter } from '~/utils/taskFilters'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { invalidateWhenSettled, restoreQueries, snapshotQueries } from '~/utils/optimistic'
 import { taskQuery } from '~/utils/taskFilters'
+import { dropFromTrash } from '~/utils/trash'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
 
@@ -124,6 +126,39 @@ export function useAddTagMutation() {
   })
 }
 
+export function useDeleteTagMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<Tag>(`/api/tags/${id}`, { method: 'DELETE' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['tags'], ['tasks'])
+
+      queryClient.setQueryData<Tag[]>(queryKeys.tags(), tags => tags?.filter(tag => tag.id !== id))
+      patchTaskLists(queryClient, tasks => tasks.map(task => ({
+        ...task,
+        tags: task.tags.filter(tag => tag.id !== id)
+      })))
+
+      return { previous }
+    },
+    onSuccess: () => {
+      toast.success(t('toast.tags.deleteSuccess'))
+    },
+    onError: (_error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
+      toast.error(t('toast.tags.deleteError'))
+    },
+    onSettled: () => {
+      invalidateWhenSettled(queryClient, ['tags'], ['tasks'], ['templates'])
+    }
+  })
+}
+
 export function useAddTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
@@ -190,11 +225,42 @@ export function useToggleTaskMutation() {
   })
 }
 
+export function useRestoreTaskMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<TaskItem>(`/api/tasks/${id}/restore`, { method: 'POST' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['trash'])
+
+      queryClient.setQueryData<TrashResponse>(queryKeys.trash(), cache => cache && dropFromTrash(cache, 'task', id))
+
+      return { previous }
+    },
+    onSuccess: () => {
+      toast.success(t('toast.tasks.restoreSuccess'))
+    },
+    onError: (_error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
+      toast.error(t('toast.tasks.restoreError'))
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
+    }
+  })
+}
+
 export function useDeleteTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()
   const { t } = useI18n()
   const toast = useAppToast()
+  const { mutate: restore } = useRestoreTaskMutation()
 
   return useMutation({
     mutationFn: (id: string) =>
@@ -206,14 +272,15 @@ export function useDeleteTaskMutation() {
 
       return { previous }
     },
-    onSuccess: () => {
-      toast.success(t('toast.tasks.deleteSuccess'))
+    onSuccess: (_task, id) => {
+      toast.success(t('toast.tasks.deleteSuccess'), { label: t('general.undo'), run: () => restore(id) })
     },
     onError: (_error, _id, context) => {
       restoreQueries(queryClient, context?.previous)
       toast.error(t('toast.tasks.deleteError'))
     },
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
       invalidateWhenSettled(queryClient, ['tasks'])
     }
   })
