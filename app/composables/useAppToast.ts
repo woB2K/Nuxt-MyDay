@@ -19,10 +19,11 @@ export const useAppToast = () => {
     })
   }
 
-  function info(message: string) {
+  function info(message: string, options: { persistent?: boolean } = {}) {
     uiStore.addToast({
       message,
-      type: 'info'
+      type: 'info',
+      ...(options.persistent && { duration: 0 })
     })
   }
 

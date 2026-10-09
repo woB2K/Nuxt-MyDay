@@ -4,7 +4,7 @@ import { resolveComponent } from 'vue'
 interface Props {
   size?: 'sm' | 'md' | 'lg'
   to?: string
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'destructive'
   loading?: boolean
   disabled?: boolean
 }
@@ -22,7 +22,8 @@ const variants = {
   primary: 'bg-accent text-accent-ink border-transparent shadow-md',
   secondary: 'bg-elev2 text-text border-hairline shadow-md',
   ghost: 'bg-transparent text-text-dim border-transparent',
-  danger: 'bg-danger/10 text-danger border-transparent'
+  danger: 'bg-danger/10 text-danger border-transparent',
+  destructive: 'bg-danger text-accent-ink border-transparent shadow-md'
 }
 
 const sizes = {
