@@ -59,6 +59,7 @@ export async function previewInvite(event: H3Event, token: string) {
     members: invite.household.members.map(member => ({ name: member.user.name, role: member.role, colorIndex: member.colorIndex })),
     shareSavings: invite.household.shareSavings,
     state,
+    own: invite.createdById === event.context.userId,
     mine: {
       transactionCount,
       matchingCategories: mine

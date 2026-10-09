@@ -13,6 +13,7 @@ export interface HouseholdMemberItem {
   joinedAt: Date
   transactionCount: number
   savingsCount: number
+  savingsBalance: number | null
 }
 
 export interface HouseholdResponse {
@@ -42,6 +43,7 @@ export interface InvitePreviewResponse {
   members: InviteMember[]
   shareSavings: boolean
   state: InviteState
+  own: boolean
   mine: {
     transactionCount: number
     matchingCategories: Array<{ name: string, key: string | null }>

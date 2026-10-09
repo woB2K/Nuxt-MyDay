@@ -39,6 +39,7 @@ interface MemberDto {
   colorIndex: number
   transactionCount: number
   savingsCount: number
+  savingsBalance: number | null
 }
 
 interface HouseholdDto {
@@ -60,6 +61,7 @@ interface PreviewDto {
   members: Array<{ name: string, role: 'OWNER' | 'MEMBER', colorIndex: number }>
   shareSavings: boolean
   state: 'ready' | 'alreadyMember' | 'mustLeave'
+  own: boolean
   mine: {
     transactionCount: number
     matchingCategories: Array<{ name: string, key: string | null }>
@@ -152,6 +154,7 @@ describe('household api', async () => {
         members: [{ name: 'Test User', role: 'OWNER', colorIndex: 0 }],
         shareSavings: true,
         state: 'ready',
+        own: false,
         mine: { transactionCount: 1, savingsBalance: 500 }
       })
       expect(preview.mine.matchingCategories).toHaveLength(11)
@@ -208,7 +211,7 @@ describe('household api', async () => {
       const owner = await registerUser()
       const { token } = await invite(owner)
 
-      expect((await get<PreviewDto>(owner, '/api/household/join', { token })).state).toBe('alreadyMember')
+      expect(await get<PreviewDto>(owner, '/api/household/join', { token })).toMatchObject({ state: 'alreadyMember', own: true })
       await expect(join(owner, token)).rejects.toMatchObject({ statusCode: 409 })
     })
 
@@ -316,6 +319,19 @@ describe('household api', async () => {
       const { members } = await household(owner)
 
       expect(members.map(({ transactionCount, savingsCount }) => [transactionCount, savingsCount])).toEqual([[1, 0], [2, 1]])
+    })
+
+    it('shows how much each member saved, but only while savings are shared', async () => {
+      const { owner, member } = await family()
+      await deposit(owner, 1000, 'OPENING')
+      await deposit(member, 300)
+      await send(member, '/api/finance/savings', 'POST', { amount: 120, type: 'WITHDRAWAL' })
+
+      expect((await household(member)).members.map(m => m.savingsBalance)).toEqual([1000, 180])
+
+      await send(owner, '/api/household', 'PATCH', { shareSavings: false })
+
+      expect((await household(owner)).members.map(m => m.savingsBalance)).toEqual([null, null])
     })
 
     it('narrows transactions and summary to my own with mine=true', async () => {
