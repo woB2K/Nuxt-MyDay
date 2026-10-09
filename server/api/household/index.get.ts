@@ -4,5 +4,5 @@ import { householdView } from '~~/server/utils/householdView'
 export default defineEventHandler(async (event) => {
   const household = await getHousehold(event)
 
-  return householdView(household.id, household.role)
+  return householdView(household.id, event.context.userId)
 })

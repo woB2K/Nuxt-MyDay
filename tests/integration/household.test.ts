@@ -32,11 +32,21 @@ interface SavingsResponseDto {
   entries: Array<{ id: string, userId: string }>
 }
 
+interface MemberDto {
+  userId: string
+  name: string
+  role: 'OWNER' | 'MEMBER'
+  colorIndex: number
+  transactionCount: number
+  savingsCount: number
+}
+
 interface HouseholdDto {
   id: string
   role: 'OWNER' | 'MEMBER'
   shareSavings: boolean
-  members: Array<{ userId: string, name: string, role: 'OWNER' | 'MEMBER' }>
+  removedNotice: boolean
+  members: MemberDto[]
   invite: { expiresAt: string } | null
 }
 
@@ -47,9 +57,14 @@ interface InviteDto {
 
 interface PreviewDto {
   inviterName: string
-  memberCount: number
+  members: Array<{ name: string, role: 'OWNER' | 'MEMBER', colorIndex: number }>
   shareSavings: boolean
   state: 'ready' | 'alreadyMember' | 'mustLeave'
+  mine: {
+    transactionCount: number
+    matchingCategories: Array<{ name: string, key: string | null }>
+    savingsBalance: number
+  }
 }
 
 type User = Awaited<ReturnType<typeof registerUser>>
@@ -121,15 +136,35 @@ describe('household api', async () => {
   })
 
   describe('invites', () => {
-    it('shows the inviter and the household to the invitee', async () => {
+    it('shows the inviter, the family and what happens to the invitee data', async () => {
       const owner = await registerUser()
       const guest = await registerUser()
+      await send(guest, '/api/categories', 'POST', { name: 'Pets', icon: 'i-lucide-dog', color: '#FFFFFF', type: 'EXPENSE' })
+      await spend(guest, (await byKey(guest, 'food')).id, 30)
+      await deposit(guest, 400, 'OPENING')
+      await deposit(guest, 100)
       const { token } = await invite(owner)
 
       const preview = await get<PreviewDto>(guest, '/api/household/join', { token })
 
-      expect(preview).toEqual({ inviterName: 'Test User', memberCount: 1, shareSavings: true, state: 'ready' })
+      expect(preview).toMatchObject({
+        inviterName: 'Test User',
+        members: [{ name: 'Test User', role: 'OWNER', colorIndex: 0 }],
+        shareSavings: true,
+        state: 'ready',
+        mine: { transactionCount: 1, savingsBalance: 500 }
+      })
+      expect(preview.mine.matchingCategories).toHaveLength(11)
+      expect(preview.mine.matchingCategories.map(category => category.name)).not.toContain('Pets')
       expect((await household(owner)).invite).not.toBeNull()
+    })
+
+    it('tells a signed-out guest who is inviting, without a session', async () => {
+      const owner = await registerUser()
+      const { token } = await invite(owner)
+
+      expect(await $fetch('/api/auth/invite', { query: { token } })).toEqual({ inviterName: 'Test User', inviterColorIndex: 0 })
+      await expect($fetch('/api/auth/invite', { query: { token: 'nope' } })).rejects.toMatchObject({ statusCode: 404 })
     })
 
     it('keeps only the latest invite', async () => {
@@ -219,24 +254,37 @@ describe('household api', async () => {
       expect(await transactions(guest)).toEqual(list)
     })
 
-    it('glues tags by name and keeps them on the newcomer tasks', async () => {
+    it('keeps tags personal', async () => {
       const owner = await registerUser()
       const guest = await registerUser()
 
       await send(owner, '/api/tags', 'POST', { name: 'home' })
       const guestHome = await send<TagDto>(guest, '/api/tags', 'POST', { name: 'home' })
-      await send(guest, '/api/tags', 'POST', { name: 'travel' })
       const task = await send<TaskDto>(guest, '/api/tasks', 'POST', { title: 'Clean up', tagIds: [guestHome.id] })
 
       const { token } = await invite(owner)
       await join(guest, token)
 
-      const familyTags = await tags(owner)
-      expect(familyTags.map(tag => tag.name).sort()).toEqual(['home', 'travel'])
+      expect((await tags(guest)).map(tag => tag.id)).toEqual([guestHome.id])
+      expect((await tags(owner)).map(tag => tag.id)).not.toContain(guestHome.id)
+      await expect(send(owner, `/api/tags/${guestHome.id}`, 'PATCH', { name: 'mine now' })).rejects.toMatchObject({ statusCode: 404 })
 
       const tasks = await get<TaskDto[]>(guest, '/api/tasks')
-      expect(tasks.find(item => item.id === task.id)!.tags).toEqual([expect.objectContaining({ name: 'home', id: familyTags.find(tag => tag.name === 'home')!.id })])
+      expect(tasks.find(item => item.id === task.id)!.tags.map(tag => tag.id)).toEqual([guestHome.id])
       expect(await get<TaskDto[]>(owner, '/api/tasks')).toEqual([])
+    })
+
+    it('gives every newcomer the next member color', async () => {
+      const owner = await registerUser()
+      const second = await registerUser()
+      const third = await registerUser()
+
+      await join(second, (await invite(owner)).token)
+      await leave(second)
+      await join(third, (await invite(owner)).token)
+
+      expect((await household(owner)).members.map(member => member.colorIndex)).toEqual([0, 2])
+      expect((await household(second)).members[0]!.colorIndex).toBe(0)
     })
 
     it('shares the savings balance and keeps one opening balance per person', async () => {
@@ -253,6 +301,50 @@ describe('household api', async () => {
       expect(shared.balance).toBe(1700)
       expect(shared.opening).toBe(1500)
       await expect(deposit(guest, 1, 'OPENING')).rejects.toMatchObject({ statusCode: 409 })
+    })
+  })
+
+  describe('family view', () => {
+    it('counts the records each member added', async () => {
+      const { owner, member } = await family()
+      const food = await byKey(owner, 'food')
+      await spend(owner, food.id, 10)
+      await spend(member, food.id, 20)
+      await spend(member, food.id, 30)
+      await deposit(member, 5)
+
+      const { members } = await household(owner)
+
+      expect(members.map(({ transactionCount, savingsCount }) => [transactionCount, savingsCount])).toEqual([[1, 0], [2, 1]])
+    })
+
+    it('narrows transactions and summary to my own with mine=true', async () => {
+      const { owner, member } = await family()
+      const food = await byKey(owner, 'food')
+      await spend(owner, food.id, 10)
+      await spend(member, food.id, 25)
+
+      const mine = await get<{ data: TransactionDto[] }>(member, '/api/finance/transactions', { mine: 'true' })
+      const summary = await get<{ expense: number }>(member, '/api/finance/summary', { mine: 'true' })
+      const all = await get<{ expense: number }>(member, '/api/finance/summary')
+
+      expect(mine.data.map(tx => tx.amount)).toEqual([25])
+      expect(summary.expense).toBe(25)
+      expect(all.expense).toBe(35)
+    })
+
+    it('lets the owner hand ownership over without leaving', async () => {
+      const { owner, member } = await family()
+
+      await expect(send(member, `/api/household/members/${owner.userId}`, 'PATCH', { role: 'OWNER' })).rejects.toMatchObject({ statusCode: 403 })
+      await expect(send(owner, `/api/household/members/${owner.userId}`, 'PATCH', { role: 'OWNER' })).rejects.toMatchObject({ statusCode: 400 })
+
+      const result = await send<HouseholdDto>(owner, `/api/household/members/${member.userId}`, 'PATCH', { role: 'OWNER' })
+
+      expect(result.role).toBe('MEMBER')
+      expect(result.members.map(item => item.role)).toEqual(['MEMBER', 'OWNER'])
+      await expect(invite(owner)).rejects.toMatchObject({ statusCode: 403 })
+      await invite(member)
     })
   })
 
@@ -365,8 +457,7 @@ describe('household api', async () => {
       expect((await savings(owner)).balance).toBe(70)
 
       const [task] = await get<TaskDto[]>(member, '/api/tasks')
-      expect(task!.tags.map(item => item.name)).toEqual(['gym'])
-      expect(task!.tags[0]!.id).not.toBe(tag.id)
+      expect(task!.tags.map(item => item.id)).toEqual([tag.id])
     })
 
     it('takes personal savings along when the family does not share them', async () => {
@@ -400,6 +491,21 @@ describe('household api', async () => {
 
       expect(rest.members.map(item => item.userId)).toEqual([owner.userId])
       expect((await household(member)).role).toBe('OWNER')
+    })
+
+    it('tells a removed member once, and not someone who left', async () => {
+      const { owner, member } = await family()
+      const third = await registerUser()
+      await join(third, (await invite(owner)).token)
+
+      await send(owner, `/api/household/members/${member.userId}`, 'DELETE')
+      await leave(third)
+
+      expect((await household(member)).removedNotice).toBe(true)
+      expect((await household(third)).removedNotice).toBe(false)
+
+      await send(member, '/api/household/notice', 'DELETE')
+      expect((await household(member)).removedNotice).toBe(false)
     })
   })
 })

@@ -1,10 +1,8 @@
-import { getHousehold } from '~~/server/utils/household'
 import { normalizeTags } from '~~/server/utils/mapper'
 import { createTemplateSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
-  const household = await getHousehold(event)
 
   const body = await readValidatedBody(event, createTemplateSchema.parse)
 
@@ -13,7 +11,7 @@ export default defineEventHandler(async (event) => {
   const userTagIds = await prisma.tag.count({
     where: {
       id: { in: tagIds },
-      householdId: household.id
+      userId
     }
   })
 

@@ -30,7 +30,8 @@ const transactionFilterShape = {
   type: transactionTypeEnum.optional(),
   search: z.string().max(100).optional().transform(s => s?.trim() || undefined),
   categoryIds: z.string().optional()
-    .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean))
+    .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean)),
+  mine: z.enum(['true', 'false']).optional().transform(s => s === 'true' || undefined)
 }
 
 export const transactionFilterQuerySchema = z.object(transactionFilterShape).refine(isOrderedRange, orderedRangeError)

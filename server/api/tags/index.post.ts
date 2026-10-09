@@ -1,14 +1,13 @@
-import { getHousehold } from '~~/server/utils/household'
 import { createTagSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const household = await getHousehold(event)
+  const userId = event.context.userId
 
   const body = await readValidatedBody(event, createTagSchema.parse)
 
   try {
     return await prisma.tag.create({
-      data: { ...body, householdId: household.id }
+      data: { ...body, userId }
     })
   } catch (e: any) {
     if (e?.code === 'P2002') {

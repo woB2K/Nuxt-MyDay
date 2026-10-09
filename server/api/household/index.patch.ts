@@ -12,5 +12,5 @@ export default defineEventHandler(async (event) => {
     await tx.household.update({ where: { id: household.id }, data: body })
   })
 
-  return householdView(household.id, household.role)
+  return householdView(household.id, event.context.userId)
 })

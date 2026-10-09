@@ -305,6 +305,6 @@ const userId = event.context.userId // проставляет server/middleware/
 
 Иначе любой аутентифицированный пользователь может передать чужой `userId` и получить доступ к чужим данным.
 
-Финансы и теги принадлежат **семье**: scope — `householdId` из `await getHousehold(event)` (`server/utils/household.ts`), никогда не из запроса. Задачи и шаблоны — личные, scope `userId`. Копилка — `savingsScope(userId, household)`.
+Финансы принадлежат **семье**: scope — `householdId` из `await getHousehold(event)` (`server/utils/household.ts`), никогда не из запроса. Задачи, шаблоны и теги — личные, scope `userId`. Копилка — `savingsScope(userId, household)`.
 
 Полный паттерн проверки `categoryId`/`tagIds` и других relation-id из body на принадлежность пользователю — в `.claude/skills/auth-security-patterns/`.

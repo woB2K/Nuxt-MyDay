@@ -32,6 +32,8 @@ export function requireOwner(household: HouseholdContext) {
   if (household.role !== 'OWNER') throw createError({ statusCode: 403, message: 'Only the family owner can do this' })
 }
 
+export const MEMBER_COLORS = 4
+
 export async function lockHouseholds(tx: Prisma.TransactionClient, ids: string[]) {
   for (const id of [...new Set(ids)].sort())
     await tx.$queryRaw`SELECT 1 FROM "Household" WHERE "id" = ${id} FOR UPDATE`
@@ -54,18 +56,13 @@ export function savingsScope(userId: string, household: HouseholdContext): Prism
     : { householdId: household.id, userId }
 }
 
-interface Named { id: string, name: string }
-interface Typed extends Named { type: string, key: string | null }
+interface Typed { id: string, name: string, type: string, key: string | null }
 
-function matchCategory<T extends Typed>(category: T, candidates: T[]): T | undefined {
+export function matchCategory<T extends Typed>(category: T, candidates: T[]): T | undefined {
   const sameType = candidates.filter(candidate => candidate.type === category.type)
 
   return (category.key ? sameType.find(candidate => candidate.key === category.key) : undefined)
     ?? sameType.find(candidate => candidate.name === category.name)
-}
-
-function matchTag<T extends Named>(tag: T, candidates: T[]): T | undefined {
-  return candidates.find(candidate => candidate.name === tag.name)
 }
 
 export async function mergeHousehold(tx: Prisma.TransactionClient, fromId: string, toId: string) {
@@ -96,30 +93,17 @@ export async function mergeHousehold(tx: Prisma.TransactionClient, fromId: strin
     await tx.category.delete({ where: { id: category.id } })
   }
 
-  const [sourceTags, targetTags] = await Promise.all([
-    tx.tag.findMany({ where: { householdId: fromId } }),
-    tx.tag.findMany({ where: { householdId: toId } })
-  ])
-
-  for (const tag of sourceTags) {
-    const match = matchTag(tag, targetTags)
-
-    if (!match) {
-      await tx.tag.update({ where: { id: tag.id }, data: { householdId: toId } })
-      continue
-    }
-
-    await tx.taskTag.updateMany({ where: { tagId: tag.id }, data: { tagId: match.id } })
-    await tx.taskTemplateTag.updateMany({ where: { tagId: tag.id }, data: { tagId: match.id } })
-    await tx.tag.delete({ where: { id: tag.id } })
-  }
-
   const move = { where: { householdId: fromId }, data: { householdId: toId } }
 
   await tx.budget.updateMany(move)
   await tx.transaction.updateMany(move)
   await tx.savingsEntry.updateMany(move)
-  await tx.householdMember.updateMany({ ...move, data: { householdId: toId, role: 'MEMBER', joinedAt: new Date() } })
+  const target = await tx.household.update({ where: { id: toId }, data: { nextColor: { increment: 1 } } })
+
+  await tx.householdMember.updateMany({
+    ...move,
+    data: { householdId: toId, role: 'MEMBER', colorIndex: (target.nextColor - 1) % MEMBER_COLORS, joinedAt: new Date() }
+  })
   await tx.household.delete({ where: { id: fromId } })
 }
 
@@ -170,28 +154,17 @@ export async function detachMember(tx: Prisma.TransactionClient, householdId: st
     await tx.savingsEntry.updateMany({ where: { householdId, userId }, data: { householdId: fresh.id } })
   }
 
-  const tags = await tx.tag.findMany({
-    where: {
-      householdId,
-      OR: [
-        { tasks: { some: { task: { userId } } } },
-        { templates: { some: { template: { userId } } } }
-      ]
-    }
-  })
-
-  for (const tag of tags) {
-    const copy = await tx.tag.create({ data: { householdId: fresh.id, name: tag.name, color: tag.color } })
-
-    await tx.taskTag.updateMany({ where: { tagId: tag.id, task: { userId } }, data: { tagId: copy.id } })
-    await tx.taskTemplateTag.updateMany({ where: { tagId: tag.id, template: { userId } }, data: { tagId: copy.id } })
-  }
-
   await tx.householdInvite.deleteMany({ where: { householdId, createdById: userId } })
 
   await tx.householdMember.update({
     where: { userId },
-    data: { householdId: fresh.id, role: 'OWNER', joinedAt: new Date() }
+    data: {
+      householdId: fresh.id,
+      role: 'OWNER',
+      colorIndex: 0,
+      joinedAt: new Date(),
+      removedAt: actorId === userId ? null : new Date()
+    }
   })
 
   const successor = household.members.find(item => item.userId !== userId)
@@ -201,4 +174,14 @@ export async function detachMember(tx: Prisma.TransactionClient, householdId: st
   }
 
   return fresh
+}
+
+export async function transferOwnership(tx: Prisma.TransactionClient, householdId: string, ownerId: string, userId: string) {
+  await lockMembership(tx, householdId, ownerId, { owner: true })
+
+  const { count } = await tx.householdMember.updateMany({ where: { householdId, userId }, data: { role: 'OWNER' } })
+
+  if (count === 0) throw createError({ statusCode: 404, message: 'Member not found' })
+
+  await tx.householdMember.update({ where: { userId: ownerId }, data: { role: 'MEMBER' } })
 }

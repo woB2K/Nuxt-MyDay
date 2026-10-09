@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const filters = await getValidatedQuery(event, transactionFilterQuerySchema.parse)
 
-  const where = transactionWhere(household.id, filters)
+  const where = transactionWhere(household.id, filters, event.context.userId)
 
   const withIncome = filters.type !== 'EXPENSE'
   const withExpense = filters.type !== 'INCOME'

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const { page, limit, ...filters } = await getValidatedQuery(event, transactionQuerySchema.parse)
 
-  const where = transactionWhere(household.id, filters)
+  const where = transactionWhere(household.id, filters, event.context.userId)
 
   const [items, total] = await Promise.all([
     prisma.transaction.findMany({

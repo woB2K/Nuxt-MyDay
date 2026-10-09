@@ -1,5 +1,4 @@
 import { orNotFound } from '~~/server/utils/dbError'
-import { getHousehold } from '~~/server/utils/household'
 import { normalizeTags } from '~~/server/utils/mapper'
 import { updateTaskSchema } from '~~/shared/schemas'
 
@@ -13,8 +12,7 @@ export default defineEventHandler(async (event) => {
 
   if (rawTagIds !== undefined) {
     const uniqueTagIds = [...new Set(rawTagIds)]
-    const household = await getHousehold(event)
-    const count = await prisma.tag.count({ where: { id: { in: uniqueTagIds }, householdId: household.id } })
+    const count = await prisma.tag.count({ where: { id: { in: uniqueTagIds }, userId } })
     if (uniqueTagIds.length !== count) throw createError({ statusCode: 400, message: 'Invalid tag IDs' })
   }
 

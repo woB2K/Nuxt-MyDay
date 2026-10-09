@@ -34,5 +34,5 @@ export default defineEventHandler(async (event) => {
     return invite.householdId
   })
 
-  return householdView(targetId, 'MEMBER')
+  return householdView(targetId, event.context.userId)
 })

@@ -1,6 +1,6 @@
 import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, householdOf, prisma, registerUser, resetDb } from './helpers'
+import { authHeaders, prisma, registerUser, resetDb } from './helpers'
 
 interface TaskDto {
   id: string
@@ -141,7 +141,7 @@ describe('phase 3 api', async () => {
     it('rejects a task with a tag of another user', async () => {
       const owner = await registerUser()
       const stranger = await registerUser()
-      const tag = await prisma.tag.create({ data: { householdId: await householdOf(stranger.userId), name: 'private' } })
+      const tag = await prisma.tag.create({ data: { userId: stranger.userId, name: 'private' } })
 
       await expect($fetch('/api/tasks', {
         method: 'POST',
@@ -152,7 +152,7 @@ describe('phase 3 api', async () => {
 
     it('returns own tags flattened on the task', async () => {
       const { token, userId } = await registerUser()
-      const tag = await prisma.tag.create({ data: { householdId: await householdOf(userId), name: 'home' } })
+      const tag = await prisma.tag.create({ data: { userId, name: 'home' } })
 
       const created = await $fetch<TaskDto>('/api/tasks', {
         method: 'POST',

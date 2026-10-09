@@ -13,5 +13,5 @@ export default defineEventHandler(async (event) => {
 
   await prisma.$transaction(tx => detachMember(tx, household.id, userId, event.context.userId))
 
-  return householdView(household.id, household.role)
+  return householdView(household.id, event.context.userId)
 })

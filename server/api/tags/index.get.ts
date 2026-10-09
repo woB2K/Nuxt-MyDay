@@ -1,10 +1,8 @@
-import { getHousehold } from '~~/server/utils/household'
-
 export default defineEventHandler(async (event) => {
-  const household = await getHousehold(event)
+  const userId = event.context.userId
 
   return prisma.tag.findMany({
-    where: { householdId: household.id },
+    where: { userId },
     orderBy: {
       name: 'asc'
     }

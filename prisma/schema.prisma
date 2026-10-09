@@ -20,6 +20,7 @@ model User {
   settings      AppSettings?
   tasks         Task[]
   templates     TaskTemplate[]
+  tags          Tag[]
   transactions  Transaction[]
   savings       SavingsEntry[]
   membership    HouseholdMember?
@@ -29,6 +30,7 @@ model User {
 model Household {
   id           String   @id @default(cuid())
   shareSavings Boolean  @default(true)
+  nextColor    Int      @default(1)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -38,14 +40,15 @@ model Household {
   savings      SavingsEntry[]
   categories   Category[]
   budgets      Budget[]
-  tags         Tag[]
 }
 
 model HouseholdMember {
   userId      String        @id
   householdId String
   role        HouseholdRole @default(MEMBER)
+  colorIndex  Int           @default(0)
   joinedAt    DateTime      @default(now())
+  removedAt   DateTime?
 
   user      User      @relation(fields: [userId], references: [id])
   household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
@@ -156,18 +159,18 @@ model TaskTemplateTag {
 }
 
 model Tag {
-  id          String   @id @default(cuid())
-  householdId String
-  name        String
-  color       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  household Household         @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id])
   tasks     TaskTag[]
   templates TaskTemplateTag[]
 
-  @@unique([householdId, name])
+  @@unique([userId, name])
 }
 
 model Transaction {

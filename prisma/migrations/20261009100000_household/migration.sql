@@ -5,6 +5,7 @@ CREATE TYPE "HouseholdRole" AS ENUM ('OWNER', 'MEMBER');
 CREATE TABLE "Household" (
     "id" TEXT NOT NULL,
     "shareSavings" BOOLEAN NOT NULL DEFAULT true,
+    "nextColor" INTEGER NOT NULL DEFAULT 1,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -16,7 +17,9 @@ CREATE TABLE "HouseholdMember" (
     "userId" TEXT NOT NULL,
     "householdId" TEXT NOT NULL,
     "role" "HouseholdRole" NOT NULL DEFAULT 'MEMBER',
+    "colorIndex" INTEGER NOT NULL DEFAULT 0,
     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "removedAt" TIMESTAMP(3),
 
     CONSTRAINT "HouseholdMember_pkey" PRIMARY KEY ("userId")
 );
@@ -45,19 +48,16 @@ ALTER TABLE "Transaction" ADD COLUMN "householdId" TEXT;
 ALTER TABLE "SavingsEntry" ADD COLUMN "householdId" TEXT;
 ALTER TABLE "Category" ADD COLUMN "householdId" TEXT;
 ALTER TABLE "Budget" ADD COLUMN "householdId" TEXT;
-ALTER TABLE "Tag" ADD COLUMN "householdId" TEXT;
 
 UPDATE "Transaction" t SET "householdId" = m."householdId" FROM "HouseholdMember" m WHERE m."userId" = t."userId";
 UPDATE "SavingsEntry" t SET "householdId" = m."householdId" FROM "HouseholdMember" m WHERE m."userId" = t."userId";
 UPDATE "Category" t SET "householdId" = m."householdId" FROM "HouseholdMember" m WHERE m."userId" = t."userId";
 UPDATE "Budget" t SET "householdId" = m."householdId" FROM "HouseholdMember" m WHERE m."userId" = t."userId";
-UPDATE "Tag" t SET "householdId" = m."householdId" FROM "HouseholdMember" m WHERE m."userId" = t."userId";
 
 ALTER TABLE "Transaction" ALTER COLUMN "householdId" SET NOT NULL;
 ALTER TABLE "SavingsEntry" ALTER COLUMN "householdId" SET NOT NULL;
 ALTER TABLE "Category" ALTER COLUMN "householdId" SET NOT NULL;
 ALTER TABLE "Budget" ALTER COLUMN "householdId" SET NOT NULL;
-ALTER TABLE "Tag" ALTER COLUMN "householdId" SET NOT NULL;
 
 -- DropForeignKey
 ALTER TABLE "Budget" DROP CONSTRAINT "Budget_userId_fkey";
@@ -65,26 +65,17 @@ ALTER TABLE "Budget" DROP CONSTRAINT "Budget_userId_fkey";
 -- DropForeignKey
 ALTER TABLE "Category" DROP CONSTRAINT "Category_userId_fkey";
 
--- DropForeignKey
-ALTER TABLE "Tag" DROP CONSTRAINT "Tag_userId_fkey";
-
 -- DropIndex
 DROP INDEX "Budget_userId_categoryId_month_key";
 
 -- DropIndex
 DROP INDEX "Category_userId_name_type_key";
 
--- DropIndex
-DROP INDEX "Tag_userId_name_key";
-
 -- AlterTable
 ALTER TABLE "Budget" DROP COLUMN "userId";
 
 -- AlterTable
 ALTER TABLE "Category" DROP COLUMN "userId";
-
--- AlterTable
-ALTER TABLE "Tag" DROP COLUMN "userId";
 
 -- CreateIndex
 CREATE INDEX "HouseholdMember_householdId_idx" ON "HouseholdMember"("householdId");
@@ -105,9 +96,6 @@ CREATE UNIQUE INDEX "Category_householdId_name_type_key" ON "Category"("househol
 CREATE INDEX "SavingsEntry_householdId_deletedAt_idx" ON "SavingsEntry"("householdId", "deletedAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Tag_householdId_name_key" ON "Tag"("householdId", "name");
-
--- CreateIndex
 CREATE INDEX "Transaction_householdId_deletedAt_idx" ON "Transaction"("householdId", "deletedAt");
 
 -- AddForeignKey
@@ -121,9 +109,6 @@ ALTER TABLE "HouseholdInvite" ADD CONSTRAINT "HouseholdInvite_householdId_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "HouseholdInvite" ADD CONSTRAINT "HouseholdInvite_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Tag" ADD CONSTRAINT "Tag_householdId_fkey" FOREIGN KEY ("householdId") REFERENCES "Household"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_householdId_fkey" FOREIGN KEY ("householdId") REFERENCES "Household"("id") ON DELETE CASCADE ON UPDATE CASCADE;

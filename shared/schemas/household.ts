@@ -13,3 +13,7 @@ export const inviteTokenSchema = z.object({
 export const memberParamsSchema = z.object({
   userId: z.string().min(1)
 })
+
+export const updateMemberSchema = z.object({
+  role: z.literal('OWNER')
+})
