@@ -1,9 +1,21 @@
 <script lang="ts" setup>
+import { clearPendingInvite, pendingInvite } from '~/utils/family'
+
 definePageMeta({
   layout: 'auth'
 })
 const { t } = useI18n()
 
+const inviteToken = ref<string>()
+const { data: invite, error: inviteError } = useGuestInviteQuery(inviteToken)
+
+onMounted(() => {
+  inviteToken.value = pendingInvite()
+})
+
+watch(inviteError, (error) => {
+  if (error) clearPendingInvite()
+})
 </script>
 
 <template>
@@ -26,11 +38,24 @@ const { t } = useI18n()
       <p class="text-text-dim">
         {{ t('welcome.tagline') }}
       </p>
-      <InstallHint />
+      <WelcomeInviteCard
+        v-if="invite"
+        :name="invite.inviterName"
+        :color-index="invite.inviterColorIndex"
+      />
+      <InstallHint v-else />
     </div>
 
     <div class="flex flex-col rounded-md bg-elev1 items-center text-center gap-6 w-full p-6">
-      <p class="text-text text-xl">
+      <div v-if="invite" class="flex flex-col gap-1">
+        <p class="text-text text-xl">
+          {{ t('family.welcome.sheetTitle') }}
+        </p>
+        <p class="text-sm text-text-dim">
+          {{ t('family.welcome.sheetSub') }}
+        </p>
+      </div>
+      <p v-else class="text-text text-xl">
         {{ t('welcome.getStarted') }}
       </p>
       <UiButton variant="secondary" class="w-full" to="/auth/register">

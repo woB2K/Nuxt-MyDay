@@ -8,7 +8,8 @@
     "save": "Save",
     "edit": "Edit",
     "close": "Close",
-    "undo": "Undo"
+    "undo": "Undo",
+    "retry": "Try again"
   },
   "welcome": {
     "tagline": "Tasks & finances, one place",
@@ -93,6 +94,17 @@
       "deleteError": "Failed to delete",
       "emptySuccess": "Trash emptied",
       "emptyError": "Failed to empty the trash"
+    },
+    "family": {
+      "updateError": "Couldn’t change savings",
+      "inviteError": "Couldn’t create a link",
+      "revokeError": "Couldn’t revoke the link",
+      "leaveError": "Couldn’t leave the family",
+      "removeError": "Couldn’t remove the member",
+      "transferError": "Couldn’t transfer ownership",
+      "joinError": "Couldn’t join the family",
+      "joinConflict": "The family just changed. Try again.",
+      "copyError": "Couldn’t copy the link"
     }
   },
   "finance": {
@@ -473,6 +485,192 @@
       "body": "Open it from the icon. You can close this browser tab.",
       "cta": "Got it",
       "appLabel": "MyDay"
+    }
+  },
+  "family": {
+    "plural": {
+      "people": "{count} person | {count} people",
+      "tx": "{count} transaction | {count} transactions",
+      "sv": "{count} savings entry | {count} savings entries"
+    },
+    "formerMember": "former member",
+    "author": "Author: {name} · {date}",
+    "settings": {
+      "label": "Family",
+      "solo": "Just you",
+      "pair": "You and {name}"
+    },
+    "solo": {
+      "title": "Keep a budget together",
+      "body": "Invite someone close and you’ll see the same spending, income and savings. Your tasks stay yours.",
+      "sharedOverline": "Shared with family",
+      "privateOverline": "Only yours",
+      "transactions": "Transactions",
+      "categories": "Categories",
+      "savings": "Savings",
+      "savingsSub": "shared or separate",
+      "tasks": "Tasks, templates and tags",
+      "tasksSub": "Family doesn’t see them",
+      "note": "The link works for 7 days. You can leave anytime and keep a copy of your records.",
+      "cta": "Invite"
+    },
+    "invite": {
+      "savingsTitle": "How should savings work?",
+      "savingsSub": "You can change this later in Family.",
+      "shared": "Shared savings",
+      "sharedBody": "One pot for everyone. Each entry shows who added it.",
+      "separate": "Separate savings",
+      "separateBody": "Everyone keeps their own. Transactions are still shared.",
+      "byDefault": "Default",
+      "create": "Create link",
+      "creating": "Creating…",
+      "readyTitle": "Link is ready",
+      "readySub": "Send it to the person you want to invite.",
+      "until": "Valid until {date} · one-time",
+      "share": "Share",
+      "copy": "Copy",
+      "copied": "Copied",
+      "shareText": "Join my family in MyDay",
+      "once": "The link is shown only now. If you lose it, create a new one.",
+      "revoke": "Revoke link",
+      "revoked": "Link revoked",
+      "activeTitle": "Invitation link",
+      "activeSub": "Active until {date}",
+      "activeNote": "We don’t store the link itself, so it can’t be shown again. To resend, create a new one.",
+      "renew": "Create new link",
+      "renewHint": "The current link will stop working.",
+      "pendingRow": "Invitation sent",
+      "pendingSub": "Link active until {date}"
+    },
+    "screen": {
+      "title": "Family",
+      "back": "Settings",
+      "sub": "{people} · shared finances",
+      "members": "Members",
+      "owner": "Owner",
+      "you": "You",
+      "inviteMore": "Invite someone else",
+      "savings": "Savings",
+      "sharedShort": "Shared",
+      "separateShort": "Separate",
+      "readonlyShared": "Shared savings",
+      "readonlySeparate": "Separate savings",
+      "readonlySub": "Only the owner can change this",
+      "refresh": "Changes made by others appear the next time you open a screen.",
+      "leave": "Leave family",
+      "more": "More"
+    },
+    "member": {
+      "since": "In the family since {date}",
+      "added": "{tx} added",
+      "remove": "Remove from family",
+      "makeOwner": "Make owner"
+    },
+    "transfer": {
+      "title": "Make {name} the owner?",
+      "rights": "{name} can invite and remove people",
+      "rightsSub": "And change how savings work.",
+      "you": "You become a member",
+      "youSub": "Only the new owner can give the role back.",
+      "cta": "Transfer",
+      "cancel": "Cancel",
+      "done": "{name} is now the owner"
+    },
+    "savingsMode": {
+      "toSeparateTitle": "Make savings separate?",
+      "toSeparateBody": "Each entry goes to the person who added it. Everyone sees only their own savings from now on.",
+      "toSharedTitle": "Make savings shared?",
+      "toSharedBody": "Everyone’s savings merge into one pot. Each entry keeps its author.",
+      "confirm": "Change",
+      "cancel": "Cancel",
+      "done": "Savings are now {mode}",
+      "sharedLower": "shared",
+      "separateLower": "separate"
+    },
+    "leave": {
+      "title": "Leave the family?",
+      "take": "You take a copy",
+      "takeSub": "Your {tx} and {sv}",
+      "stays": "Everything stays in the family",
+      "staysSub": "Including your records. Others will still see them.",
+      "staysSubSeparate": "Transactions stay with the family; your savings leave with you.",
+      "solo": "You’ll be a family of one again",
+      "soloSub": "Your tasks don’t change.",
+      "owner": "{name} becomes the owner",
+      "ownerSub": "Longest-standing member of the family.",
+      "cta": "Leave family",
+      "cancel": "Cancel",
+      "done": "You’re no longer in the family"
+    },
+    "remove": {
+      "title": "Remove from family?",
+      "take": "Gets a copy of their records",
+      "takeSub": "{tx} and {sv}",
+      "stays": "Everything stays in the family",
+      "staysSub": "Including the records this member added.",
+      "staysSubSeparate": "Transactions stay with the family; their savings leave with them.",
+      "solo": "Becomes a family of one",
+      "soloSub": "They’ll find out the next time they open MyDay.",
+      "cta": "Remove",
+      "cancel": "Cancel",
+      "done": "{name} was removed",
+      "removedToast": "You were removed from the family. Your records were copied."
+    },
+    "welcome": {
+      "card": "{name} invited you to a family",
+      "cardSub": "Sign in or create an account to accept",
+      "sheetTitle": "Sign in to join",
+      "sheetSub": "We’ll bring you back to the invitation right after."
+    },
+    "join": {
+      "overline": "Invitation",
+      "title": "{name} invites you to the family",
+      "count": "{people} in the family",
+      "ownerSuffix": "owner",
+      "dataTitle": "What happens to your data",
+      "move": "Your {tx} and savings move to the family",
+      "merge": "Matching categories merge",
+      "mergeSub": "Same name: {list}. The rest are added.",
+      "mergeNone": "Your categories are added to the family’s.",
+      "mergeMore": "{list} and {count} more",
+      "savingsShared": "Savings are shared",
+      "savingsSharedSub": "Your {amount} joins the family pot.",
+      "savingsSeparate": "Savings are separate",
+      "savingsSeparateSub": "Your {amount} stays yours.",
+      "tasks": "Tasks stay private",
+      "tasksSub": "Family doesn’t see them.",
+      "leaveNote": "You can leave anytime and take a copy of your records.",
+      "cta": "Join family",
+      "joining": "Joining…",
+      "notNow": "Not now"
+    },
+    "busy": {
+      "title": "You’re already in a family",
+      "body": "To accept this invitation, leave your current family first. You’ll keep a copy of your records.",
+      "current": "Your family now",
+      "cta": "Go to my family",
+      "notNow": "Not now"
+    },
+    "invalid": {
+      "title": "This link no longer works",
+      "body": "Invitations are valid for 7 days and work only once. Ask the person who invited you for a new link.",
+      "cta": "Open MyDay"
+    },
+    "already": {
+      "title": "You’re already in this family",
+      "ownBody": "This is your own invitation. Send it to the person you want to invite.",
+      "memberBody": "You already share a budget with everyone here.",
+      "cta": "Open Family"
+    },
+    "success": {
+      "title": "You’re in the family",
+      "body": "Your records are already there. Everything you add from now on is shared.",
+      "cta": "Open Finance",
+      "toast": "Shared budget is on"
+    },
+    "finance": {
+      "onlyMine": "Only mine",
+      "shared": "Shared"
     }
   }
 }

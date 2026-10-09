@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { loginSchema } from '~~/shared/schemas'
+import { homePath } from '~/utils/family'
 
 definePageMeta({ layout: 'auth' })
 
@@ -30,7 +31,7 @@ async function handleSubmit() {
   loading.value = true
   try {
     await authStore.login(result.data)
-    await navigateTo('/today')
+    await navigateTo(homePath())
   } catch (e: any) {
     const status = e?.statusCode ?? e?.data?.statusCode
     if (status === 401) formError.value = t('auth.errorInvalidCredentials')

@@ -1,8 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { formatDate, formatDateTime, formatDay, toDateString, toDayKey } from '../../../app/utils/formatDate'
+import { formatDate, formatDateTime, formatDay, formatLongDay, toDateString, toDayKey } from '../../../app/utils/formatDate'
 
 afterEach(() => {
   vi.useRealTimers()
+})
+
+describe('formatLongDay', () => {
+  it('пишет день и месяц словом на языке интерфейса', () => {
+    expect(formatLongDay('2026-10-16', 'ru')).toBe('16 октября')
+    expect(formatLongDay('2026-10-16', 'en')).toBe('October 16')
+  })
+
+  it('берёт timestamp как момент времени, а не первые 10 символов', () => {
+    const local = new Date(2026, 9, 16, 23, 30)
+
+    expect(formatLongDay(local.toISOString(), 'ru')).toBe('16 октября')
+  })
 })
 
 describe('toDateString', () => {

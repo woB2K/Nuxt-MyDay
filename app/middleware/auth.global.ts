@@ -1,3 +1,5 @@
+import { homePath, inviteTokenOf, savePendingInvite } from '~/utils/family'
+
 const publicRoutes = ['/auth/welcome', '/auth/login', '/auth/register']
 
 export default defineNuxtRouteMiddleware(async (to) => {
@@ -8,8 +10,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const isPublic = publicRoutes.includes(to.path)
 
   if (!authStore.isAuthenticated) {
-    return isPublic ? undefined : navigateTo('/auth/welcome')
+    if (isPublic) return
+
+    const invite = inviteTokenOf(to.path)
+    if (invite) savePendingInvite(invite)
+
+    return navigateTo('/auth/welcome')
   }
 
-  if (isPublic) return navigateTo('/today')
+  if (isPublic) return navigateTo(homePath())
 })
