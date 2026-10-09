@@ -128,6 +128,14 @@ async function signOut() {
       />
 
       <UiSettingRow
+        icon="i-lucide-tags"
+        :label="t('settings.tags')"
+        :sub="t('settings.tagsSub')"
+        clickable
+        @click="navigateTo('/settings/tags')"
+      />
+
+      <UiSettingRow
         icon="i-lucide-layout-template"
         :label="t('settings.templates')"
         :sub="t('settings.templatesSub')"

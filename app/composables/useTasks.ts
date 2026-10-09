@@ -124,6 +124,39 @@ export function useAddTagMutation() {
   })
 }
 
+export function useDeleteTagMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      api<Tag>(`/api/tags/${id}`, { method: 'DELETE' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['tags'], ['tasks'])
+
+      queryClient.setQueryData<Tag[]>(queryKeys.tags(), tags => tags?.filter(tag => tag.id !== id))
+      patchTaskLists(queryClient, tasks => tasks.map(task => ({
+        ...task,
+        tags: task.tags.filter(tag => tag.id !== id)
+      })))
+
+      return { previous }
+    },
+    onSuccess: () => {
+      toast.success(t('toast.tags.deleteSuccess'))
+    },
+    onError: (_error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
+      toast.error(t('toast.tags.deleteError'))
+    },
+    onSettled: () => {
+      invalidateWhenSettled(queryClient, ['tags'], ['tasks'], ['templates'])
+    }
+  })
+}
+
 export function useAddTaskMutation() {
   const api = useApi()
   const queryClient = useQueryClient()

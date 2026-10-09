@@ -280,6 +280,15 @@
       "nameRequired": "Name can't be empty",
       "systemTypeLocked": "Fallback category — its type is fixed"
     },
+    "tags": "Tags",
+    "tagsSub": "Remove the ones you no longer use",
+    "tagsScreen": {
+      "title": "Tags",
+      "subtitle": "Deleting a tag removes it from every task and template",
+      "hint": "Swipe left to delete",
+      "emptyTitle": "No tags yet",
+      "emptySubtitle": "Create one right in the task form"
+    },
     "pin": {
       "lock": "PIN lock",
       "lockSub": "Require PIN to open the app",

@@ -1,3 +1,4 @@
+import type { Tag } from '../../../prisma/.generated/prisma'
 import type { TaskItem } from '../../../shared/types'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
@@ -7,6 +8,7 @@ import { h, ref } from 'vue'
 import { queryKeys } from '../../../app/composables/queryKeys'
 import {
   useAddTaskMutation,
+  useDeleteTagMutation,
   useDeleteTaskMutation,
   useTasksQuery,
   useToggleTaskMutation
@@ -68,6 +70,17 @@ function task(id: string, done = false): TaskItem {
     createdAt: new Date('2026-09-14T09:00:00.000Z'),
     updatedAt: new Date('2026-09-14T09:00:00.000Z'),
     tags: []
+  }
+}
+
+function tag(id: string, name = `Tag ${id}`): Tag {
+  return {
+    id,
+    userId: 'user-1',
+    name,
+    color: null,
+    createdAt: new Date('2026-09-14T09:00:00.000Z'),
+    updatedAt: new Date('2026-09-14T09:00:00.000Z')
   }
 }
 
@@ -191,6 +204,69 @@ describe('useAddTaskMutation', () => {
 
     expect(toastError).toHaveBeenCalledTimes(1)
     expect(invalidate).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+})
+
+describe('useDeleteTagMutation', () => {
+  it('убирает тег из списка тегов и со всех задач до ответа сервера', async () => {
+    const pending = deferred<unknown>()
+    mockApi.mockReturnValueOnce(pending.promise)
+    const openKey = queryKeys.tasks('open', '')
+    const { result, queryClient, wrapper } = withQueryClient(() => useDeleteTagMutation())
+    queryClient.setQueryData(queryKeys.tags(), [tag('a'), tag('b')])
+    queryClient.setQueryData(listKey, [{ ...task('t-1'), tags: [tag('a'), tag('b')] }, task('t-2')])
+    queryClient.setQueryData(openKey, [{ ...task('t-1'), tags: [tag('a')] }])
+
+    result.mutate('a')
+
+    await vi.waitFor(() => {
+      expect(queryClient.getQueryData<Tag[]>(queryKeys.tags())!.map(el => el.id)).toEqual(['b'])
+      expect(queryClient.getQueryData<TaskItem[]>(listKey)![0]!.tags.map(el => el.id)).toEqual(['b'])
+      expect(queryClient.getQueryData<TaskItem[]>(openKey)![0]!.tags).toEqual([])
+    })
+    expect(queryClient.getQueryData<TaskItem[]>(listKey)).toHaveLength(2)
+
+    pending.resolve(undefined)
+    wrapper.unmount()
+  })
+
+  it('удаляет тег запросом DELETE по id', async () => {
+    mockApi.mockResolvedValueOnce(tag('a'))
+    const { result, wrapper } = withQueryClient(() => useDeleteTagMutation())
+
+    await result.mutateAsync('a')
+
+    expect(mockApi).toHaveBeenCalledWith('/api/tags/a', { method: 'DELETE' })
+    wrapper.unmount()
+  })
+
+  it('после успеха показывает тост и инвалидирует теги, задачи и шаблоны', async () => {
+    mockApi.mockResolvedValueOnce(tag('a'))
+    const { result, queryClient, wrapper } = withQueryClient(() => useDeleteTagMutation())
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await result.mutateAsync('a')
+
+    expect(toastSuccess).toHaveBeenCalledWith('toast.tags.deleteSuccess')
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tags'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tasks'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['templates'] })
+    wrapper.unmount()
+  })
+
+  it('возвращает тег в список и на задачи при ошибке', async () => {
+    mockApi.mockRejectedValueOnce(new Error('500'))
+    const { result, queryClient, wrapper } = withQueryClient(() => useDeleteTagMutation())
+    queryClient.setQueryData(queryKeys.tags(), [tag('a')])
+    queryClient.setQueryData(listKey, [{ ...task('t-1'), tags: [tag('a')] }])
+
+    await expect(result.mutateAsync('a')).rejects.toThrow()
+
+    expect(queryClient.getQueryData<Tag[]>(queryKeys.tags())).toHaveLength(1)
+    expect(queryClient.getQueryData<TaskItem[]>(listKey)![0]!.tags).toHaveLength(1)
+    expect(toastError).toHaveBeenCalledWith('toast.tags.deleteError')
+    expect(toastSuccess).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 })
