@@ -1,6 +1,6 @@
 import type { QueryClient, QueryKey } from '@tanstack/vue-query'
 import type { Transaction } from '~~/prisma/.generated/prisma'
-import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse } from '~~/shared/types'
+import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse, TrashResponse } from '~~/shared/types'
 import type { SavingsCache, TransactionCache } from '~/utils/financeCache'
 import type { Period } from '~/utils/period'
 import type { TransactionFilters } from '~/utils/transactionFilters'
@@ -10,6 +10,7 @@ import { statusOf } from '~/utils/httpStatus'
 import { invalidateWhenSettled, restoreQueries, snapshotQueries } from '~/utils/optimistic'
 import { periodKey, periodRange } from '~/utils/period'
 import { filterKey, filterQuery } from '~/utils/transactionFilters'
+import { dropFromTrash } from '~/utils/trash'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
 
@@ -159,10 +160,18 @@ export function useRestoreTransactionMutation() {
   return useMutation({
     mutationFn: (id: string) =>
       api<TransactionItem>(`/api/finance/transactions/${id}/restore`, { method: 'POST' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['trash'])
+
+      queryClient.setQueryData<TrashResponse>(queryKeys.trash(), cache => cache && dropFromTrash(cache, 'transaction', id))
+
+      return { previous }
+    },
     onSuccess: () => {
       toast.success(t('toast.transactions.restoreSuccess'))
     },
-    onError: () => {
+    onError: (_error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
       toast.error(t('toast.transactions.restoreError'))
     },
     onSettled: () => {
@@ -251,10 +260,18 @@ export function useRestoreSavingsMutation() {
   return useMutation({
     mutationFn: (id: string) =>
       api<SavingsEntryItem>(`/api/finance/savings/${id}/restore`, { method: 'POST' }),
+    onMutate: async (id) => {
+      const previous = await snapshotQueries(queryClient, ['trash'])
+
+      queryClient.setQueryData<TrashResponse>(queryKeys.trash(), cache => cache && dropFromTrash(cache, 'savings', id))
+
+      return { previous }
+    },
     onSuccess: () => {
       toast.success(t('toast.savings.restoreSuccess'))
     },
-    onError: (error) => {
+    onError: (error, _id, context) => {
+      restoreQueries(queryClient, context?.previous)
       toast.error(statusOf(error) === 409
         ? t('toast.savings.restoreOpeningConflict')
         : t('toast.savings.restoreError'))

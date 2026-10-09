@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Period } from '~/utils/period'
+import { savingsEntryLooks } from '~/utils/savingsLooks'
 
 const { t } = useI18n()
 
@@ -17,12 +18,6 @@ const {
 const { mutate: deleteEntry } = useDeleteSavingsMutation()
 
 type SavingsMode = SavingsEntryItem['type']
-
-const entryLooks = {
-  DEPOSIT: { icon: 'i-lucide-arrow-up', tile: 'bg-success/14', ink: 'text-success', sign: '+', title: 'finance.savings.deposit', caption: 'finance.savings.add' },
-  WITHDRAWAL: { icon: 'i-lucide-arrow-down', tile: 'bg-warning/14', ink: 'text-warning', sign: '−', title: 'finance.savings.withdrawal', caption: 'finance.savings.withdraw' },
-  OPENING: { icon: 'i-lucide-flag', tile: 'bg-accent-soft', ink: 'text-accent', sign: '', title: 'finance.savings.opening', caption: 'finance.savings.startPoint' }
-} as const
 
 const sheetOpen = ref(false)
 const sheetMode = ref<SavingsMode>('DEPOSIT')
@@ -97,30 +92,30 @@ function applyPeriod(next: Period) {
             <div class="flex items-center gap-3 p-4 cursor-pointer" @click="openEdit(entry)">
               <div
                 class="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
-                :class="entryLooks[entry.type].tile"
+                :class="savingsEntryLooks[entry.type].tile"
               >
                 <UIcon
-                  :name="entryLooks[entry.type].icon"
+                  :name="savingsEntryLooks[entry.type].icon"
                   class="w-5 h-5"
-                  :class="entryLooks[entry.type].ink"
+                  :class="savingsEntryLooks[entry.type].ink"
                 />
               </div>
 
               <div class="flex flex-col gap-0.5 flex-1 min-w-0">
                 <span class="text-text text-sm font-semibold truncate">
-                  {{ entry.notes || t(entryLooks[entry.type].title) }}
+                  {{ entry.notes || t(savingsEntryLooks[entry.type].title) }}
                 </span>
                 <span class="text-text-dim text-xs">
-                  {{ t(entryLooks[entry.type].caption) }} ·
+                  {{ t(savingsEntryLooks[entry.type].caption) }} ·
                   {{ formatDay(entry.createdAt) }}
                 </span>
               </div>
 
               <span
                 class="ml-auto text-sm font-semibold shrink-0"
-                :class="entryLooks[entry.type].ink"
+                :class="savingsEntryLooks[entry.type].ink"
               >
-                {{ entryLooks[entry.type].sign }}{{ formatAmount(entry.amount) }} ₽
+                {{ savingsEntryLooks[entry.type].sign }}{{ formatAmount(entry.amount) }} ₽
               </span>
             </div>
           </UiSwipeRow>

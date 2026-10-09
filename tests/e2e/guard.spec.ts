@@ -3,7 +3,7 @@ import { fakeIp, registerViaUi, uniqueEmail } from './helpers'
 
 test.use({ extraHTTPHeaders: { 'x-forwarded-for': fakeIp() } })
 
-const PROTECTED = ['/today', '/tasks', '/tasks/templates', '/finance', '/finance/transactions', '/settings', '/settings/categories', '/settings/tags', '/settings/changelog']
+const PROTECTED = ['/today', '/tasks', '/tasks/templates', '/finance', '/finance/transactions', '/settings', '/settings/categories', '/settings/tags', '/settings/trash', '/settings/changelog']
 
 test('аноним не попадает ни на один защищённый маршрут', async ({ page }) => {
   for (const path of PROTECTED) {

@@ -88,6 +88,12 @@
       "saved": "PIN saved",
       "disabled": "PIN turned off",
       "reset": "PIN reset"
+    },
+    "trash": {
+      "deleteSuccess": "Deleted forever",
+      "deleteError": "Failed to delete",
+      "emptySuccess": "Trash emptied",
+      "emptyError": "Failed to empty the trash"
     }
   },
   "finance": {
@@ -296,6 +302,25 @@
       "hint": "Swipe left to delete",
       "emptyTitle": "No tags yet",
       "emptySubtitle": "Create one right in the task form"
+    },
+    "trash": "Recently deleted",
+    "trashSub": "Kept for {days} days",
+    "trashScreen": {
+      "title": "Recently deleted",
+      "subtitle": "Items are deleted forever after {days} days",
+      "hint": "Swipe right to restore, left to delete forever",
+      "tasks": "Tasks",
+      "transactions": "Transactions",
+      "savings": "Savings",
+      "daysLeft": "{count} day left | {count} days left",
+      "restore": "Restore",
+      "empty": "Empty trash",
+      "emptyTitle": "Trash is empty",
+      "emptySubtitle": "Deleted tasks, transactions and savings entries stay here for {days} days",
+      "confirmTitle": "Empty the trash?",
+      "confirmText": "{count} item will be deleted forever. This can't be undone. | {count} items will be deleted forever. This can't be undone.",
+      "confirm": "Delete forever",
+      "cancel": "Cancel"
     },
     "pin": {
       "lock": "PIN lock",
