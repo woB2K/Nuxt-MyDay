@@ -7,6 +7,7 @@
 Прототип: `design_handoff_myday/prototype/MyDay.html`
 Авторизация: `design_handoff_myday/prototype/MyDay Auth.html`
 Finance v3 (периоды, фильтры, история): `design_handoff_myday/prototype/MyDay Finance v3.html` — 17 артбордов
+Семья (v2.0): `design_handoff_myday/MyDay Family export/MyDay Family.html`
 
 ---
 
@@ -42,6 +43,15 @@ CSS-переменные: тёмная тема — значения по умо
 --c-warning:   #FBBF24;
 --c-danger:    #F87171;
 --c-info:      #60A5FA;
+--c-successSoft: rgba(52,211,153,0.14);
+--c-warningSoft: rgba(251,191,36,0.14);
+--c-dangerSoft:  rgba(248,113,113,0.10);
+
+/* Участники семьи — по colorIndex, Soft = alpha 0.18 */
+--c-m0: #5EEAD4;  --c-m0Soft: rgba(94,234,212,0.18);
+--c-m1: #F472B6;  --c-m1Soft: rgba(244,114,182,0.18);
+--c-m2: #FBBF24;  --c-m2Soft: rgba(251,191,36,0.18);
+--c-m3: #60A5FA;  --c-m3Soft: rgba(96,165,250,0.18);
 
 /* Priority */
 --c-pHigh: #F87171;
@@ -78,6 +88,15 @@ CSS-переменные: тёмная тема — значения по умо
 --c-warning:   #D97706;
 --c-danger:    #DC2626;
 --c-info:      #2563EB;
+--c-successSoft: rgba(5,150,105,0.10);
+--c-warningSoft: rgba(217,119,6,0.10);
+--c-dangerSoft:  rgba(220,38,38,0.08);
+
+/* Участники семьи — Soft = alpha 0.12 */
+--c-m0: #0F766E;  --c-m0Soft: rgba(15,118,110,0.12);
+--c-m1: #BE185D;  --c-m1Soft: rgba(190,24,93,0.12);
+--c-m2: #B45309;  --c-m2Soft: rgba(180,83,9,0.12);
+--c-m3: #1D4ED8;  --c-m3Soft: rgba(29,78,216,0.12);
 ```
 
 ### Альтернативные акценты (theme picker)
@@ -960,5 +979,305 @@ UiStepVisual: kind, label?
   закрытие: карточка opacity→0 + scale 0.98 (150ms), через 120ms строка схлопывается grid-rows 1fr→0fr (240ms)
 шаги: opacity + translateY 8→0, 240ms ease-out, stagger 40ms (повторяется при смене платформы)
 успех: fade 240ms; иконка scale 0.6→1 420ms spring, бейдж с задержкой 240ms
+prefers-reduced-motion — глобальное правило в main.css
+```
+
+---
+
+## Семья (v2.0, фаза 8)
+
+Прототип: `design_handoff_myday/MyDay Family export/MyDay Family.html`, код артбордов — `family-kit.jsx`, `family-owner.jsx`, `family-join.jsx`. Модель данных и правила вступления/выхода — `ARCHITECTURE.md` → «Семья»; ниже только UI. Спека дизайнера перенесена с правками под принятые решения — они помечены ⚠️.
+
+i18n: все строки (en/ru) собраны в `family-i18n.jsx` (`FAM_I18N.family.*`, плюрализация `people` / `tx` / `sv`) — переносить в `i18n/locales/*.json` оттуда, с правками из «Тексты: отличия от макета». `family.people.*` — демо-имена макета, не переносить.
+
+### Ключевые решения
+
+- **Точка входа** — отдельная карточка «Семья» сразу под профилем в Settings, без заголовка секции. Семья — свойство аккаунта, а не настройка интерфейса.
+- **Объяснение фичи — на самом экране «Семья», пока ты один**, без онбординг-слайдов.
+- **Выбор копилки — первый шаг шторки приглашения**, только пока ты один. Повторные приглашения сразу создают ссылку.
+- **Ссылка показывается один раз** (в БД только хеш) — шторка «Ссылка готова» прямо об этом говорит. Дальше на экране — строка «Приглашение отправлено» с «Создать новую» и «Отозвать».
+- **Действия с участником — через «•••» на строке, а не свайп**: свайп по людям неожидан и срабатывает случайно. «•••» только у владельца и не у себя.
+- **Автор операции — бейдж-инициал 18px на углу иконки категории**, только у чужих операций: строка не становится шире, свои выглядят как раньше.
+- **«Только мои» — чип в FilterBar** (первым), только при 2+ участниках. Та же модель, что остальные фильтры v3: hero, разбивка и список пересчитываются, «Сбросить» сбрасывает и его.
+- **Вступление — полноэкранный маршрут без таб-бара**, кнопки в липком футере. После — экран «Ты в семье» → Finance с тостом.
+- **Данных реального времени нет**: подсказка внизу экрана «Семья» говорит, что изменения других видны при следующем открытии.
+
+### Маршруты и состояния
+
+```
+/settings                 карточка FamilyRow
+/settings/family          FamilySoloScreen (участник один) | FamilyScreen (2+)
+/family/join/:token       fullscreen, без таб-бара
+  гость   → токен в sessionStorage['myday:pendingInvite'] → /auth/welcome
+            (WelcomeInviteCard; после входа/регистрации auth-middleware ведёт обратно на /family/join/:token)
+  ok      ← превью state 'ready'
+  busy    ← state 'mustLeave'
+  already ← state 'alreadyMember'; own ? ownBody : memberBody
+  invalid ← 404 (истекла / отозвана / использована — один текст: важно одно, попросить новую)
+  success ← после POST /api/household/join
+```
+
+⚠️ Превью — `GET /api/household/join?token=` (не `/api/family/invites/:token/preview`), карточка гостя — `GET /api/auth/invite?token=`.
+
+### Новые базовые компоненты
+
+#### `UiAvatar`
+
+```
+props: name, colorIndex: 0–3, size = 40, dashed?: boolean, ring?: цвет фона под аватаром
+круг, bg m{i}Soft, текст m{i}, display 600, fontSize round(size × 0.42), первая буква имени
+dashed («+» на solo-экране): transparent + 1.5px dashed hairline2 + user-plus textMute
+ring: box-shadow 0 0 0 3px {ring} (2px при size ≤ 30)
+⚠️ автора нет среди участников (ушёл или исключён): bg bgElev3, иконка user textMute вместо буквы
+```
+
+#### `UiAvatarStack`
+
+```
+props: members[], size = 24, ring = фон контейнера
+перекрытие −30% size, z-index по убыванию слева направо
+```
+
+### Settings и экран «Семья»
+
+#### `FamilyRow`
+
+```
+отдельная UiCard, mt 8 под профилем
+UiSettingRow: icon users, label «Семья», sub: «Только ты» | «Ты и {name}» | «{n} человек»
+trailing (2+): UiAvatarStack 26 всех, кроме тебя (ring bgElev1) + chevron
+```
+
+#### `FamilySoloScreen` (ты один)
+
+```
+page padding 4 20 120
+BackBtn: accent, chevron-left 24 + «Настройки» 16/500, h 44
+hero: UiAvatar 64 (ring bg) + UiAvatar dashed 64, перекрытие −12; за ними radial accentSoft 280×200; mt 12
+title2 28/700/-0.02em по центру, mt 20, text-wrap balance · body 15/21 textDim, max-w 330, mt 8
+карточка «Общее с семьёй»: UiCard padding 16, mt 24; overline, затем grid 2 колонки, gap 14 12, mt 14
+  пункт: IconDisc 36 (accentSoft / accent, иконка 18) + label 15/600 (+ sub 12/500 textMute)
+  ⚠️ 3 пункта, без «Тегов»: receipt «Операции» · shapes «Категории» · piggy-bank «Копилка» (col-span 2, sub «общая или у каждого своя»)
+карточка «Только твоё»: UiCard padding 14 16, mt 8
+  IconDisc 36 neutral (bgElev3 / textDim) list-checks + overline + 15/600 ⚠️ «Задачи, шаблоны и теги»
+  справа lock 14 + 12/500 textMute «Семья их не видит»
+CTA: UiButton primary lg full, icon user-plus «Пригласить», mt 20
+  есть активное приглашение → вместо кнопки UiCard с PendingInviteRow
+footnote 13/18 textMute по центру, mt 12
+```
+
+#### `FamilyScreen` (2+)
+
+```
+BackBtn → h1 title1 34/700 «Семья» → sub 15 textDim «{n} человека · общие финансы»
+UiSectionHeader «Участники» → UiCard:
+  MemberRow: min-h 64, padding 12 8 12 16
+    UiAvatar 40 · gap 12 · [имя 15/600 + бейджи; email 13 textDim, ellipsis] · «•••» 44×44
+    «•••» — только у владельца и не на своей строке → MemberSheet
+    бейджи h 20, radius full, 11/600: «Владелец» bgElev3/textDim · «Это ты» accentSoft/accent
+  последняя строка (только владелец): «Пригласить ещё» (IconDisc plus 40 + 15/600 accent) или PendingInviteRow
+UiSectionHeader «Копилка»:
+  владелец: UiCard padding 12 → UiPillSelect [Общая | У каждого своя] + описание 13/18 textDim, padding 10 4 2
+            переключение → SavingsModeSheet, значение меняется только после подтверждения
+  участник: UiSettingRow piggy-bank, «Общая копилка» | «У каждого своя копилка», sub «Поменять может только владелец», trailing lock 16 textMute
+подсказка 12/16 textMute, mt 16 («Изменения других участников появляются при следующем открытии экрана.»)
+«Выйти из семьи»: h 52, r 12, dangerSoft bg, danger 16/600, icon log-out 18, mt 20 (как Sign out) → LeaveSheet
+```
+
+#### `PendingInviteRow`
+
+```
+UiSettingRow: IconDisc clock 40 (warningSoft / warning), «Приглашение отправлено», sub «Ссылка действует до {date}», chevron
+→ InviteSheet step 'active'
+```
+
+### Шторки
+
+Все — feature-компоненты внутри `UiSheet`. Общая шапка `SheetHead`: IconDisc 48 (иконка 22) · gap 14 · title3 22/600 + sub 15 textDim, padding 16 64 0 20. Смена шага внутри шторки — кроссфейд 240ms.
+
+#### `InviteSheet`
+
+```
+props: step: 'savings' | 'ready' | 'active'
+savings (только когда ты один): SheetHead piggy-bank «Какой будет копилка?»
+  2 × RadioCard (gap 8, margin 20 20 0): «Общая копилка» (бейдж «По умолчанию») | «У каждого своя»
+    RadioCard: padding 16, r 16; off bgElev1 + 1.5px hairline; on accentSoft + 1.5px accent
+    радио 22: off 2px textMute; on accent + check 14 accentInk, spring 150ms
+  primary lg full «Создать ссылку» (icon link; loading «Создаём…»), padding 24 20 34
+  → PATCH /api/household { shareSavings }, если выбор отличается от текущего, затем POST /api/household/invite
+ready: SheetHead check (successSoft / success, famPop) «Ссылка готова»
+  поле ссылки: h 52, r 12, bg field, border hairline2, link 18 textMute + mono 14 ellipsis; тап = копировать
+  мета: clock 14 + 13/500 textMute «Действует до {date} · одноразовая», mt 8
+  grid 2, gap 8, mt 16: [primary lg «Поделиться», icon share → navigator.share]
+                        [tonal lg (bg field) «Скопировать», icon copy → check success на 2 с]
+    navigator.share нет → только «Скопировать» на всю ширину
+  Note (accentSoft, info 18 accent, 13/500 text) «Ссылку видно только сейчас…», mt 16
+  ghost danger full «Отозвать ссылку», padding 12 20 34
+active: SheetHead clock (warningSoft / warning) «Ссылка-приглашение» / «Действует до {date}»
+  Note «Саму ссылку мы не храним…» → tonal lg full «Создать новую» (icon refresh) → step ready
+  + 13 textMute по центру «Текущая ссылка перестанет работать.» → ghost danger «Отозвать ссылку»
+отзыв → DELETE /api/household/invite, закрыть шторку + info-тост «Ссылка отозвана»
+```
+
+#### `MemberSheet`
+
+```
+info: по центру UiAvatar 64, имя title3, email 14 textDim,
+      мета 13 textMute «В семье с {date} · Добавлено: {tx}»
+  ⚠️ tonal h 52 full «Сделать владельцем» (icon crown) → step transfer
+  dangerSoft h 52 full «Исключить из семьи» (icon user-minus) → step remove, gap 8
+⚠️ transfer: SheetHead [UiAvatar 48] «Сделать {name} владельцем?» → Consequences:
+    1. crown · accent — «{name} сможет приглашать и исключать» / «И менять режим копилки.»
+    2. user — «Ты станешь участником» / «Вернуть роль сможет только новый владелец.»
+  primary lg full «Передать» + ghost «Отмена»
+  → PATCH /api/household/members/:userId { role: 'OWNER' }, success-тост «Владелец теперь — {name}»
+remove: SheetHead [UiAvatar 48] «Исключить из семьи?» / «{name} · {email}» → Consequences (remove.*)
+  danger lg full «Исключить» + ghost «Отмена» → DELETE /api/household/members/:userId, тост «{name} больше не в семье»
+```
+
+#### `Consequences`
+
+```
+UiCard bgElev1, margin 20 20 0
+строка: padding 14 16, IconDisc 32 (иконка 16) · gap 12 · title 15/600 + sub 13/18 textDim; разделитель hairline
+появление stagger 40ms
+```
+
+#### `LeaveSheet`
+
+```
+SheetHead log-out (dangerSoft / danger) «Выйти из семьи?» → Consequences:
+  1. copy · accent — «Заберёшь копию» / «Твои {tx} и {sv}» (счётчики своей строки из GET /api/household)
+  2. users — «В семье всё останется» / «Включая твои записи…»
+     ⚠️ раздельная копилка — sub leave.staysSubSeparate: записи копилки уезжают, а не копируются
+  3. (только владелец) user-check · warning — «Владельцем станет {name}» / «Дольше всех в семье.»
+     name — самый давний из остальных (members отсортированы по joinedAt)
+  4. user — «Снова станешь „семьёй из одного“» / «Задачи никак не изменятся.»
+danger lg full «Выйти из семьи» + ghost «Отмена»
+→ POST /api/household/leave → /settings + success-тост «Ты больше не в семье»
+```
+
+#### `SavingsModeSheet` (только владелец)
+
+```
+SheetHead piggy-bank + title/body по направлению (savingsMode.toSeparate* | toShared*)
+→ «у каждого своя»: UiCard со строками [UiAvatar 32 · имя 15/600 · сумма display 16/600] — кому сколько останется видно
+primary lg «Поменять» + ghost «Отмена» → PATCH /api/household { shareSavings }, success-тост «Копилка теперь {mode}»
+```
+
+⚠️ Записи не переезжают — меняется только видимость: при раздельной копилке каждый видит свои записи, при общей — все. Суммы «кому сколько» — `members[].savingsBalance`, отдаётся только при общей копилке (иначе владелец видел бы чужие копилки).
+
+### Вступление по ссылке
+
+#### `WelcomeInviteCard` (Welcome, гость с pendingInvite)
+
+```
+top 300, left/right 20, padding 12 14 12 12, r 16, bg bgElev1, border 1px accentSoft + ring 4px accentSoft
+UiAvatar 40 пригласившего (inviterColorIndex) · gap 12 · 15/600 «{name} зовёт тебя в семью» + 13/500 textDim «Войди или создай аккаунт, чтобы принять»
+шторка Welcome: title «Войди, чтобы вступить», sub «Сразу после входа вернём тебя к приглашению.» Кнопки без изменений
+токен невалиден (404) → карточку не показываем, pendingInvite стираем
+```
+
+#### `JoinScreen` (state ok)
+
+```
+page padding 20 20 180
+hero: UiAvatarStack 56 (семья) · plus 18 textMute · UiAvatar 56 твой с двойным кольцом (2px bg + 1.5px hairline2); famPop 420ms
+overline accent «Приглашение», mt 20 → title 26/32/700 balance «{inviterName} зовёт тебя в семью»
+→ 14 textDim «В семье {people}» → чипы участников (h 28, radius full, bgElev1, UiAvatar 20 + имя 13/600 + «· владелец» textMute)
+overline «Что будет с твоими данными», mt 24 → Consequences (все цифры — из mine превью):
+  1. merge · accent — «Твои {tx} и копилка переедут в семью»       (скрыть, если transactionCount 0 и savingsBalance 0)
+  2. shapes · accent — ⚠️ «Одинаковые категории склеятся» / «Совпадают: {list}. Остальные добавятся.»
+       list — matchingCategories через categoryLabel(); пусто → sub join.mergeNone
+  3. piggy-bank · accent — shareSavings ? «Копилка общая» / «Твои {amount} добавятся в неё»
+                                        : «Копилка у каждого своя» / «Твои {amount} останутся твоими»   (скрыть при savingsBalance 0)
+  4. lock · neutral — «Задачи останутся личными» / «Семья их не видит.»
+footnote 13 textMute по центру
+StickyFooter: padding 24 20 34, bg linear-gradient(transparent → bg 28%)
+  primary lg «Вступить» (loading «Объединяем…», disabled) + ghost «Не сейчас» → /today
+  409 при вступлении (состав поменялся) → error-тост, превью перезапросить
+```
+
+#### `JoinSuccess`
+
+```
+по центру; radial accentSoft 360
+hero: стопка семьи + твой аватар «въезжает» (famSlide translateX 40→0, 420ms spring), зазор схлопывается 14→−17,
+  бейдж check success 22 (border 2px bg) famPop с задержкой 240ms
+title2 28/700 «Ты в семье», mt 28 · body 15 textDim max-w 300
+StickyFooter: primary lg «Открыть финансы» (icon wallet) → /finance + success-тост «Общий бюджет включён»
+```
+
+#### `JoinStatus` (busy / invalid / already)
+
+```
+по центру, padding 0 28 140: IconDisc 72 (иконка 30) famPop → title 26/32/700 mt 24 → body 15/21 textDim max-w 310 → StickyFooter
+busy:    users · warning; UiCard «Твоя семья сейчас» (стопка + имена из GET /api/household), mt 24;
+         primary «Перейти к семье» → /settings/family + ghost «Не сейчас»
+invalid: link-off · neutral; primary «Открыть MyDay» → /today
+already: user-check · success; ownBody | memberBody; primary «Открыть «Семью»» → /settings/family
+```
+
+### Изменения в существующих компонентах (только при 2+ участниках)
+
+```
+UiTxRow: иконка категории 40 в relative-обёртке; чужая операция (tx.userId ≠ мой) —
+  UiAvatar 18 (10/700) right −4 bottom −4, ring 2px bgElev1. Свои — без бейджа. Ширина и текст строки не меняются
+  у двух других участников совпала первая буква → в мета-строке после категории имя: «Еда · Маша»
+TransactionEditSheet (edit): под суммой 13 textMute «Автор: {name} · {date}» (date — createdAt; без глагола — у имени нет рода)
+  ⚠️ автора нет среди участников → «Автор: бывший участник». Создание — без изменений
+FilterBar: первый чип «Только мои» — UiAvatar 20 свой + label; active accentSoft + accent border + × 14; входит в «Сбросить»
+  mine → ключ кэша и query transactions и summary (?mine=true)
+Finance шапка: справа от h1 UiAvatarStack 28 всех участников (ring bg), тап → /settings/family
+UiSavingsCard (общая копилка): справа от overline UiAvatarStack 20 + 12/600 textDim «Общая»;
+  в истории бейдж автора на круге ↑/↓, как в UiTxRow. Раздельная — без изменений
+Исключённый (removedNotice): info-тост без автоскрытия, закрывается тапом —
+  «Тебя исключили из семьи. Копия твоих записей уже здесь.» → DELETE /api/household/notice
+```
+
+### Тексты: отличия от макета
+
+```
+family.solo.tasks          ⚠️ «Задачи, шаблоны и теги» / "Tasks, templates and tags"; ключ solo.tags не переносить
+family.join.merge          ⚠️ «Одинаковые категории склеятся» / "Matching categories merge"
+family.join.mergeNone      + «Твои категории добавятся к семейным.» / "Your categories are added to the family's."
+family.leave.staysSubSeparate  + «Операции останутся в семье, твоя копилка уйдёт с тобой.» / "Transactions stay with the family; your savings leave with you."
+family.remove.staysSubSeparate + «Операции останутся в семье, его копилка уйдёт с ним.» / "Transactions stay with the family; their savings leave with them."
+family.member.makeOwner    + «Сделать владельцем» / "Make owner"
+family.transfer.*          + title «Сделать {name} владельцем?» · rights «{name} сможет приглашать и исключать» · rightsSub «И менять режим копилки.»
+                             · you «Ты станешь участником» · youSub «Вернуть роль сможет только новый владелец.»
+                             · cta «Передать» · cancel «Отмена» · done «Владелец теперь — {name}»
+                             (en: "Make {name} the owner?" · "{name} can invite and remove people" · "And change how savings work."
+                              · "You become a member" · "Only the new owner can give the role back." · "Transfer" · "Cancel" · "{name} is now the owner")
+family.formerMember        + «бывший участник» / "former member"
+family.settings.many       ru «{n}» → через плюрализацию people
+```
+
+### Доработки API под UI (в 8.7)
+
+- `GET /api/household`: `members[].savingsBalance` — только при `shareSavings`, иначе `null`. Нужен `SavingsModeSheet`.
+- `GET /api/household/join`: `own: boolean` — приглашение создал ты (`already` различает ownBody / memberBody; по роли не угадать — владение передаётся).
+
+### Токены, отступы, типографика
+
+```
+новые цвета: m0…m3 + m{i}Soft, successSoft, warningSoft, dangerSoft — см. «Цветовые токены»
+поверхность поля ссылки и tonal-кнопки «Скопировать» — существующий field
+отступы: page 20, карточки 16, шторка 20, sticky-футер 24 20 34
+радиусы: карточки и RadioCard 16, поле ссылки и Note 12, dangerSoft-кнопка 12, шторка 24
+типографика: title1 34 (Семья), title2 28 / 26 (hero), title3 22 (шторки), 15/600 строки, 13 подписи, 11/600 overline
+зоны нажатия ≥ 44: «•••», BackBtn, крестик шторки
+```
+
+### Motion
+
+```
+переходы экранов: fade 240ms ease-out
+solo hero: famPop (scale 0.6→1 + fade) 420ms spring; карточки «Общее» / «Только твоё»: stepIn (translateY 8→0 + fade) 240ms, delay 60 / 100ms
+шторка: как UiSheet; смена шага — кроссфейд 240ms
+«Ссылка готова»: check famPop 420ms spring · «Скопировать» → check success на 2 с
+Consequences: stagger 40ms · строки участников: stepIn 240ms
+Join success: см. JoinSuccess; Finance после вступления — fade 360ms + тост translateY 20→0 240ms spring, 3 с
+чип «Только мои»: цвет 150ms; hero-сумма и список — fade 240ms при пересчёте
 prefers-reduced-motion — глобальное правило в main.css
 ```
