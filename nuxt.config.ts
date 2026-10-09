@@ -60,6 +60,12 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-01-15',
+
+  vite: {
+    optimizeDeps: {
+      include: ['@tanstack/vue-query', 'zod']
+    }
+  },
   hooks: {
     close: (nuxt) => {
       if (!nuxt.options.dev && !nuxt.options.test) process.exit(process.exitCode ?? 0)

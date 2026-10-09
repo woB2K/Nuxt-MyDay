@@ -5,7 +5,7 @@ import { toPublicUser } from '~~/server/utils/mapper'
 import { registerSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const body = registerSchema.parse(await readBody(event))
+  const body = await readValidatedBody(event, registerSchema.parse)
 
   const isExistUser = await prisma.user.findUnique({
     where: { email: body.email }
