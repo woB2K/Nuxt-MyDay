@@ -201,7 +201,7 @@ body {
 }
 
 @utility bottom-toast {
-  bottom: calc(10.5rem + env(safe-area-inset-bottom, 0px));
+  bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
 }
 
 @media (prefers-reduced-motion: reduce) {

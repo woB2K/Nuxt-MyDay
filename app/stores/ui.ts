@@ -21,6 +21,7 @@ const ACTION_TOAST_DURATION = 5000
 
 export const useUiStore = defineStore('ui', () => {
   const queue = ref<Toast[]>([])
+  const toastStackHeight = ref(0)
   const accent = ref<AccentName>(defaultAccent)
   const isLocked = ref(false)
   const lockPrimed = ref(false)
@@ -44,6 +45,7 @@ export const useUiStore = defineStore('ui', () => {
 
   return {
     queue,
+    toastStackHeight,
     accent,
     isLocked,
     lockPrimed,

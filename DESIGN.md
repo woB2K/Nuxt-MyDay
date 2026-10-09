@@ -662,6 +662,7 @@ Imperative API (через useToast composable):
 
 ToastStack:
   position: absolute left/right 16px, bottom 100px (над TabBar), z-index 60
+  FAB на время показа поднимается над стеком (+12px), вниз — когда стек пуст
   стек растёт снизу вверх, gap 8px
 
 Toast анимация: translateY(20px)→0 + opacity 0→1, dur-base, ease-spring
