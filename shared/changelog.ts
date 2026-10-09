@@ -80,6 +80,7 @@ export const changelog: Release[] = [
   {
     version: '1.1.0',
     date: '2026-10-08',
+    title: { en: 'Moving Day', ru: 'День переезда' },
     changes: [
       {
         type: 'new',
