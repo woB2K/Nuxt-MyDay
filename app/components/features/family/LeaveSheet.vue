@@ -13,7 +13,8 @@ const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const { t } = useI18n()
 
-const { mutate: leave, isPending } = useLeaveHouseholdMutation()
+const router = useRouter()
+const { mutateAsync: leave, isPending } = useLeaveHouseholdMutation()
 
 const takeRecords = ref(false)
 
@@ -53,13 +54,15 @@ const items = computed<Consequence[]>(() => {
   ]
 })
 
-function confirm() {
-  leave({ takeRecords: takeRecords.value }, {
-    onSuccess: async () => {
-      emit('update:open', false)
-      await navigateTo('/settings')
-    }
-  })
+async function confirm() {
+  try {
+    await leave({ takeRecords: takeRecords.value })
+  } catch {
+    return
+  }
+
+  emit('update:open', false)
+  await router.push('/settings')
 }
 </script>
 
