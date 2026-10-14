@@ -65,6 +65,21 @@ describe('security', async () => {
     })
   })
 
+  describe('savings', () => {
+    it('does not reveal whether another family has an opening balance with a given id', async () => {
+      const owner = await registerUser()
+      const stranger = await registerUser()
+      const opening = await $fetch<{ id: string }>('/api/finance/savings', { method: 'POST', headers: authHeaders(owner.token), body: { amount: 100, type: 'OPENING' } })
+      const goal = await $fetch<{ id: string }>('/api/finance/goals', { method: 'POST', headers: authHeaders(stranger.token), body: { name: 'Trip', target: 1000 } })
+
+      await expect($fetch(`/api/finance/savings/${opening.id}`, {
+        method: 'PATCH',
+        headers: authHeaders(stranger.token),
+        body: { goalId: goal.id }
+      })).rejects.toMatchObject({ statusCode: 404 })
+    })
+  })
+
   describe('response headers', () => {
     it('forbids framing and sniffing and keeps the invite path out of referrers', async () => {
       const user = await registerUser()
