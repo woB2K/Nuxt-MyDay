@@ -105,6 +105,14 @@
       "joinError": "Couldn’t join the family",
       "joinConflict": "The family just changed. Try again.",
       "copyError": "Couldn’t copy the link"
+    },
+    "goals": {
+      "addSuccess": "Goal created",
+      "addError": "Failed to create goal",
+      "updateSuccess": "Goal updated",
+      "updateError": "Failed to update goal",
+      "deleteSuccess": "Goal deleted",
+      "deleteError": "Failed to delete goal"
     }
   },
   "finance": {
@@ -193,6 +201,27 @@
     "tags": {
       "title": "Tags",
       "new": "New tag"
+    },
+    "goals": {
+      "title": "Goals",
+      "add": "New goal",
+      "edit": "Goal",
+      "name": "Name",
+      "target": "How much you need",
+      "deadline": "Deadline",
+      "noDeadline": "No deadline — add one to see how much to save each month",
+      "removeDeadline": "Remove",
+      "until": "by {date}",
+      "monthly": "save {amount} ₽ a month",
+      "progress": "{saved} of {target} ₽",
+      "reached": "Goal reached",
+      "overdue": "Deadline passed",
+      "emptyTitle": "Save for something specific",
+      "emptySub": "A goal shows how much to put aside each month",
+      "delete": "Delete goal",
+      "picker": "Goal",
+      "none": "No goal",
+      "nameError": "Name the goal"
     }
   },
   "tasks": {

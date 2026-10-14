@@ -224,6 +224,7 @@ export function useAddSavingsMutation() {
       api<SavingsEntryItem>('/api/finance/savings', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['savings'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.goals() })
       toast.success(t('toast.savings.addSuccess'))
     },
     onError: () => {
@@ -243,6 +244,7 @@ export function useUpdateSavingsMutation() {
       api<SavingsEntryItem>(`/api/finance/savings/${id}`, { method: 'PATCH', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['savings'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.goals() })
       toast.success(t('toast.savings.updateSuccess'))
     },
     onError: () => {
@@ -278,6 +280,7 @@ export function useRestoreSavingsMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['savings'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.goals() })
       queryClient.invalidateQueries({ queryKey: ['trash'] })
     }
   })
@@ -312,7 +315,7 @@ export function useDeleteSavingsMutation() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['trash'] })
-      invalidateWhenSettled(queryClient, ['savings'])
+      invalidateWhenSettled(queryClient, ['savings'], queryKeys.goals())
     }
   })
 }

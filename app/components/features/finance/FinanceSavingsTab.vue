@@ -19,6 +19,17 @@ const {
 } = useSavingsQuery(period)
 
 const { mutate: deleteEntry } = useDeleteSavingsMutation()
+const { data: goals } = useGoalsQuery()
+
+const goalNames = computed(() => new Map((goals.value ?? []).map(goal => [goal.id, goal.name])))
+
+const goalSheetOpen = ref(false)
+const editingGoal = ref<SavingsGoalItem | null>(null)
+
+function openGoal(goal: SavingsGoalItem | null) {
+  editingGoal.value = goal
+  goalSheetOpen.value = true
+}
 
 type SavingsMode = SavingsEntryItem['type']
 
@@ -74,6 +85,8 @@ function applyPeriod(next: Period) {
         {{ t('finance.savings.setOpening') }}
       </button>
 
+      <GoalsSection @edit="openGoal" />
+
       <PeriodBar
         class="mt-2"
         :period="financeStore.period"
@@ -119,6 +132,7 @@ function applyPeriod(next: Period) {
                 </span>
                 <span class="text-text-dim text-xs">
                   {{ t(savingsEntryLooks[entry.type].caption) }} ·
+                  <template v-if="entry.goalId && goalNames.get(entry.goalId)">{{ goalNames.get(entry.goalId) }} · </template>
                   {{ formatDay(entry.createdAt) }}
                 </span>
               </div>
@@ -152,6 +166,8 @@ function applyPeriod(next: Period) {
       :entry="editing"
       :balance="summary?.balance ?? 0"
     />
+
+    <GoalSheet v-model:open="goalSheetOpen" :goal="editingGoal" />
 
     <PeriodSheet
       v-model:open="periodSheetOpen"

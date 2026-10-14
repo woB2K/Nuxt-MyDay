@@ -15,6 +15,7 @@ const toast = useAppToast()
 
 const { mutate: addSavings, isPending: isAdding } = useAddSavingsMutation()
 const { mutate: updateSavings, isPending: isUpdating } = useUpdateSavingsMutation()
+const { data: goals } = useGoalsQuery()
 
 const QUICK_AMOUNTS = [500, 1000, 2500, 5000]
 
@@ -26,6 +27,7 @@ const modes = {
 
 const amount = ref('')
 const note = ref('')
+const goalId = ref<string | null>(null)
 
 const type = computed(() => props.entry?.type ?? props.mode)
 const current = computed(() => modes[type.value])
@@ -41,6 +43,7 @@ watch(() => props.open, (open) => {
 
   amount.value = props.entry ? String(props.entry.amount) : ''
   note.value = props.entry?.notes ?? ''
+  goalId.value = props.entry?.goalId ?? null
 }, { immediate: true })
 
 function submit() {
@@ -59,14 +62,15 @@ function submit() {
   const close = { onSuccess: () => emit('update:open', false) }
 
   if (props.entry) {
-    updateSavings({ id: props.entry.id, amount: value, notes: note.value }, close)
+    updateSavings({ id: props.entry.id, amount: value, notes: note.value, ...(!isOpening.value && { goalId: goalId.value }) }, close)
     return
   }
 
   addSavings({
     type: props.mode,
     amount: value,
-    notes: note.value || undefined
+    notes: note.value || undefined,
+    ...(!isOpening.value && { goalId: goalId.value })
   }, close)
 }
 </script>
@@ -103,6 +107,23 @@ function submit() {
           :active="Number(amount) === quick"
           @click="amount = String(quick)"
         />
+      </div>
+
+      <div v-if="!isOpening && goals?.length" class="flex flex-col gap-2.5" data-testid="savings-goal-picker">
+        <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-dim">
+          {{ t('finance.goals.picker') }}
+        </span>
+        <div class="flex flex-wrap gap-2">
+          <UiChip :label="t('finance.goals.none')" :active="goalId === null" @click="goalId = null" />
+          <UiChip
+            v-for="goal in goals"
+            :key="goal.id"
+            :label="goal.name"
+            icon="i-lucide-target"
+            :active="goalId === goal.id"
+            @click="goalId = goal.id"
+          />
+        </div>
       </div>
 
       <UiInput v-model="note" :label="t('finance.note')" type="text" />
