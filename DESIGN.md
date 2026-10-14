@@ -336,6 +336,10 @@ props:
 open/close: translateY(0|100%), dur-sheet, ease-spring
 scrim: rgba(0,0,0,0.6) + blur(8px), 240ms
 drag handle: 40×4px, hairline2, radius-full
+slot footer (необязательный): липнет к низу шторки (sticky), padding 20 20 safe,
+  bg linear-gradient(transparent → bgElev2 25%) — контент уходит под него;
+  туда кладём кнопки действий длинных списков ([Очистить | Показать · N] в фильтрах),
+  чтобы не листать до конца
 ```
 
 #### `UiSwipeRow`

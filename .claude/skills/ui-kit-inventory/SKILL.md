@@ -50,7 +50,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 
 | Компонент | API | Заметки |
 |---|---|---|
-| `UiSheet` | `v-model:open`, `title` (необязательный) | Базовый нижний шит: скрим, ручка, блокировка скролла. Без `title` заголовок не рисуется — для шитов со своей шапкой (`InstallSheet`). Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
+| `UiSheet` | `v-model:open`, `title` (необязательный), слот `#footer` | Базовый нижний шит: скрим, ручка, блокировка скролла. `#footer` липнет к низу шторки поверх контента — для кнопок под длинным списком (`CategoryFilterSheet`, `TagFilterSheet`). Без `title` заголовок не рисуется — для шитов со своей шапкой (`InstallSheet`). Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
 | `UiToast` / `UiToastItem` | через `useAppToast()`; `success(message, { label, run })` добавляет кнопку действия, `info(message, { persistent: true })` — тост без автоскрытия | Не монтировать вручную — см. skill `ui-feedback-patterns`. Тост с действием живёт 5 с, действие закрывает тост — так сделано «Отменить» после удаления |
 | `UiTabBar` | — | Нижняя навигация, берёт пункты из `app/utils/routes.ts` |
 | `UiSkeleton` | `w`, `h` (14), `r` (6) | Плюс готовые `UiSkeletonRow`, `UiSkeletonFinanceHero` |
