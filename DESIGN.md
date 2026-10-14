@@ -767,7 +767,8 @@ props: type, onType, cats, onOpenCats, search, onSearch
 
 row 1: UiPillSelect full — All / Expense (danger) / Income (success)
 row 2 (горизонтальный скролл): Chip «Categories» (+count badge) → CategoryFilterSheet,
-  Chip «Search», текстовая кнопка «Reset» (появляется при любом активном фильтре)
+  Chip «Search»; справа ВНЕ скролла — текстовая кнопка «Reset» (появляется при любом активном
+  фильтре), чипы уходят под неё через fade-маску 20px — Reset не уезжает за край при 4+ чипах
 поле поиска открывается НАД рядом чипов (h40, accent border + accentSoft glow, autofocus,
   clear-кнопка 22px bgElev3) — чтобы активный фильтр категорий и Reset оставались видимыми
 placeholder: «Search notes» — поиск по заметке

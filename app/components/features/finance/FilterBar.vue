@@ -105,49 +105,53 @@ function reset() {
       </button>
     </div>
 
-    <div class="flex gap-2 overflow-x-auto pb-0.5">
-      <button
-        v-if="isFamily && me"
-        class="shrink-0 inline-flex items-center gap-1.5 h-9 pl-1.5 pr-3 rounded-full border text-[13px] font-semibold transition-colors duration-fast active:scale-[0.96]"
-        :class="props.filters.mine
-          ? 'bg-accent-soft border-accent text-accent'
-          : 'bg-elev1 border-hairline text-text-dim'"
-        type="button"
-        :aria-pressed="props.filters.mine"
-        data-testid="filter-mine"
-        @click="toggleMine"
+    <div class="flex items-start">
+      <div
+        class="flex-1 min-w-0 flex gap-2 overflow-x-auto pb-0.5 after:w-3 after:shrink-0 [mask-image:linear-gradient(to_right,#000_calc(100%-1.25rem),transparent)]"
       >
-        <UiAvatar :name="me.name" :color-index="me.colorIndex" :size="20" />
-        {{ t('family.finance.onlyMine') }}
-        <UIcon v-if="props.filters.mine" name="i-lucide-x" class="size-3.5" />
-      </button>
-      <UiChip
-        :label="t('finance.filters.categories')"
-        :count="props.filters.categoryIds.length"
-        :active="props.filters.categoryIds.length > 0"
-        icon="i-lucide-tag"
-        trailing-icon="i-lucide-chevron-down"
-        @click="emit('openCategories')"
-      />
-      <UiChip
-        v-if="showTags"
-        :label="t('finance.filters.tags')"
-        :count="props.filters.tagIds.length"
-        :active="props.filters.tagIds.length > 0"
-        icon="i-lucide-hash"
-        trailing-icon="i-lucide-chevron-down"
-        data-testid="filter-tags"
-        @click="tagSheetOpen = true"
-      />
-      <UiChip
-        v-if="!searching"
-        :label="t('finance.filters.search')"
-        icon="i-lucide-search"
-        @click="openSearch"
-      />
+        <button
+          v-if="isFamily && me"
+          class="shrink-0 inline-flex items-center gap-1.5 h-9 pl-1.5 pr-3 rounded-full border text-[13px] font-semibold transition-colors duration-fast active:scale-[0.96]"
+          :class="props.filters.mine
+            ? 'bg-accent-soft border-accent text-accent'
+            : 'bg-elev1 border-hairline text-text-dim'"
+          type="button"
+          :aria-pressed="props.filters.mine"
+          data-testid="filter-mine"
+          @click="toggleMine"
+        >
+          <UiAvatar :name="me.name" :color-index="me.colorIndex" :size="20" />
+          {{ t('family.finance.onlyMine') }}
+          <UIcon v-if="props.filters.mine" name="i-lucide-x" class="size-3.5" />
+        </button>
+        <UiChip
+          :label="t('finance.filters.categories')"
+          :count="props.filters.categoryIds.length"
+          :active="props.filters.categoryIds.length > 0"
+          icon="i-lucide-tag"
+          trailing-icon="i-lucide-chevron-down"
+          @click="emit('openCategories')"
+        />
+        <UiChip
+          v-if="showTags"
+          :label="t('finance.filters.tags')"
+          :count="props.filters.tagIds.length"
+          :active="props.filters.tagIds.length > 0"
+          icon="i-lucide-hash"
+          trailing-icon="i-lucide-chevron-down"
+          data-testid="filter-tags"
+          @click="tagSheetOpen = true"
+        />
+        <UiChip
+          v-if="!searching"
+          :label="t('finance.filters.search')"
+          icon="i-lucide-search"
+          @click="openSearch"
+        />
+      </div>
       <button
         v-if="isActive"
-        class="shrink-0 h-9 px-2.5 text-[13px] font-semibold text-text-mute"
+        class="shrink-0 h-9 pl-1.5 pr-1 text-[13px] font-semibold text-text-mute"
         type="button"
         @click="reset"
       >
