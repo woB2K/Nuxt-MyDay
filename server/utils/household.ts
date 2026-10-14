@@ -56,6 +56,12 @@ export function savingsScope(userId: string, household: HouseholdContext): Prism
     : { householdId: household.id, userId }
 }
 
+export function goalScope(userId: string, household: HouseholdContext): Prisma.SavingsGoalWhereInput {
+  return household.shareSavings
+    ? { householdId: household.id }
+    : { householdId: household.id, userId }
+}
+
 interface Typed { id: string, name: string, type: string, key: string | null }
 
 export function matchCategory<T extends Typed>(category: T, candidates: T[]): T | undefined {
@@ -96,6 +102,18 @@ async function copyFinanceTags(tx: Prisma.TransactionClient, fromId: string, toI
   return tagIds
 }
 
+async function copySavingsGoals(tx: Prisma.TransactionClient, fromId: string, toId: string, userId: string) {
+  const goals = await tx.savingsGoal.findMany({ where: { householdId: fromId } })
+  const goalIds = new Map<string, string>()
+
+  for (const { id, name, target, deadline } of goals) {
+    const copy = await tx.savingsGoal.create({ data: { householdId: toId, userId, name, target, deadline } })
+    goalIds.set(id, copy.id)
+  }
+
+  return goalIds
+}
+
 export async function mergeHousehold(tx: Prisma.TransactionClient, fromId: string, toId: string) {
   const [sourceCategories, targetCategories] = await Promise.all([
     tx.category.findMany({ where: { householdId: fromId } }),
@@ -130,6 +148,7 @@ export async function mergeHousehold(tx: Prisma.TransactionClient, fromId: strin
 
   await tx.budget.updateMany(move)
   await tx.transaction.updateMany(move)
+  await tx.savingsGoal.updateMany(move)
   await tx.savingsEntry.updateMany(move)
   const target = await tx.household.update({ where: { id: toId }, data: { nextColor: { increment: 1 } } })
 
@@ -191,13 +210,27 @@ export async function detachMember(tx: Prisma.TransactionClient, householdId: st
   }
 
   if (household.shareSavings) {
+    const goalIds = await copySavingsGoals(tx, householdId, fresh.id, userId)
     const entries = await tx.savingsEntry.findMany({ where: { householdId, userId, deletedAt: null } })
 
     await tx.savingsEntry.createMany({
-      data: entries.map(({ amount, type, notes, createdAt }) => ({ householdId: fresh.id, userId, amount, type, notes, createdAt }))
+      data: entries.map(({ amount, type, notes, createdAt, goalId }) => ({
+        householdId: fresh.id,
+        userId,
+        amount,
+        type,
+        notes,
+        createdAt,
+        goalId: goalId ? goalIds.get(goalId) ?? null : null
+      }))
     })
   } else {
+    const goals = await tx.savingsGoal.findMany({ where: { householdId, userId }, select: { id: true } })
+    const goalIds = goals.map(goal => goal.id)
+
     await tx.savingsEntry.updateMany({ where: { householdId, userId }, data: { householdId: fresh.id } })
+    await tx.savingsGoal.updateMany({ where: { id: { in: goalIds } }, data: { householdId: fresh.id } })
+    await tx.savingsEntry.updateMany({ where: { householdId, goalId: { in: goalIds } }, data: { goalId: null } })
   }
 
   await tx.householdInvite.deleteMany({ where: { householdId, createdById: userId } })

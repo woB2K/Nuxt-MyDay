@@ -1,5 +1,6 @@
 import { getHousehold } from '~~/server/utils/household'
 import { mapAmount } from '~~/server/utils/mapper'
+import { assertGoal } from '~~/server/utils/savingsGoals'
 import { createSavingsSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -7,6 +8,10 @@ export default defineEventHandler(async (event) => {
   const household = await getHousehold(event)
 
   const body = await readValidatedBody(event, createSavingsSchema.parse)
+
+  if (body.type === 'OPENING' && body.goalId) throw createError({ statusCode: 400, message: 'Opening balance cannot belong to a goal' })
+
+  await assertGoal(body.goalId, userId, household)
 
   if (body.type === 'OPENING') {
     const existing = await prisma.savingsEntry.count({ where: { householdId: household.id, userId, type: 'OPENING', deletedAt: null } })

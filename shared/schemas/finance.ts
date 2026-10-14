@@ -83,10 +83,19 @@ export const updateBudgetSchema = createBudgetSchema.partial()
 export const createSavingsSchema = z.object({
   amount: z.number().positive(),
   notes: z.string().optional(),
-  type: savingTypeEnum
+  type: savingTypeEnum,
+  goalId: z.string().min(1).nullable().optional()
 })
 
-export const updateSavingsSchema = createSavingsSchema.pick({ amount: true, notes: true }).partial()
+export const updateSavingsSchema = createSavingsSchema.pick({ amount: true, notes: true, goalId: true }).partial()
+
+export const createSavingsGoalSchema = z.object({
+  name: z.string().trim().min(1).max(60),
+  target: z.number().positive(),
+  deadline: z.iso.date().nullable().optional()
+})
+
+export const updateSavingsGoalSchema = createSavingsGoalSchema.partial()
 
 export const createFinanceTagSchema = z.object({
   name: z.string().trim().min(1).max(40),
