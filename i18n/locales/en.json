@@ -245,8 +245,8 @@
     "focus": "Focus",
     "empty": "Nothing for today",
     "emptySub": "Add a task and it shows up here",
-    "emptyAll": "No tasks yet",
-    "emptyAllSub": "Tap + to add the first one",
+    "emptyOpen": "No open tasks",
+    "emptyOpenSub": "Tap + to add a new one",
     "filters": {
       "all": "All",
       "open": "Open",

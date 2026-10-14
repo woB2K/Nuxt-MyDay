@@ -1,15 +1,15 @@
 import type { TaskFilter } from '~/utils/taskFilters'
 import { defineStore } from 'pinia'
-import { hasActiveTaskFilters } from '~/utils/taskFilters'
+import { defaultTaskFilter, hasActiveTaskFilters } from '~/utils/taskFilters'
 
 export const useTasksStore = defineStore('tasks', () => {
-  const activeFilter = ref<TaskFilter>('all')
+  const activeFilter = ref<TaskFilter>(defaultTaskFilter)
   const searchQuery = ref('')
 
   const filtersActive = computed(() => hasActiveTaskFilters(activeFilter.value, searchQuery.value))
 
   function resetFilters() {
-    activeFilter.value = 'all'
+    activeFilter.value = defaultTaskFilter
     searchQuery.value = ''
   }
 

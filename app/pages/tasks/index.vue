@@ -70,8 +70,8 @@ useFabAction(() => openSheet())
     <template v-else-if="list.length === 0">
       <UiEmptyState
         :icon="tasksStore.filtersActive ? 'i-lucide-search-x' : 'i-lucide-list-todo'"
-        :title="tasksStore.filtersActive ? t('tasks.filters.noResults') : t('tasks.emptyAll')"
-        :subtitle="tasksStore.filtersActive ? t('tasks.filters.noResultsSub') : t('tasks.emptyAllSub')"
+        :title="tasksStore.filtersActive ? t('tasks.filters.noResults') : t('tasks.emptyOpen')"
+        :subtitle="tasksStore.filtersActive ? t('tasks.filters.noResultsSub') : t('tasks.emptyOpenSub')"
       >
         <template v-if="tasksStore.filtersActive" #action>
           <UiButton size="sm" variant="secondary" @click="tasksStore.resetFilters()">
