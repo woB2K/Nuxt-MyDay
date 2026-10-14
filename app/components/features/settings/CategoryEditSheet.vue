@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Category } from '~~/prisma/.generated/prisma'
+import { MAX_NAME_LENGTH } from '~~/shared/schemas'
 import { categoryLabel } from '~/utils/categoryLabel'
 import { categoryColors, categoryIcons, defaultCategoryColor, defaultCategoryIcon } from '~/utils/categoryPresets'
 
@@ -98,7 +99,7 @@ function submit() {
         </div>
       </div>
 
-      <UiInput v-model="name" :label="t('settings.categoriesScreen.name')" type="text" :error="nameError" />
+      <UiInput v-model="name" :label="t('settings.categoriesScreen.name')" type="text" :maxlength="MAX_NAME_LENGTH" :error="nameError" />
 
       <div class="flex flex-col gap-2.5">
         <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-dim">

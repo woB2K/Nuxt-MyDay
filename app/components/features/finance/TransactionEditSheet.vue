@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { TransactionItem } from '~~/shared/types'
+import { MAX_NOTES_LENGTH } from '~~/shared/schemas'
 import { formatLongDay, toDateString, toDayKey } from '~/utils/formatDate'
 
 const props = defineProps<{
@@ -168,7 +169,7 @@ function remove() {
         <span v-if="categoryError" class="text-sm text-danger">{{ categoryError }}</span>
       </div>
 
-      <UiInput v-model="note" :label="t('finance.note')" type="text" />
+      <UiInput v-model="note" :label="t('finance.note')" type="text" :maxlength="MAX_NOTES_LENGTH" />
 
       <TagPicker v-model="tagIds" kind="finance" />
 

@@ -1,17 +1,23 @@
 import { z } from 'zod'
 
 export const MAX_TRANSACTION_TAGS = 10
+export const MAX_AMOUNT = 9_999_999_999.99
+export const MAX_NOTES_LENGTH = 500
+export const MAX_NAME_LENGTH = 60
+
+const amount = z.number().positive().max(MAX_AMOUNT)
+const notes = z.string().max(MAX_NOTES_LENGTH)
 
 const transactionTypeEnum = z.enum(['INCOME', 'EXPENSE'])
 
-const idList = z.string().optional()
+const idList = z.string().max(2000).optional()
   .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean))
 const savingTypeEnum = z.enum(['DEPOSIT', 'WITHDRAWAL', 'OPENING'])
 
 export const createTransactionSchema = z.object({
   type: transactionTypeEnum,
-  amount: z.number().positive(),
-  notes: z.string().optional(),
+  amount,
+  notes: notes.optional(),
   categoryId: z.string().min(1),
   date: z.iso.date(),
   tagIds: z.array(z.string().min(1)).max(MAX_TRANSACTION_TAGS).optional()
@@ -64,8 +70,8 @@ export const savingsQuerySchema = z.object({
 export type SavingsQuery = z.infer<typeof savingsQuerySchema>
 
 export const createCategorySchema = z.object({
-  name: z.string().min(1).max(60),
-  icon: z.string().min(1),
+  name: z.string().min(1).max(MAX_NAME_LENGTH),
+  icon: z.string().min(1).max(60),
   color: z.string().regex(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i),
   type: transactionTypeEnum
 })
@@ -73,7 +79,7 @@ export const createCategorySchema = z.object({
 export const updateCategorySchema = createCategorySchema.partial()
 
 export const createBudgetSchema = z.object({
-  amount: z.number().positive(),
+  amount,
   categoryId: z.string().min(1),
   month: z.iso.datetime()
 })
@@ -81,8 +87,8 @@ export const createBudgetSchema = z.object({
 export const updateBudgetSchema = createBudgetSchema.partial()
 
 export const createSavingsSchema = z.object({
-  amount: z.number().positive(),
-  notes: z.string().optional(),
+  amount,
+  notes: notes.optional(),
   type: savingTypeEnum,
   goalId: z.string().min(1).nullable().optional()
 })
@@ -90,8 +96,8 @@ export const createSavingsSchema = z.object({
 export const updateSavingsSchema = createSavingsSchema.pick({ amount: true, notes: true, goalId: true }).partial()
 
 export const createSavingsGoalSchema = z.object({
-  name: z.string().trim().min(1).max(60),
-  target: z.number().positive(),
+  name: z.string().trim().min(1).max(MAX_NAME_LENGTH),
+  target: amount,
   deadline: z.iso.date().nullable().optional()
 })
 

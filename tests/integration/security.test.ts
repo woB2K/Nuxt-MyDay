@@ -1,5 +1,6 @@
 import { $fetch, fetch } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { MAX_AMOUNT, MAX_NOTES_LENGTH } from '../../shared/schemas'
 import { authHeaders, registerUser, resetDb, setupApi } from './helpers'
 
 describe('security', async () => {
@@ -44,6 +45,23 @@ describe('security', async () => {
 
     it('counts by the address the nearest proxy added, not the one the client claims', async () => {
       expect((await statuses(() => '/api/auth/login', index => `6.6.6.${index}, 10.250.1.3`)).at(-1)).toBe(429)
+    })
+  })
+
+  describe('input limits', () => {
+    it('rejects oversized notes and amounts with 400 instead of storing or crashing', async () => {
+      const user = await registerUser()
+      const categories = await $fetch<Array<{ id: string, type: string }>>('/api/categories', { headers: authHeaders(user.token) })
+      const expense = categories.find(category => category.type === 'EXPENSE')!
+      const spend = (body: object) => $fetch('/api/finance/transactions', {
+        method: 'POST',
+        headers: authHeaders(user.token),
+        body: { type: 'EXPENSE', amount: 10, categoryId: expense.id, date: '2026-10-01', ...body }
+      })
+
+      await expect(spend({ notes: 'x'.repeat(MAX_NOTES_LENGTH + 1) })).rejects.toMatchObject({ statusCode: 400 })
+      await expect(spend({ amount: MAX_AMOUNT * 10 })).rejects.toMatchObject({ statusCode: 400 })
+      await expect(spend({ amount: MAX_AMOUNT })).resolves.toBeDefined()
     })
   })
 

@@ -257,6 +257,8 @@ sequenceDiagram
 
 **Заголовки** — `routeRules['/**'].headers`: `X-Frame-Options: DENY` и `frame-ancestors 'none'` против кликджекинга, `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` (токен приглашения живёт в пути `/family/join/<token>` и не должен уходить в Referer на внешние сайты), HSTS. Полного CSP нет: ему нужна настройка под inline-скрипты Nuxt, color-mode и PWA. Ответы с ошибкой Nitro подписывает своим CSP (`script-src 'none'; frame-ancestors 'none'`), поэтому тест заголовков смотрит на успешные ответы.
 
+**Лимиты ввода.** Строки без `.max()` позволяли класть мегабайты в заметки и названия, а сумма больше `Decimal(12,2)` давала 500. Лимиты — константы в `shared/schemas` (`MAX_AMOUNT`, `MAX_NOTES_LENGTH`, `MAX_NAME_LENGTH`, `MAX_TITLE_LENGTH`, `MAX_TASK_NOTES_LENGTH`), те же значения уходят в `maxlength` у `UiInput`, чтобы поле упиралось в предел, а не получало 400.
+
 Осознанно не сделано: обнаружение повторного использования refresh-токена (нужны семейства токенов), выравнивание времени ответа логина (регистрация и так раскрывает занятый email через 409), полный CSP, обновление Nuxt до ≥4.5.1 — отдельным PR, advisory в основном про SSR.
 
 ### Тема и акцент

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { TaskPriority, TemplateItem } from '~~/shared/types'
+import { MAX_TASK_NOTES_LENGTH, MAX_TITLE_LENGTH } from '~~/shared/schemas'
 import { priorityKeys } from '~/utils/priority'
 
 const props = defineProps<{
@@ -111,7 +112,7 @@ function remove() {
     @update:open="emit('update:open', $event)"
   >
     <form class="flex flex-col gap-5" @submit.prevent="submit">
-      <UiInput v-model="title" :label="t('tasks.title')" type="text" />
+      <UiInput v-model="title" :label="t('tasks.title')" type="text" :maxlength="MAX_TITLE_LENGTH" />
 
       <div class="flex flex-col gap-2.5">
         <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-dim">
@@ -127,7 +128,7 @@ function remove() {
 
       <TagPicker v-model="tagIds" />
 
-      <UiInput v-model="notes" :label="t('tasks.notes')" multiline :rows="3" />
+      <UiInput v-model="notes" :label="t('tasks.notes')" multiline :rows="3" :maxlength="MAX_TASK_NOTES_LENGTH" />
 
       <UiButton
         class="w-full"

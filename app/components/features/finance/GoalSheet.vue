@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { SavingsGoalItem } from '~~/shared/types'
+import { MAX_NAME_LENGTH } from '~~/shared/schemas'
 import { formatLongDay, toDayKey } from '~/utils/formatDate'
 import { goalProgress } from '~/utils/goals'
 
@@ -82,7 +83,7 @@ function remove() {
     @update:open="emit('update:open', $event)"
   >
     <form class="flex flex-col gap-5" @submit.prevent="submit">
-      <UiInput v-model="name" :label="t('finance.goals.name')" type="text" />
+      <UiInput v-model="name" :label="t('finance.goals.name')" type="text" :maxlength="MAX_NAME_LENGTH" />
 
       <div class="flex flex-col items-center gap-1">
         <span class="text-[13px] text-text-dim">{{ t('finance.goals.target') }}</span>

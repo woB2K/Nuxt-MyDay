@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { MAX_NOTES_LENGTH } from '~~/shared/schemas'
+
 type SavingsMode = 'DEPOSIT' | 'WITHDRAWAL' | 'OPENING'
 
 const props = defineProps<{
@@ -126,7 +128,7 @@ function submit() {
         </div>
       </div>
 
-      <UiInput v-model="note" :label="t('finance.note')" type="text" />
+      <UiInput v-model="note" :label="t('finance.note')" type="text" :maxlength="MAX_NOTES_LENGTH" />
 
       <UiButton class="w-full" type="submit" :loading="isPending">
         {{ t(submitLabel) }}
