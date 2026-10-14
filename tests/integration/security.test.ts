@@ -46,4 +46,18 @@ describe('security', async () => {
       expect((await statuses(() => '/api/auth/login', index => `6.6.6.${index}, 10.250.1.3`)).at(-1)).toBe(429)
     })
   })
+
+  describe('response headers', () => {
+    it('forbids framing and sniffing and keeps the invite path out of referrers', async () => {
+      const user = await registerUser()
+
+      for (const response of [await fetch('/'), await fetch('/api/tasks', { headers: authHeaders(user.token) })]) {
+        expect(response.status).toBe(200)
+        expect(response.headers.get('x-frame-options')).toBe('DENY')
+        expect(response.headers.get('content-security-policy')).toBe('frame-ancestors \'none\'')
+        expect(response.headers.get('x-content-type-options')).toBe('nosniff')
+        expect(response.headers.get('referrer-policy')).toBe('strict-origin-when-cross-origin')
+      }
+    })
+  })
 })
