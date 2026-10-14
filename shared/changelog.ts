@@ -2,6 +2,55 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.0.0',
+    date: '2026-10-14',
+    title: { en: 'A Day with Family', ru: 'День с семьёй' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Family: invite someone close with a link and keep one budget together — you see who added each transaction, choose shared or separate savings and can leave anytime with a copy of your records, while tasks stay yours',
+          ru: 'Семья: позови близкого по ссылке и ведите общий бюджет — видно, кто добавил операцию, копилка общая или у каждого своя, а выйти можно в любой момент с копией своих записей; задачи остаются твоими'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'Tags on transactions: mark spending with tags like #vacation and filter by them — the whole family shares them',
+          ru: 'Теги у операций: отмечай траты тегами вроде #отпуск и фильтруй по ним — теги общие для всей семьи'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'Savings goals: set an amount and a deadline, put money towards a goal and see how much to save each month',
+          ru: 'Цели накоплений: задай сумму и срок, пополняй копилку под конкретную цель и смотри, сколько откладывать в месяц'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'Privacy mode: tap your balance to hide every amount, tap again to bring them back',
+          ru: 'Режим приватности: нажми на баланс — и все суммы скроются, нажми ещё раз — вернутся'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Settings → Tags keeps task tags and transaction tags in separate sections',
+          ru: 'В «Настройки → Теги» теги задач и операций лежат в отдельных разделах'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The PIN screen on iPhone no longer has a dark stripe at the top, and Forgot PIN? is back on screen',
+          ru: 'Экран PIN на iPhone больше не обрезан тёмной полосой сверху, а «Забыли PIN?» снова на экране'
+        }
+      }
+    ]
+  },
+  {
     version: '1.2.0',
     date: '2026-10-09',
     title: { en: 'No-Loss Day', ru: 'День без потерь' },
