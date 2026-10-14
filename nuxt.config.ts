@@ -3,6 +3,8 @@ import process from 'node:process'
 import { apiCacheName } from './app/utils/swCache'
 import pkg from './package.json'
 
+let built = false
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -68,8 +70,11 @@ export default defineNuxtConfig({
     }
   },
   hooks: {
-    close: (nuxt) => {
-      if (!nuxt.options.dev && !nuxt.options.test) process.exit(process.exitCode ?? 0)
+    'build:done': () => {
+      built = true
+    },
+    'close': (nuxt) => {
+      if (built && !nuxt.options.dev && !nuxt.options.test) process.exit(process.exitCode ?? 0)
     }
   },
 
