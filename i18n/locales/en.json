@@ -177,7 +177,8 @@
       "showAll": "Show all",
       "noResults": "Nothing matches",
       "noResultsSub": "Try a wider period or fewer filters",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "tags": "Tags"
     },
     "allTransactions": "Transactions",
     "seeAll": "See all",
@@ -188,7 +189,11 @@
     "editTransaction": "Edit transaction",
     "deleteTransaction": "Delete transaction",
     "category": "Category",
-    "date": "Date"
+    "date": "Date",
+    "tags": {
+      "title": "Tags",
+      "new": "New tag"
+    }
   },
   "tasks": {
     "greeting": {
@@ -311,10 +316,13 @@
     "tagsSub": "Remove the ones you no longer use",
     "tagsScreen": {
       "title": "Tags",
-      "subtitle": "Deleting a tag removes it from every task and template",
+      "subtitle": "Deleting a tag removes it everywhere it was used",
       "hint": "Swipe left to delete",
       "emptyTitle": "No tags yet",
-      "emptySubtitle": "Create one right in the task form"
+      "emptySubtitle": "Create one right in the task or transaction form",
+      "tasks": "Tasks",
+      "finance": "Finance",
+      "financeCaption": "Shared with your family"
     },
     "trash": "Recently deleted",
     "trashSub": "Kept for {days} days",

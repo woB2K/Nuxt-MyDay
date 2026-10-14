@@ -9,12 +9,17 @@ interface Props {
   showDate?: boolean
   author?: TxAuthor
   authorRing?: string
+  tags?: string[]
 }
 
-const props = withDefaults(defineProps<Props>(), { showDate: true, authorRing: 'var(--c-elev2)' })
+const props = withDefaults(defineProps<Props>(), { showDate: true, authorRing: 'var(--c-elev2)', tags: () => [] })
+
+const VISIBLE_TAGS = 2
 
 const { t } = useI18n()
 const label = computed(() => categoryLabel(props.category, t))
+const visibleTags = computed(() => props.tags.slice(0, VISIBLE_TAGS))
+const hiddenTags = computed(() => Math.max(0, props.tags.length - VISIBLE_TAGS))
 </script>
 
 <template>
@@ -40,8 +45,15 @@ const label = computed(() => categoryLabel(props.category, t))
     </div>
     <div class="flex flex-col gap-1 flex-1 min-w-0">
       <span class="text-text text-sm font-semibold">{{ props.transaction.notes || label }}</span>
-      <span class="text-text-dim text-xs">
-        {{ label }}<template v-if="props.author?.named"> · {{ props.author.name }}</template><template v-if="props.showDate"> · {{ formatDay(props.transaction.date) }}</template>
+      <span class="flex min-w-0 items-center gap-1.5 text-text-dim text-xs">
+        <span class="truncate">{{ label }}<template v-if="props.author?.named"> · {{ props.author.name }}</template><template v-if="props.showDate"> · {{ formatDay(props.transaction.date) }}</template></span>
+        <span
+          v-for="tag in visibleTags"
+          :key="tag"
+          class="max-w-24 shrink-0 truncate rounded-full bg-elev3 px-1.5 py-px text-[11px] font-medium"
+          data-testid="tx-tag"
+        >#{{ tag }}</span>
+        <span v-if="hiddenTags" class="shrink-0 text-[11px] font-medium text-text-mute">+{{ hiddenTags }}</span>
       </span>
     </div>
     <span

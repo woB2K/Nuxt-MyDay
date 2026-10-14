@@ -16,6 +16,7 @@ describe('emptyFilters / hasActiveFilters', () => {
     expect(hasActiveFilters({ ...emptyFilters(), categoryIds: ['cat-1'] })).toBe(true)
     expect(hasActiveFilters({ ...emptyFilters(), search: 'кофе' })).toBe(true)
     expect(hasActiveFilters({ ...emptyFilters(), mine: true })).toBe(true)
+    expect(hasActiveFilters({ ...emptyFilters(), tagIds: ['tag-1'] })).toBe(true)
   })
 })
 
@@ -25,8 +26,8 @@ describe('filterQuery', () => {
   })
 
   it('склеивает категории в CSV, как ждёт transactionQuerySchema', () => {
-    expect(filterQuery({ type: 'EXPENSE', categoryIds: ['cat-1', 'cat-2'], search: 'такси', mine: false }))
-      .toEqual({ type: 'EXPENSE', categoryIds: 'cat-1,cat-2', search: 'такси' })
+    expect(filterQuery({ ...emptyFilters(), type: 'EXPENSE', categoryIds: ['cat-1', 'cat-2'], tagIds: ['t-1', 't-2'], search: 'такси' }))
+      .toEqual({ type: 'EXPENSE', categoryIds: 'cat-1,cat-2', tagIds: 't-1,t-2', search: 'такси' })
   })
 
   it('шлёт mine только когда чип «Только мои» включён', () => {
@@ -45,5 +46,7 @@ describe('filterKey', () => {
     expect(filterKey({ ...emptyFilters(), search: 'кофе' }))
       .not.toBe(filterKey({ ...emptyFilters(), search: 'кино' }))
     expect(filterKey(emptyFilters())).not.toBe(filterKey({ ...emptyFilters(), mine: true }))
+    expect(filterKey({ ...emptyFilters(), tagIds: ['b', 'a'] })).toBe(filterKey({ ...emptyFilters(), tagIds: ['a', 'b'] }))
+    expect(filterKey({ ...emptyFilters(), tagIds: ['a'] })).not.toBe(filterKey({ ...emptyFilters(), categoryIds: ['a'] }))
   })
 })

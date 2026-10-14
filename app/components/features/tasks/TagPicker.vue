@@ -1,10 +1,16 @@
 <script lang="ts" setup>
+interface Props {
+  kind?: 'task' | 'finance'
+}
+
+const props = withDefaults(defineProps<Props>(), { kind: 'task' })
 const model = defineModel<string[]>({ default: () => [] })
 
 const { t } = useI18n()
 
-const { data: tags } = useTagsQuery()
-const { mutate: addTag, isPending: isTagging } = useAddTagMutation()
+const isFinance = props.kind === 'finance'
+const { data: tags } = isFinance ? useFinanceTagsQuery() : useTagsQuery()
+const { mutate: addTag, isPending: isTagging } = isFinance ? useAddFinanceTagMutation() : useAddTagMutation()
 
 const newTag = ref('')
 
@@ -19,7 +25,7 @@ function create() {
   if (!name || isTagging.value) return
 
   addTag({ name }, {
-    onSuccess: (tag) => {
+    onSuccess: (tag: { id: string }) => {
       model.value = [...model.value, tag.id]
       newTag.value = ''
     }
@@ -30,7 +36,7 @@ function create() {
 <template>
   <div class="flex flex-col gap-2.5">
     <span class="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-dim">
-      {{ t('tasks.tags') }}
+      {{ t(isFinance ? 'finance.tags.title' : 'tasks.tags') }}
     </span>
 
     <div v-if="tags?.length" class="flex flex-wrap gap-2">
@@ -47,7 +53,7 @@ function create() {
       <input
         v-model="newTag"
         class="flex-1 min-w-0 h-10 px-3.5 rounded-full border border-hairline2 bg-field text-text text-sm outline-none"
-        :placeholder="t('tasks.newTag')"
+        :placeholder="t(isFinance ? 'finance.tags.new' : 'tasks.newTag')"
         type="text"
         @keydown.enter.prevent="create"
       >

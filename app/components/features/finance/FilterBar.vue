@@ -10,6 +10,14 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const { me, isFamily } = useFamily()
+const { data: tags } = useFinanceTagsQuery()
+
+const tagSheetOpen = ref(false)
+const showTags = computed(() => (tags.value?.length ?? 0) > 0 || props.filters.tagIds.length > 0)
+
+function applyTags(tagIds: string[]) {
+  emit('update:filters', { ...props.filters, tagIds })
+}
 
 function toggleMine() {
   emit('update:filters', { ...props.filters, mine: !props.filters.mine })
@@ -122,6 +130,16 @@ function reset() {
         @click="emit('openCategories')"
       />
       <UiChip
+        v-if="showTags"
+        :label="t('finance.filters.tags')"
+        :count="props.filters.tagIds.length"
+        :active="props.filters.tagIds.length > 0"
+        icon="i-lucide-hash"
+        trailing-icon="i-lucide-chevron-down"
+        data-testid="filter-tags"
+        @click="tagSheetOpen = true"
+      />
+      <UiChip
         v-if="!searching"
         :label="t('finance.filters.search')"
         icon="i-lucide-search"
@@ -136,5 +154,7 @@ function reset() {
         {{ t('finance.filters.reset') }}
       </button>
     </div>
+
+    <TagFilterSheet v-model:open="tagSheetOpen" :selected="props.filters.tagIds" @apply="applyTags" />
   </div>
 </template>

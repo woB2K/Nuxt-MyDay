@@ -42,7 +42,8 @@ const existing = {
   notes: 'Такси',
   date: '2026-05-08T00:00:00.000Z',
   userId: 'masha',
-  createdAt: '2026-05-08'
+  createdAt: '2026-05-08',
+  tagIds: ['tag-1']
 }
 
 function mountSheet(transaction: unknown = null) {
@@ -54,6 +55,7 @@ function mountSheet(transaction: unknown = null) {
         UiPillSelect: true,
         UiCategoryTile: true,
         UiInput: true,
+        TagPicker: { props: ['modelValue', 'kind'], template: '<div data-tag-picker :data-kind="kind">{{ modelValue.join(\',\') }}</div>' },
         UiButton: { template: '<button type="submit"><slot /></button>' },
         UIcon: true
       }
@@ -146,7 +148,7 @@ describe('transactionEditSheet — редактирование', () => {
     await wrapper.find('form').trigger('submit')
 
     expect(updateMutate).toHaveBeenCalledTimes(1)
-    expect(updateMutate.mock.calls[0]![0]).toMatchObject({ id: 'tx-1', amount: 300, categoryId: 'exp-2' })
+    expect(updateMutate.mock.calls[0]![0]).toMatchObject({ id: 'tx-1', amount: 300, categoryId: 'exp-2', tagIds: ['tag-1'] })
   })
 
   it('смена типа сбрасывает категорию на первую подходящую — иначе сервер вернёт 400', async () => {
@@ -231,5 +233,18 @@ describe('transactionEditSheet — автор в семье', () => {
     family.isFamily.value = true
 
     expect(mountSheet().find('[data-testid="tx-author-line"]').exists()).toBe(false)
+  })
+})
+
+describe('transactionEditSheet — теги', () => {
+  it('показывает семейный пикер с тегами операции', () => {
+    const picker = mountSheet(existing).find('[data-tag-picker]')
+
+    expect(picker.attributes('data-kind')).toBe('finance')
+    expect(picker.text()).toBe('tag-1')
+  })
+
+  it('новая операция начинается без тегов', () => {
+    expect(mountSheet().find('[data-tag-picker]').text()).toBe('')
   })
 })

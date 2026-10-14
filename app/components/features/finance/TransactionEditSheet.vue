@@ -23,6 +23,7 @@ const amount = ref('')
 const categoryId = ref<string>()
 const note = ref('')
 const date = ref(toDateString())
+const tagIds = ref<string[]>([])
 
 const isEdit = computed(() => !!props.transaction)
 
@@ -54,6 +55,7 @@ function reset() {
   categoryId.value = tx?.categoryId
   note.value = tx?.notes ?? ''
   date.value = tx ? toDayKey(tx.date) : toDateString()
+  tagIds.value = tx ? [...tx.tagIds] : []
 }
 
 watch(() => props.open, (open) => {
@@ -104,7 +106,8 @@ function submit() {
     amount: value,
     categoryId: categoryId.value,
     notes: note.value,
-    date: date.value
+    date: date.value,
+    tagIds: tagIds.value
   }
 
   if (props.transaction) {
@@ -166,6 +169,8 @@ function remove() {
       </div>
 
       <UiInput v-model="note" :label="t('finance.note')" type="text" />
+
+      <TagPicker v-model="tagIds" kind="finance" />
 
       <label class="flex flex-col gap-2">
         <span class="text-[13px] text-text-dim">{{ t('finance.date') }}</span>

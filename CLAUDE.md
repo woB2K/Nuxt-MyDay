@@ -69,7 +69,7 @@ myday/
 │   ├── components/
 │   │   ├── ui/                        # UiButton, UiInput, UiCard... — без бизнес-логики
 │   │   └── features/{auth,tasks,finance,settings,family}/
-│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useAppToast.ts
+│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useAppToast.ts
 │   ├── plugins/                       # errorHandler.ts, vue-query.ts
 │   ├── layouts/                       # default.vue (TabBar+FAB), auth.vue
 │   ├── middleware/                    # auth.global.ts, lock.global.ts — оба глобальные, на страницах не объявляются
@@ -80,7 +80,7 @@ myday/
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts, household.ts, householdView.ts, invite.ts
+│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts, household.ts, householdView.ts, invite.ts, financeTags.ts
 │
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, finance.ts, household.ts
@@ -305,6 +305,6 @@ const userId = event.context.userId // проставляет server/middleware/
 
 Иначе любой аутентифицированный пользователь может передать чужой `userId` и получить доступ к чужим данным.
 
-Финансы принадлежат **семье**: scope — `householdId` из `await getHousehold(event)` (`server/utils/household.ts`), никогда не из запроса. Задачи, шаблоны и теги — личные, scope `userId`. Копилка — `savingsScope(userId, household)`.
+Финансы принадлежат **семье**: scope — `householdId` из `await getHousehold(event)` (`server/utils/household.ts`), никогда не из запроса. Задачи, шаблоны и теги задач — личные, scope `userId`; теги операций (`FinanceTag`) — семейные. Копилка — `savingsScope(userId, household)`.
 
 Полный паттерн проверки `categoryId`/`tagIds` и других relation-id из body на принадлежность пользователю — в `.claude/skills/auth-security-patterns/`.

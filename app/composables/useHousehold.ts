@@ -5,7 +5,7 @@ import { authorOf, othersOf } from '~/utils/family'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
 
-const FAMILY_SCOPED_KEYS = ['household', 'transactions', 'summary', 'savings', 'budgets', 'categories', 'trash']
+const FAMILY_SCOPED_KEYS = ['household', 'transactions', 'summary', 'savings', 'budgets', 'categories', 'financeTags', 'trash']
 
 function resetFamilyScope(queryClient: QueryClient) {
   return Promise.all(FAMILY_SCOPED_KEYS.map(key => queryClient.resetQueries({ queryKey: [key] })))

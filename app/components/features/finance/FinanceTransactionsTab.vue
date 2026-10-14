@@ -7,6 +7,7 @@ const emit = defineEmits<{ edit: [transaction: TransactionItem] }>()
 
 const { t } = useI18n()
 const { authorFor } = useFamily()
+const tagNamesOf = useFinanceTagNames()
 
 const financeStore = useFinanceStore()
 const period = toRef(financeStore, 'period')
@@ -163,6 +164,7 @@ function applyCategories(ids: string[]) {
           :category="categories.find(c => c.id === tx.categoryId)!"
           :transaction="tx"
           :author="authorFor(tx.userId)"
+          :tags="tagNamesOf(tx.tagIds)"
           @click="emit('edit', tx)"
         />
       </UiCard>
