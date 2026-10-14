@@ -13,72 +13,66 @@ concurrency:
 
 env:
   NUXT_TELEMETRY_DISABLED: 1
+  DATABASE_URL: postgresql://ci:ci@localhost:5432/myday_ci?schema=public
 
 jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm lint
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm typecheck
+
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm test
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm build
+
   quality:
     name: lint · typecheck · unit · build
+    if: always()
+    needs: [lint, typecheck, unit, build]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/myday_ci?schema=public
-
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma client
-        run: pnpm prisma generate
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Unit tests
-        run: pnpm test
-
-      - name: Build
-        run: pnpm build
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped')
+        run: exit 1
 
   changelog:
     name: changelog
     if: github.base_ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Check changelog
-        run: pnpm release:check
+      - uses: ./.github/actions/setup
+      - run: pnpm release:check
 
   integration:
     name: integration api
@@ -103,30 +97,10 @@ jobs:
           --health-retries 15
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - name: Prepare test env
         run: cp .env.test.example .env.test
-
-      - name: Generate Prisma client
-        run: pnpm prisma generate
-
-      - name: Generate Nuxt types
-        run: pnpm typecheck
-
       - name: Integration tests
         run: pnpm test:integration
 
@@ -154,33 +128,14 @@ jobs:
           --health-retries 15
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - name: Prepare test env
         run: cp .env.test.example .env.test
-
-      - name: Generate Prisma client
-        run: pnpm prisma generate
-
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
-
       - name: E2E tests
         run: pnpm test:e2e
-
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
