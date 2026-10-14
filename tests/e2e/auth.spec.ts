@@ -49,3 +49,16 @@ test('после выхода новый аккаунт не видит данн
   await expect(page.getByTestId('finance-net')).toHaveText('0 ₽')
   await expect(page.getByText('-150 ₽')).toHaveCount(0)
 })
+
+test('выход в одной вкладке выводит из аккаунта и остальные', async ({ page, context, request }) => {
+  const email = uniqueEmail()
+  await registerViaApi(request, email)
+  await loginViaUi(page, email)
+
+  const other = await context.newPage()
+  await other.goto('/settings')
+  await other.getByRole('button', { name: 'Sign out' }).click()
+  await other.waitForURL('**/auth/welcome')
+
+  await page.waitForURL('**/auth/welcome')
+})

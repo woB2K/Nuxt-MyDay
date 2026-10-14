@@ -1,6 +1,8 @@
+import { Buffer } from 'node:buffer'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '../../../app/stores/auth'
+import { AUTH_CHANNEL, SIGNED_OUT } from '../../../app/utils/authChannel'
 
 const mockFetch = vi.fn()
 
@@ -103,7 +105,49 @@ describe('init()', () => {
   })
 })
 
+describe('renew()', () => {
+  const jwt = (sub: string) => `header.${Buffer.from(JSON.stringify({ sub })).toString('base64url')}.signature`
+
+  it('перечитывает профиль, если в другой вкладке вошли под другим аккаунтом', async () => {
+    const other = { ...mockUser, id: 'user-2', name: 'Masha' }
+    mockFetch
+      .mockResolvedValueOnce({ accessToken: jwt('user-2') })
+      .mockResolvedValueOnce(other)
+
+    const store = useAuthStore()
+    store.user = mockUser
+    store.accessToken = 'old-token'
+
+    await expect(store.renew()).resolves.toBe(true)
+    expect(store.user).toEqual(other)
+  })
+
+  it('не трогает профиль, если токен того же пользователя', async () => {
+    mockFetch.mockResolvedValueOnce({ accessToken: jwt('user-1') })
+
+    const store = useAuthStore()
+    store.user = mockUser
+    store.accessToken = 'old-token'
+
+    await store.renew()
+
+    expect(store.user).toEqual(mockUser)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('logout()', () => {
+  it('сообщает другим вкладкам, что сессия закончилась', async () => {
+    const listener = new BroadcastChannel(AUTH_CHANNEL)
+    const message = new Promise(resolve => listener.addEventListener('message', event => resolve(event.data), { once: true }))
+    mockFetch.mockResolvedValueOnce({})
+
+    await useAuthStore().logout()
+
+    await expect(message).resolves.toBe(SIGNED_OUT)
+    listener.close()
+  })
+
   it('clears accessToken and user after successful logout', async () => {
     mockFetch.mockResolvedValueOnce({}) // POST /api/auth/logout
 

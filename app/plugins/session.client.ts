@@ -2,12 +2,15 @@ import type { QueryClient } from '@tanstack/vue-query'
 import { useAuthStore } from '~/stores/auth'
 import { useFinanceStore } from '~/stores/finance'
 import { useTasksStore } from '~/stores/tasks'
+import { useUiStore } from '~/stores/ui'
+import { onSignOutElsewhere } from '~/utils/authChannel'
 import { clearApiCache } from '~/utils/swCache'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const authStore = useAuthStore()
   const finance = useFinanceStore()
   const tasks = useTasksStore()
+  const ui = useUiStore()
 
   watch(() => authStore.user?.id, (_id, previous) => {
     if (!previous) return
@@ -17,6 +20,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     queryClient.clear()
     finance.resetFilters()
     tasks.resetFilters()
+    ui.queue = []
     clearApiCache()
+  })
+
+  onSignOutElsewhere(() => {
+    if (!authStore.isAuthenticated) return
+
+    authStore.forget()
+    nuxtApp.runWithContext(() => navigateTo('/auth/welcome'))
   })
 })
