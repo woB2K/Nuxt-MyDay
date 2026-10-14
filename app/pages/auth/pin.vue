@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useAppLock } from '~/composables/useAppLock'
+import { isTransportError } from '~/utils/network'
 
 definePageMeta({ layout: false })
 
@@ -39,6 +40,12 @@ function submit(pin: string) {
       unlock()
     },
     onError: (cause) => {
+      if (isTransportError(cause)) {
+        error.value = t('pin.offline')
+        screen.value?.reject()
+        return
+      }
+
       const status = (cause as { statusCode?: number }).statusCode
 
       failed.value += 1

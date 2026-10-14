@@ -34,6 +34,8 @@ export function requireOwner(household: HouseholdContext) {
 
 export const MEMBER_COLORS = 4
 
+export const FAMILY_TX_OPTIONS = { timeout: 30_000 }
+
 export async function lockHouseholds(tx: Prisma.TransactionClient, ids: string[]) {
   for (const id of [...new Set(ids)].sort())
     await tx.$queryRaw`SELECT 1 FROM "Household" WHERE "id" = ${id} FOR UPDATE`

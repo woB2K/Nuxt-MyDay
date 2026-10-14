@@ -78,6 +78,9 @@ importers:
       eslint:
         specifier: ^10.3.0
         version: 10.3.0(jiti@2.6.1)
+      fake-indexeddb:
+        specifier: ^6.2.5
+        version: 6.2.5
       happy-dom:
         specifier: ^20.9.0
         version: 20.9.0

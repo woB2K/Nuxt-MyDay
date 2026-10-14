@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { hasActiveTaskFilters, taskFilterKeys, taskQuery } from '../../../app/utils/taskFilters'
+import { defaultTaskFilter, hasActiveTaskFilters, taskFilterKeys, taskQuery } from '../../../app/utils/taskFilters'
+
+describe('defaultTaskFilter', () => {
+  it('по умолчанию показывает только открытые задачи', () => {
+    expect(defaultTaskFilter).toBe('open')
+  })
+})
 
 describe('hasActiveTaskFilters', () => {
   it('стартовое состояние не считается активным фильтром', () => {
-    expect(hasActiveTaskFilters('all', '')).toBe(false)
+    expect(hasActiveTaskFilters(defaultTaskFilter, '')).toBe(false)
   })
 
-  it('любой заполненный фильтр делает набор активным', () => {
-    expect(hasActiveTaskFilters('open', '')).toBe(true)
+  it('отличие от стартового сегмента или поиск делают набор активным', () => {
+    expect(hasActiveTaskFilters('all', '')).toBe(true)
     expect(hasActiveTaskFilters('done', '')).toBe(true)
-    expect(hasActiveTaskFilters('all', 'отчёт')).toBe(true)
+    expect(hasActiveTaskFilters('open', 'отчёт')).toBe(true)
   })
 })
 

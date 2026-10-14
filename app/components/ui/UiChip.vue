@@ -12,13 +12,16 @@ const props = withDefaults(defineProps<Props>(), { active: false })
 
 <template>
   <button
-    class="shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-full border text-[13px] font-semibold transition-all duration-fast ease-spring active:scale-[0.96]"
-    :class="props.active
-      ? 'bg-accent-soft border-accent text-accent'
-      : 'bg-elev1 border-hairline text-text-dim'"
+    class="shrink-0 inline-flex items-center gap-1.5 h-9 pr-3 rounded-full border text-[13px] font-semibold transition-all duration-fast ease-spring active:scale-[0.96]"
+    :class="[
+      $slots.leading ? 'pl-1.5' : 'pl-3',
+      props.active ? 'bg-accent-soft border-accent text-accent' : 'bg-elev1 border-hairline text-text-dim'
+    ]"
     type="button"
   >
-    <UIcon v-if="props.icon" :name="props.icon" class="w-3.5 h-3.5" />
+    <slot name="leading">
+      <UIcon v-if="props.icon" :name="props.icon" class="w-3.5 h-3.5" />
+    </slot>
     {{ props.label }}
     <span
       v-if="props.count"

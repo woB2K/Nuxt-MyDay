@@ -1,4 +1,4 @@
-import { getHousehold, lockHouseholds, mergeHousehold } from '~~/server/utils/household'
+import { FAMILY_TX_OPTIONS, getHousehold, lockHouseholds, mergeHousehold } from '~~/server/utils/household'
 import { householdView } from '~~/server/utils/householdView'
 import { hashToken } from '~~/server/utils/jwt'
 import { inviteTokenSchema } from '~~/shared/schemas'
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     await mergeHousehold(tx, household.id, invite.householdId)
 
     return invite.householdId
-  })
+  }, FAMILY_TX_OPTIONS)
 
   return householdView(targetId, event.context.userId)
 })

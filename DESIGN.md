@@ -336,6 +336,10 @@ props:
 open/close: translateY(0|100%), dur-sheet, ease-spring
 scrim: rgba(0,0,0,0.6) + blur(8px), 240ms
 drag handle: 40×4px, hairline2, radius-full
+slot footer (необязательный): липнет к низу шторки (sticky), padding 20 20 safe,
+  bg linear-gradient(transparent → bgElev2 25%) — контент уходит под него;
+  туда кладём кнопки действий длинных списков ([Очистить | Показать · N] в фильтрах),
+  чтобы не листать до конца
 ```
 
 #### `UiSwipeRow`
@@ -379,11 +383,23 @@ hero card: gradient bg, ambient glow blob, title2, UiCheckCircle size=32
 #### `UiTxRow`
 ```
 props:
-  transaction: Transaction
-  category:    Category
+  transaction: { type, amount, notes?, date }   — TransactionItem или тело офлайн-записи
+  category:    { icon, color, name, key }
+  pending?:    boolean                          — запись ждёт отправки
 
 layout: [icon в тинтованном квадрате 40px] [note + category·date] [±amount]
 income: success color, expense: text color
+pending: вся строка opacity-60, перед суммой i-lucide-clock 16px text-mute
+```
+
+#### `PendingTransactions` (Finance → «Транзакции», 9.1)
+```
+где:      между FilterBar и «Расходы по категориям»; пустая очередь — секции нет
+шапка:    UiSectionHeader «Ждут отправки» + счётчик
+подпись:  12px text-mute, px-5, под шапкой: «Отправим, когда появится сеть»
+строки:   UiCard без паддинга, UiTxRow pending, не кликабельны
+категория не в кэше → i-lucide-receipt, #8A8A98, подпись «Категория»
+в итоги, баланс и разбивку неотправленное не входит
 ```
 
 #### `UiCategoryTile`
@@ -767,7 +783,8 @@ props: type, onType, cats, onOpenCats, search, onSearch
 
 row 1: UiPillSelect full — All / Expense (danger) / Income (success)
 row 2 (горизонтальный скролл): Chip «Categories» (+count badge) → CategoryFilterSheet,
-  Chip «Search», текстовая кнопка «Reset» (появляется при любом активном фильтре)
+  Chip «Search»; справа ВНЕ скролла — текстовая кнопка «Reset» (появляется при любом активном
+  фильтре), чипы уходят под неё через fade-маску 20px — Reset не уезжает за край при 4+ чипах
 поле поиска открывается НАД рядом чипов (h40, accent border + accentSoft glow, autofocus,
   clear-кнопка 22px bgElev3) — чтобы активный фильтр категорий и Reset оставались видимыми
 placeholder: «Search notes» — поиск по заметке
@@ -998,7 +1015,7 @@ i18n: все строки (en/ru) собраны в `family-i18n.jsx` (`FAM_I18N
 - **Ссылка показывается один раз** (в БД только хеш) — шторка «Ссылка готова» прямо об этом говорит. Дальше на экране — строка «Приглашение отправлено» с «Создать новую» и «Отозвать».
 - **Действия с участником — через «•••» на строке, а не свайп**: свайп по людям неожидан и срабатывает случайно. «•••» только у владельца и не у себя.
 - **Автор операции — бейдж-инициал 18px на углу иконки категории**, только у чужих операций: строка не становится шире, свои выглядят как раньше.
-- **«Только мои» — чип в FilterBar** (первым), только при 2+ участниках. Та же модель, что остальные фильтры v3: hero, разбивка и список пересчитываются, «Сбросить» сбрасывает и его.
+- **Фильтр по участнику — чип «Участники» в FilterBar** (первым), только при 2+ участниках. Шторка с одиночным выбором: Все / Мои / каждый участник. Та же модель, что остальные фильтры v3: hero, разбивка и список пересчитываются, «Сбросить» сбрасывает и его. ⚠️ В макете был тумблер «Только мои» — заменён, чтобы смотреть операции любого участника.
 - **Вступление — полноэкранный маршрут без таб-бара**, кнопки в липком футере. После — экран «Ты в семье» → Finance с тостом.
 - **Данных реального времени нет**: подсказка внизу экрана «Семья» говорит, что изменения других видны при следующем открытии.
 
@@ -1233,8 +1250,12 @@ UiTxRow: иконка категории 40 в relative-обёртке; чужа
   у двух других участников совпала первая буква → в мета-строке после категории имя: «Еда · Маша»
 TransactionEditSheet (edit): под суммой 13 textMute «Автор: {name} · {date}» (date — createdAt; без глагола — у имени нет рода)
   ⚠️ автора нет среди участников → «Автор: бывший участник». Создание — без изменений
-FilterBar: первый чип «Только мои» — UiAvatar 20 свой + label; active accentSoft + accent border + × 14; входит в «Сбросить»
-  mine → ключ кэша и query transactions и summary (?mine=true)
+FilterBar: первый чип — UiChip + chevron; без выбора icon users + «Участники»,
+  выбран → leading UiAvatar 20 автора + «Мои» / имя (ушёл из семьи → «бывший участник»), active-стиль; входит в «Сбросить»
+  виден при 2+ участниках или пока по нему фильтруют; authorId → ключ кэша и query transactions и summary (?author=<userId>)
+AuthorFilterSheet: UiSheet «Чьи операции», список как в PeriodSheet (bgElev2 r12, hairline-разделители):
+  «Все» (диск 28 bgElev3 + icon users) → «Мои» (свой UiAvatar 28) → остальные участники (UiAvatar 28 + имя)
+  active: label accent 600 + check 18; выбор применяется сразу и закрывает шторку
 Finance шапка: справа от h1 UiAvatarStack 28 всех участников (ring bg), тап → /settings/family
 UiSavingsCard (общая копилка): справа от overline UiAvatarStack 20 + 12/600 textDim «Общая»;
   в истории бейдж автора на круге ↑/↓, как в UiTxRow. Раздельная — без изменений
@@ -1285,7 +1306,7 @@ solo hero: famPop (scale 0.6→1 + fade) 420ms spring; карточки «Общ
 «Ссылка готова»: check famPop 420ms spring · «Скопировать» → check success на 2 с
 Consequences: stagger 40ms · строки участников: stepIn 240ms
 Join success: см. JoinSuccess; Finance после вступления — fade 360ms + тост translateY 20→0 240ms spring, 3 с
-чип «Только мои»: цвет 150ms; hero-сумма и список — fade 240ms при пересчёте
+чип «Участники»: цвет 150ms; hero-сумма и список — fade 240ms при пересчёте
 prefers-reduced-motion — глобальное правило в main.css
 ```
 

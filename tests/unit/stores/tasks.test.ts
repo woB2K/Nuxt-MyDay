@@ -8,22 +8,22 @@ beforeEach(() => {
 })
 
 describe('useTasksStore', () => {
-  it('стартует со всеми задачами и пустым поиском', () => {
+  it('стартует с открытыми задачами и пустым поиском', () => {
     const store = useTasksStore()
 
-    expect(store.activeFilter).toBe('all')
+    expect(store.activeFilter).toBe('open')
     expect(store.searchQuery).toBe('')
     expect(store.filtersActive).toBe(false)
-    expect(taskQuery(store.activeFilter, store.searchQuery)).toEqual({})
+    expect(taskQuery(store.activeFilter, store.searchQuery)).toEqual({ filter: 'open' })
   })
 
   it('считает фильтры активными при выборе сегмента или вводе поиска', () => {
     const store = useTasksStore()
 
-    store.activeFilter = 'open'
+    store.activeFilter = 'all'
     expect(store.filtersActive).toBe(true)
 
-    store.activeFilter = 'all'
+    store.activeFilter = 'open'
     store.searchQuery = 'отчёт'
     expect(store.filtersActive).toBe(true)
   })
@@ -35,7 +35,7 @@ describe('useTasksStore', () => {
     store.searchQuery = 'отчёт'
     store.resetFilters()
 
-    expect(store.activeFilter).toBe('all')
+    expect(store.activeFilter).toBe('open')
     expect(store.searchQuery).toBe('')
     expect(store.filtersActive).toBe(false)
   })

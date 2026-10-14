@@ -1,3 +1,4 @@
+import { isUniqueViolation } from '~~/server/utils/dbError'
 import { ownedFinanceTagIds } from '~~/server/utils/financeTags'
 import { getHousehold } from '~~/server/utils/household'
 import { toTransactionItem, transactionTags } from '~~/server/utils/mapper'
@@ -7,7 +8,22 @@ export default defineEventHandler(async (event) => {
   const userId = event.context.userId
   const household = await getHousehold(event)
 
-  const { tagIds, ...body } = await readValidatedBody(event, createTransactionSchema.parse)
+  const { id, tagIds, ...body } = await readValidatedBody(event, createTransactionSchema.parse)
+
+  async function alreadyCreated() {
+    if (!id) return null
+
+    const existing = await prisma.transaction.findFirst({
+      where: { id, householdId: household.id, userId },
+      include: transactionTags
+    })
+
+    return existing && toTransactionItem(existing)
+  }
+
+  const replay = await alreadyCreated()
+
+  if (replay) return replay
 
   const category = await prisma.category.findFirst({
     where: { id: body.categoryId, householdId: household.id }
@@ -18,16 +34,27 @@ export default defineEventHandler(async (event) => {
 
   const ownedTagIds = await ownedFinanceTagIds(household.id, tagIds)
 
-  const transaction = await prisma.transaction.create({
-    data: {
-      ...body,
-      date: new Date(body.date),
-      householdId: household.id,
-      userId,
-      ...(ownedTagIds?.length && { tags: { create: ownedTagIds.map(tagId => ({ tagId })) } })
-    },
-    include: transactionTags
-  })
+  try {
+    const transaction = await prisma.transaction.create({
+      data: {
+        ...(id && { id }),
+        ...body,
+        date: new Date(body.date),
+        householdId: household.id,
+        userId,
+        ...(ownedTagIds?.length && { tags: { create: ownedTagIds.map(tagId => ({ tagId })) } })
+      },
+      include: transactionTags
+    })
 
-  return toTransactionItem(transaction)
+    return toTransactionItem(transaction)
+  } catch (error) {
+    if (!id || !isUniqueViolation(error)) throw error
+
+    const winner = await alreadyCreated()
+
+    if (!winner) throw createError({ statusCode: 409, message: 'Transaction ID is already taken' })
+
+    return winner
+  }
 })

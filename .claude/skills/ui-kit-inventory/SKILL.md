@@ -20,7 +20,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | `UiPillSelect` | `v-model`, `options: { value, label, color?, inkColor? }[]`, `full`, `bgClass` | `color` красит активную пилюлю (расход — danger, доход — success) |
 | `UiDateStrip` | `v-model` (`YYYY-MM-DD` или `''`), `days` (7) | Семь дней от сегодня, горизонтальный скролл. Повторный тап по выбранному дню снимает дату. Отдаёт календарный день строкой, не `Date` |
 | `UiSwitch` | `v-model` (boolean) | iOS-стиль, 51×31 |
-| `UiChip` | `label`, `count`, `active`, `icon`, `trailingIcon` | Фильтры, быстрые суммы. Счётчик рисуется только при `count > 0` |
+| `UiChip` | `label`, `count`, `active`, `icon`, `trailingIcon`, слот `#leading` | Фильтры, быстрые суммы. Счётчик рисуется только при `count > 0`. `#leading` заменяет иконку (аватар 20 в чипе «Участники») и ужимает левый отступ |
 | `UiRoundBtn` | `size` (36), `disabled` | Круглая кнопка: назад, стрелки периода, «+» в заголовке секции |
 | `UiCheckCircle` | `v-model`, `size` (26), `color` | Внутри строки-кнопки не вкладывать: это `<button>`, оборачивай ряд в `div` и гаси всплытие |
 | `UiFab` | событие `click` | Один на экран, живёт в `default.vue`; скрывается через `definePageMeta({ hideFab: true })` |
@@ -30,7 +30,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | Компонент | API | Заметки |
 |---|---|---|
 | `UiSwipeRow` | `rightAction?: { label, icon, gradient, inkColor }`, `completable`, `deletable` (true), `completed`; события `complete`, `delete` | Порог 90px, ось лочится на первом движении (вертикаль отдаётся скроллу). Правый слой рисуется только при `rightAction` или `completable`. Денежные строки — accent «Edit», зелёный «Done ✓» зарезервирован за задачами |
-| `UiTxRow` | `transaction`, `category`, `showDate` (true), `author` (`TxAuthor` из `authorFor()`), `authorRing` (фон под бейджем), `tags` (имена — из `useFinanceTagNames()`, видно 2 и «+N») | В сгруппированном по дням списке дату выключать. Собственный `border-b` пропадает, если строка — единственный ребёнок обёртки: разделители в таких списках рисуй сам |
+| `UiTxRow` | `transaction` (`{ type, amount, notes?, date }`), `category` (`{ icon, color, name, key }`), `showDate` (true), `author` (`TxAuthor` из `authorFor()`), `authorRing` (фон под бейджем), `tags` (имена — из `useFinanceTagNames()`, видно 2 и «+N»), `pending` (офлайн-запись: приглушена, иконка часов) | Узкие типы — чтобы рисовать и тело офлайн-записи из очереди (`PendingTransactions`). В сгруппированном по дням списке дату выключать. Собственный `border-b` пропадает, если строка — единственный ребёнок обёртки: разделители в таких списках рисуй сам |
 | `UiTaskRow` | `task` (с плоскими `tags`), `showDate` (true); события `toggle(done)`, `open` | Строка кликабельна целиком (`open`), чекбокс обёрнут в `@click.stop`. Просроченный дедлайн красится danger. Полоска приоритета справа — цвет из `priorityBarClass` |
 | `UiTaskTemplateRow` | `template`; события `use`, `edit` | Тап по строке — `edit`, кнопка «Применить» — `use` (со `@click.stop`) |
 | `UiStatsCard` | `type` streak/progress, `value`, `total` (progress) | Подписи свои, через `t('tasks.stats.*')`; стрик плюрализуется. Прогресс не уходит за 100% и не делит на ноль |
@@ -50,7 +50,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 
 | Компонент | API | Заметки |
 |---|---|---|
-| `UiSheet` | `v-model:open`, `title` (необязательный) | Базовый нижний шит: скрим, ручка, блокировка скролла. Без `title` заголовок не рисуется — для шитов со своей шапкой (`InstallSheet`). Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
+| `UiSheet` | `v-model:open`, `title` (необязательный), слот `#footer` | Базовый нижний шит: скрим, ручка, блокировка скролла. `#footer` липнет к низу шторки поверх контента — для кнопок под длинным списком (`CategoryFilterSheet`, `TagFilterSheet`). Без `title` заголовок не рисуется — для шитов со своей шапкой (`InstallSheet`). Все шиты v3 (`PeriodSheet`, `CategoryFilterSheet`, `TransactionEditSheet`, `SavingsOpSheet`) — это контент внутри него, новых базовых шитов не заводим |
 | `UiToast` / `UiToastItem` | через `useAppToast()`; `success(message, { label, run })` добавляет кнопку действия, `info(message, { persistent: true })` — тост без автоскрытия | Не монтировать вручную — см. skill `ui-feedback-patterns`. Тост с действием живёт 5 с, действие закрывает тост — так сделано «Отменить» после удаления |
 | `UiTabBar` | — | Нижняя навигация, берёт пункты из `app/utils/routes.ts` |
 | `UiSkeleton` | `w`, `h` (14), `r` (6) | Плюс готовые `UiSkeletonRow`, `UiSkeletonFinanceHero` |

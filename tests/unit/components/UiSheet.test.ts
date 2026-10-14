@@ -13,10 +13,10 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-function mountSheet(open = true) {
+function mountSheet(open = true, slots: Record<string, string> = {}) {
   sheet = mount(UiSheet, {
     props: { open, title: 'Sheet' },
-    slots: { default: '<p>body</p>' }
+    slots: { default: '<p>body</p>', ...slots }
   })
 
   return sheet
@@ -92,6 +92,24 @@ describe('uiSheet', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
 
     expect(wrapper.emitted('update:open')).toEqual([[false]])
+  })
+
+  it('закрепляет футер внизу и отдаёт ему отступ safe-area', () => {
+    mountSheet(true, { footer: '<button>apply</button>' })
+
+    const footer = query('[data-testid="sheet-footer"]')
+
+    expect(footer.classList).toContain('sticky')
+    expect(footer.classList).toContain('pb-safe')
+    expect(footer.textContent).toContain('apply')
+    expect(document.body.querySelectorAll('.pb-safe')).toHaveLength(1)
+  })
+
+  it('без футера отступ safe-area остаётся у контента', () => {
+    mountSheet()
+
+    expect(document.body.querySelector('[data-testid="sheet-footer"]')).toBeNull()
+    expect(document.body.querySelectorAll('.pb-safe')).toHaveLength(1)
   })
 
   it('снимает блокировку скролла при размонтировании', async () => {

@@ -10,11 +10,14 @@ const notes = z.string().max(MAX_NOTES_LENGTH)
 
 const transactionTypeEnum = z.enum(['INCOME', 'EXPENSE'])
 
+export const clientIdSchema = z.string().regex(/^[a-z0-9]{24,64}$/)
+
 const idList = z.string().max(2000).optional()
   .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean))
 const savingTypeEnum = z.enum(['DEPOSIT', 'WITHDRAWAL', 'OPENING'])
 
 export const createTransactionSchema = z.object({
+  id: clientIdSchema.optional(),
   type: transactionTypeEnum,
   amount,
   notes: notes.optional(),
@@ -23,7 +26,7 @@ export const createTransactionSchema = z.object({
   tagIds: z.array(z.string().min(1)).max(MAX_TRANSACTION_TAGS).optional()
 })
 
-export const updateTransactionSchema = createTransactionSchema.partial()
+export const updateTransactionSchema = createTransactionSchema.omit({ id: true }).partial()
 
 const dateRangeShape = {
   from: z.iso.date().optional(),
@@ -43,7 +46,7 @@ const transactionFilterShape = {
   search: z.string().max(100).optional().transform(s => s?.trim() || undefined),
   categoryIds: idList,
   tagIds: idList,
-  mine: z.enum(['true', 'false']).optional().transform(s => s === 'true' || undefined)
+  author: z.string().min(1).max(64).optional()
 }
 
 export const transactionFilterQuerySchema = z.object(transactionFilterShape).refine(isOrderedRange, orderedRangeError)

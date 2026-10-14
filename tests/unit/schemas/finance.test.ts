@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, savingsQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateSavingsSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
+import { clientIdSchema, createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, savingsQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateSavingsSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
 
 describe('createTransactionSchema', () => {
   const valid = {
@@ -60,7 +60,40 @@ describe('createTransactionSchema', () => {
   })
 })
 
+describe('createTransactionSchema: клиентский id', () => {
+  const valid = { type: 'EXPENSE', amount: 150, categoryId: 'cat-1', date: '2026-05-08' }
+
+  it('id необязателен — старый закэшированный клиент шлёт без него', () => {
+    expect(createTransactionSchema.safeParse(valid).success).toBe(true)
+  })
+
+  it('принимает hex-id клиента и cuid', () => {
+    expect(createTransactionSchema.safeParse({ ...valid, id: '0123456789abcdef0123456789abcdef' }).success).toBe(true)
+    expect(createTransactionSchema.safeParse({ ...valid, id: 'cmgq2k3a40000x8l1a2b3c4d5' }).success).toBe(true)
+  })
+
+  it.each([
+    ['короткий', 'abc123'],
+    ['с заглавными', 'ABCDEF0123456789ABCDEF0123456789'],
+    ['со слэшем', '0123456789abcdef/123456789abcdef'],
+    ['слишком длинный', 'a'.repeat(65)]
+  ])('отклоняет id: %s', (_label, id) => {
+    expect(createTransactionSchema.safeParse({ ...valid, id }).success).toBe(false)
+  })
+
+  it('clientIdSchema — тот же формат', () => {
+    expect(clientIdSchema.safeParse('a'.repeat(24)).success).toBe(true)
+    expect(clientIdSchema.safeParse('a'.repeat(23)).success).toBe(false)
+  })
+})
+
 describe('updateTransactionSchema', () => {
+  it('не пропускает id в PATCH — иначе он сменил бы первичный ключ', () => {
+    const result = updateTransactionSchema.parse({ id: 'a'.repeat(32), amount: 10 })
+
+    expect(result).toEqual({ amount: 10 })
+  })
+
   it('accepts empty object', () => {
     const result = updateTransactionSchema.safeParse({})
     expect(result.success).toBe(true)

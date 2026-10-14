@@ -64,6 +64,16 @@ describe('useApi', () => {
     expect(client).toHaveBeenCalledTimes(1)
   })
 
+  it('если refresh не дошёл до сервера, отдаёт сетевую ошибку и не выкидывает на welcome', async () => {
+    const networkDown = Object.assign(new Error('fetch failed'), { name: 'FetchError' })
+    client.mockRejectedValueOnce(unauthorized())
+    store.renew = vi.fn().mockRejectedValue(networkDown)
+
+    await expect(useApi()('/api/finance/transactions', { method: 'POST' })).rejects.toBe(networkDown)
+    expect(navigate).not.toHaveBeenCalled()
+    expect(client).toHaveBeenCalledTimes(1)
+  })
+
   it('не обновляет токен на 403 — сессия жива, это не подошёл секрет', async () => {
     client.mockRejectedValueOnce(Object.assign(new Error('Wrong PIN'), { statusCode: 403 }))
 

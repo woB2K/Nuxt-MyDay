@@ -43,13 +43,15 @@ function apply() {
       />
     </div>
 
-    <div class="flex gap-2.5 mt-5">
-      <UiButton class="flex-1" variant="secondary" @click="selection = []">
-        {{ t('finance.filters.clear') }}
-      </UiButton>
-      <UiButton class="flex-2" data-testid="tag-filter-apply" @click="apply">
-        {{ selection.length ? `${t('finance.filters.show')} · ${selection.length}` : t('finance.filters.showAll') }}
-      </UiButton>
-    </div>
+    <template #footer>
+      <div class="flex gap-2.5">
+        <UiButton class="flex-1" variant="secondary" @click="selection = []">
+          {{ t('finance.filters.clear') }}
+        </UiButton>
+        <UiButton class="flex-2" data-testid="tag-filter-apply" @click="apply">
+          {{ selection.length ? `${t('finance.filters.show')} · ${selection.length}` : t('finance.filters.showAll') }}
+        </UiButton>
+      </div>
+    </template>
   </UiSheet>
 </template>

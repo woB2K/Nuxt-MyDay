@@ -138,7 +138,7 @@ onUnmounted(() => {
             <div class="mx-auto h-1 w-10 rounded-full bg-hairline2" />
           </div>
 
-          <div class="px-5 pt-2 pb-safe">
+          <div class="px-5 pt-2" :class="{ 'pb-safe': !$slots.footer }">
             <h2
               v-if="title"
               class="mb-4 touch-none select-none text-lg font-semibold"
@@ -150,6 +150,16 @@ onUnmounted(() => {
               {{ title }}
             </h2>
             <slot />
+          </div>
+
+          <div
+            v-if="$slots.footer"
+            class="sticky bottom-0 px-5 pt-5 pb-safe bg-gradient-to-b from-transparent to-elev2 to-25% pointer-events-none"
+            data-testid="sheet-footer"
+          >
+            <div class="pointer-events-auto">
+              <slot name="footer" />
+            </div>
           </div>
         </div>
 

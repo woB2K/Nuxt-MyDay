@@ -331,19 +331,30 @@ describe('household api', async () => {
       expect((await household(owner)).members.map(m => m.savingsBalance)).toEqual([null, null])
     })
 
-    it('narrows transactions and summary to my own with mine=true', async () => {
+    it('narrows transactions and summary to one member with author', async () => {
       const { owner, member } = await family()
       const food = await byKey(owner, 'food')
       await spend(owner, food.id, 10)
       await spend(member, food.id, 25)
 
-      const mine = await get<{ data: TransactionDto[] }>(member, '/api/finance/transactions', { mine: 'true' })
-      const summary = await get<{ expense: number }>(member, '/api/finance/summary', { mine: 'true' })
+      const theirs = await get<{ data: TransactionDto[] }>(member, '/api/finance/transactions', { author: owner.userId })
+      const mine = await get<{ expense: number }>(member, '/api/finance/summary', { author: member.userId })
       const all = await get<{ expense: number }>(member, '/api/finance/summary')
 
-      expect(mine.data.map(tx => tx.amount)).toEqual([25])
-      expect(summary.expense).toBe(25)
+      expect(theirs.data.map(tx => tx.amount)).toEqual([10])
+      expect(mine.expense).toBe(25)
       expect(all.expense).toBe(35)
+    })
+
+    it('does not reach outside the household through author', async () => {
+      const { owner } = await family()
+      const food = await byKey(owner, 'food')
+      await spend(owner, food.id, 10)
+      const stranger = await registerUser()
+
+      const outside = await get<{ data: TransactionDto[] }>(stranger, '/api/finance/transactions', { author: owner.userId })
+
+      expect(outside.data).toEqual([])
     })
 
     it('lets the owner hand ownership over without leaving', async () => {
