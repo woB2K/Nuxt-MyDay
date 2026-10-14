@@ -1,6 +1,6 @@
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { $fetch } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, registerUser, resetDb } from './helpers'
+import { authHeaders, registerUser, resetDb, setupApi } from './helpers'
 
 interface TagDto {
   id: string
@@ -20,12 +20,7 @@ interface CategoryDto {
 type User = Awaited<ReturnType<typeof registerUser>>
 
 describe('finance tags api', async () => {
-  await setup({
-    nuxtConfig: {
-      routeRules: { '/': { prerender: false } },
-      nitro: { prerender: { crawlLinks: false, routes: [], ignore: ['/'] } }
-    }
-  })
+  await setupApi()
 
   beforeEach(async () => {
     await resetDb()

@@ -1,6 +1,6 @@
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { $fetch } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, householdOf, prisma, registerUser, resetDb } from './helpers'
+import { authHeaders, householdOf, prisma, registerUser, resetDb, setupApi } from './helpers'
 
 interface Category { id: string, name: string, type: 'INCOME' | 'EXPENSE' }
 interface Tx { id: string, amount: number, type: string }
@@ -16,12 +16,7 @@ async function categoryId(token: string, type: 'INCOME' | 'EXPENSE') {
 }
 
 describe('phase 2 api', async () => {
-  await setup({
-    nuxtConfig: {
-      routeRules: { '/': { prerender: false } },
-      nitro: { prerender: { crawlLinks: false, routes: [], ignore: ['/'] } }
-    }
-  })
+  await setupApi()
 
   beforeEach(async () => {
     await resetDb()

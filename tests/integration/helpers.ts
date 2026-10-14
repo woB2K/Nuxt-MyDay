@@ -1,6 +1,7 @@
 import process from 'node:process'
-import { $fetch } from '@nuxt/test-utils/e2e'
+import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { PrismaPg } from '@prisma/adapter-pg'
+import { inject } from 'vitest'
 import { PrismaClient } from '../../prisma/.generated/prisma/index.js'
 
 // Отдельный prisma-клиент тестового процесса (не серверный синглтон) —
@@ -46,4 +47,9 @@ export async function householdOf(userId: string): Promise<string> {
 // Шорткат для авторизованного запроса.
 export function authHeaders(token: string) {
   return { Authorization: `Bearer ${token}` }
+}
+
+// Сервер собирается и поднимается один раз в global-setup.ts — файлы только подключаются к нему.
+export function setupApi() {
+  return setup({ host: inject('apiUrl') })
 }

@@ -1,6 +1,6 @@
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { $fetch } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, prisma, registerUser, resetDb } from './helpers'
+import { authHeaders, prisma, registerUser, resetDb, setupApi } from './helpers'
 
 interface TaskDto {
   id: string
@@ -11,12 +11,7 @@ interface TaskDto {
 }
 
 describe('phase 3 api', async () => {
-  await setup({
-    nuxtConfig: {
-      routeRules: { '/': { prerender: false } },
-      nitro: { prerender: { crawlLinks: false, routes: [], ignore: ['/'] } }
-    }
-  })
+  await setupApi()
 
   beforeEach(async () => {
     await resetDb()

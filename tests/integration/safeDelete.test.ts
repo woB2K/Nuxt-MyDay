@@ -1,6 +1,6 @@
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { $fetch } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, prisma, registerUser, resetDb } from './helpers'
+import { authHeaders, prisma, registerUser, resetDb, setupApi } from './helpers'
 
 interface TagDto {
   id: string
@@ -46,12 +46,7 @@ interface TrashDto {
 const DAY_MS = 24 * 60 * 60 * 1000
 
 describe('safe delete api', async () => {
-  await setup({
-    nuxtConfig: {
-      routeRules: { '/': { prerender: false } },
-      nitro: { prerender: { crawlLinks: false, routes: [], ignore: ['/'] } }
-    }
-  })
+  await setupApi()
 
   beforeEach(async () => {
     await resetDb()
