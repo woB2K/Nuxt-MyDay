@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt'
 import { describe, expect, it } from 'vitest'
 import { comparePassword, hashPassword } from '../../../server/utils/password'
 
@@ -25,6 +26,11 @@ describe('hashPassword / comparePassword', () => {
     const hash1 = await hashPassword(password)
     const hash2 = await hashPassword(password)
     expect(hash1).not.toBe(hash2)
+  })
+
+  it('hashes with the cost from runtime config', async () => {
+    const hash = await hashPassword('any-password')
+    expect(bcrypt.getRounds(hash)).toBe(useRuntimeConfig().passwordHashRounds)
   })
 
   it('empty string does not match a hash of a real password', async () => {

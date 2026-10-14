@@ -46,6 +46,7 @@ export default defineNuxtConfig({
     jwtRefreshSecret: '',
     googleClientId: '',
     googleClientSecret: '',
+    passwordHashRounds: 12,
     public: {
       appUrl: '',
       appVersion: pkg.version

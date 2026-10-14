@@ -13,7 +13,8 @@ export default defineVitestConfig({
         overrides: {
           runtimeConfig: {
             jwtAccessSecret: 'unit-test-access-secret-32-chars!',
-            jwtRefreshSecret: 'unit-test-refresh-secret-32chars!'
+            jwtRefreshSecret: 'unit-test-refresh-secret-32chars!',
+            passwordHashRounds: 4
           }
         }
       }
