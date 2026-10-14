@@ -1,8 +1,10 @@
 import { orNotFound } from '~~/server/utils/dbError'
+import { getHousehold, savingsScope } from '~~/server/utils/household'
 import { mapAmount } from '~~/server/utils/mapper'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
+  const household = await getHousehold(event)
 
   const savingsId = getRouterParam(event, 'id')
 
@@ -10,7 +12,7 @@ export default defineEventHandler(async (event) => {
     prisma.savingsEntry.update({
       where: {
         id: savingsId,
-        userId,
+        ...savingsScope(userId, household),
         deletedAt: null
       },
       data: { deletedAt: new Date() }

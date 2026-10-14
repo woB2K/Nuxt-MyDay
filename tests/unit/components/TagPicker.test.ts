@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import TagPicker from '../../../app/components/features/tasks/TagPicker.vue'
 import UiChip from '../../../app/components/ui/UiChip.vue'
 
-const { tagMutate } = vi.hoisted(() => ({ tagMutate: vi.fn() }))
+const { tagMutate, financeTagMutate } = vi.hoisted(() => ({ tagMutate: vi.fn(), financeTagMutate: vi.fn() }))
 
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
 mockNuxtImport('useAppToast', () => () => ({ success: () => {}, error: () => {}, info: () => {} }))
@@ -13,10 +13,12 @@ mockNuxtImport('useTagsQuery', () => () => ({
   data: ref([{ id: 'tag-1', name: 'дом' }, { id: 'tag-2', name: 'работа' }])
 }))
 mockNuxtImport('useAddTagMutation', () => () => ({ mutate: tagMutate, isPending: ref(false) }))
+mockNuxtImport('useFinanceTagsQuery', () => () => ({ data: ref([{ id: 'ftag-1', name: 'отпуск' }]) }))
+mockNuxtImport('useAddFinanceTagMutation', () => () => ({ mutate: financeTagMutate, isPending: ref(false) }))
 
-function mountPicker(modelValue: string[] = []) {
+function mountPicker(modelValue: string[] = [], kind?: 'task' | 'finance') {
   return mount(TagPicker, {
-    props: { modelValue },
+    props: { modelValue, kind },
     global: {
       components: { UiChip },
       stubs: {
@@ -29,6 +31,7 @@ function mountPicker(modelValue: string[] = []) {
 
 beforeEach(() => {
   tagMutate.mockReset()
+  financeTagMutate.mockReset()
 })
 
 afterEach(() => {
@@ -66,5 +69,17 @@ describe('tagPicker', () => {
     expect(tagMutate.mock.calls[0]![0]).toEqual({ name: 'спорт' })
     expect(wrapper.emitted('update:modelValue')).toEqual([[['tag-1', 'tag-3']]])
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('')
+  })
+
+  it('в финансах берёт семейные теги и создаёт новые там же', async () => {
+    const wrapper = mountPicker([], 'finance')
+
+    expect(wrapper.findAllComponents(UiChip).map(chip => chip.text())).toEqual(['отпуск'])
+
+    await wrapper.find('input').setValue('кафе')
+    await wrapper.findComponent({ name: 'UiRoundBtn' }).trigger('click')
+
+    expect(financeTagMutate.mock.calls[0]![0]).toEqual({ name: 'кафе' })
+    expect(tagMutate).not.toHaveBeenCalled()
   })
 })

@@ -63,3 +63,9 @@ export function formatDateTime(dateString?: Date | string): string {
 
   return `${day}.${month}.${year} ${hours}:${minutes}`
 }
+
+export function formatLongDay(value: Date | string, locale: string): string {
+  const date = typeof value === 'string' && DATE_ONLY.test(value) ? fromDateString(value) : new Date(value)
+
+  return date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' })
+}

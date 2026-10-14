@@ -8,6 +8,8 @@ import { groupByDay } from '~/utils/transactionGroups'
 definePageMeta({ hideFab: true })
 
 const { t, locale } = useI18n()
+const { authorFor } = useFamily()
+const tagNamesOf = useFinanceTagNames()
 
 const financeStore = useFinanceStore()
 const period = toRef(financeStore, 'period')
@@ -161,6 +163,9 @@ function applyCategories(ids: string[]) {
                 class="cursor-pointer"
                 :category="categoryOf(tx)!"
                 :transaction="tx"
+                :author="authorFor(tx.userId)"
+                :tags="tagNamesOf(tx.tagIds)"
+                author-ring="var(--c-elev1)"
                 :show-date="false"
                 @click="openEdit(tx)"
               />

@@ -9,10 +9,10 @@ export const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
 })
 
-// TRUNCATE ... CASCADE с User вычищает все зависимые таблицы по FK,
+// TRUNCATE ... CASCADE с User и Household вычищает все зависимые таблицы по FK,
 // RESTART IDENTITY сбрасывает счётчики. Дёшево и без порядка удаления.
 export async function resetDb() {
-  await prisma.$executeRawUnsafe('TRUNCATE TABLE "User" RESTART IDENTITY CASCADE')
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE "User", "Household" RESTART IDENTITY CASCADE')
 }
 
 interface RegisteredUser {
@@ -36,6 +36,11 @@ export async function registerUser(): Promise<RegisteredUser> {
     body: { name: 'Test User', email, password: 'password123' }
   })
   return { token: res.accessToken, userId: res.user.id, email }
+}
+
+export async function householdOf(userId: string): Promise<string> {
+  const member = await prisma.householdMember.findUniqueOrThrow({ where: { userId } })
+  return member.householdId
 }
 
 // Шорткат для авторизованного запроса.

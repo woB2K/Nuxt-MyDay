@@ -22,7 +22,7 @@ function daysInMonth(year: number, month: number) {
 async function main() {
   const user = await prisma.user.findUnique({
     where: { email: USER_EMAIL },
-    include: { categories: true }
+    include: { membership: { include: { household: { include: { categories: true } } } } }
   })
 
   if (!user) {
@@ -30,8 +30,9 @@ async function main() {
     process.exit(1)
   }
 
-  const expenseCategories = user.categories.filter(c => c.type === 'EXPENSE')
-  const incomeCategories = user.categories.filter(c => c.type === 'INCOME')
+  const household = user.membership!.household
+  const expenseCategories = household.categories.filter(c => c.type === 'EXPENSE')
+  const incomeCategories = household.categories.filter(c => c.type === 'INCOME')
 
   const now = new Date()
   const transactions = []
@@ -49,6 +50,7 @@ async function main() {
     if (maxDay >= 5) {
       const salCat = incomeCategories.find(c => c.name === 'Salary') ?? incomeCategories[0]
       transactions.push({
+        householdId: household.id,
         userId: user.id,
         type: 'INCOME' as const,
         amount: randAmount(4500, 5500),
@@ -64,6 +66,7 @@ async function main() {
     for (const d of freelanceDays) {
       if (Math.random() > 0.4) {
         transactions.push({
+          householdId: household.id,
           userId: user.id,
           type: 'INCOME' as const,
           amount: randAmount(300, 900),
@@ -102,6 +105,7 @@ async function main() {
       for (let i = 0; i < count; i++) {
         const day = rand(1, maxDay)
         transactions.push({
+          householdId: household.id,
           userId: user.id,
           type: 'EXPENSE' as const,
           amount: randAmount(min, max),
@@ -129,7 +133,7 @@ async function main() {
     const createdAt = new Date(now)
     createdAt.setDate(createdAt.getDate() - s.daysAgo)
     await prisma.savingsEntry.create({
-      data: { userId: user.id, amount: s.amount, type: s.type, notes: s.notes, createdAt }
+      data: { householdId: household.id, userId: user.id, amount: s.amount, type: s.type, notes: s.notes, createdAt }
     })
   }
 
@@ -147,9 +151,9 @@ async function main() {
     const category = expenseCategories.find(c => c.name === cat)
     if (!category) continue
     await prisma.budget.upsert({
-      where: { userId_categoryId_month: { userId: user.id, categoryId: category.id, month: monthStart } },
+      where: { householdId_categoryId_month: { householdId: household.id, categoryId: category.id, month: monthStart } },
       update: { amount },
-      create: { userId: user.id, categoryId: category.id, amount, month: monthStart }
+      create: { householdId: household.id, categoryId: category.id, amount, month: monthStart }
     })
   }
 }

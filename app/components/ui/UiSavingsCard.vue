@@ -1,7 +1,13 @@
 <script lang="ts" setup>
+interface Person {
+  name: string
+  colorIndex: number | null
+}
+
 interface Props {
   balance: number
   delta: number
+  sharedWith?: Person[]
 }
 
 const props = defineProps<Props>()
@@ -21,9 +27,15 @@ const { t } = useI18n()
     />
 
     <div class="flex flex-col gap-1">
-      <span class="text-xs font-semibold uppercase tracking-widest text-text-mute">
-        {{ t('finance.savings.balance') }}
-      </span>
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-xs font-semibold uppercase tracking-widest text-text-mute">
+          {{ t('finance.savings.balance') }}
+        </span>
+        <span v-if="props.sharedWith?.length" class="flex items-center gap-1.5" data-testid="savings-shared">
+          <UiAvatarStack :members="props.sharedWith" :size="20" ring="var(--c-elev1)" />
+          <span class="text-xs font-semibold text-text-dim">{{ t('family.finance.shared') }}</span>
+        </span>
+      </div>
       <span class="text-[44px] font-bold leading-none whitespace-nowrap text-text font-display">
         {{ formatAmount(props.balance) }} ₽
       </span>

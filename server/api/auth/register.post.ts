@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
         passwordHash: hashedPassword
       }
     })
-    await seedCategories(tx, newUser.id)
+    const household = await tx.household.create({
+      data: { members: { create: { userId: newUser.id, role: 'OWNER' } } }
+    })
+    await seedCategories(tx, household.id)
     const appSettings = await tx.appSettings.create({
       data: {
         userId: newUser.id

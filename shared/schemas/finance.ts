@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
+export const MAX_TRANSACTION_TAGS = 10
+
 const transactionTypeEnum = z.enum(['INCOME', 'EXPENSE'])
+
+const idList = z.string().optional()
+  .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean))
 const savingTypeEnum = z.enum(['DEPOSIT', 'WITHDRAWAL', 'OPENING'])
 
 export const createTransactionSchema = z.object({
@@ -8,7 +13,8 @@ export const createTransactionSchema = z.object({
   amount: z.number().positive(),
   notes: z.string().optional(),
   categoryId: z.string().min(1),
-  date: z.iso.date()
+  date: z.iso.date(),
+  tagIds: z.array(z.string().min(1)).max(MAX_TRANSACTION_TAGS).optional()
 })
 
 export const updateTransactionSchema = createTransactionSchema.partial()
@@ -29,8 +35,9 @@ const transactionFilterShape = {
   ...dateRangeShape,
   type: transactionTypeEnum.optional(),
   search: z.string().max(100).optional().transform(s => s?.trim() || undefined),
-  categoryIds: z.string().optional()
-    .transform(s => s?.split(',').map(id => id.trim()).filter(Boolean))
+  categoryIds: idList,
+  tagIds: idList,
+  mine: z.enum(['true', 'false']).optional().transform(s => s === 'true' || undefined)
 }
 
 export const transactionFilterQuerySchema = z.object(transactionFilterShape).refine(isOrderedRange, orderedRangeError)
@@ -80,3 +87,10 @@ export const createSavingsSchema = z.object({
 })
 
 export const updateSavingsSchema = createSavingsSchema.pick({ amount: true, notes: true }).partial()
+
+export const createFinanceTagSchema = z.object({
+  name: z.string().trim().min(1).max(40),
+  color: z.string().regex(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i).optional()
+})
+
+export const updateFinanceTagSchema = createFinanceTagSchema.partial()

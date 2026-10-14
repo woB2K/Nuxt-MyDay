@@ -1,16 +1,17 @@
+import { getHousehold } from '~~/server/utils/household'
+import { trashScopes } from '~~/server/utils/trash'
 import { trashItemParamsSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const userId = event.context.userId
-
   const { kind, id } = await getValidatedRouterParams(event, trashItemParamsSchema.parse)
 
-  const where = { id, userId, deletedAt: { not: null } }
+  const scopes = trashScopes(event.context.userId, await getHousehold(event))
+  const deletedAt = { not: null }
 
   const deleteByKind = {
-    task: () => prisma.task.deleteMany({ where }),
-    transaction: () => prisma.transaction.deleteMany({ where }),
-    savings: () => prisma.savingsEntry.deleteMany({ where })
+    task: () => prisma.task.deleteMany({ where: { id, ...scopes.task, deletedAt } }),
+    transaction: () => prisma.transaction.deleteMany({ where: { id, ...scopes.transaction, deletedAt } }),
+    savings: () => prisma.savingsEntry.deleteMany({ where: { id, ...scopes.savings, deletedAt } })
   }
 
   const { count } = await deleteByKind[kind]()

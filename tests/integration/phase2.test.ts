@@ -1,6 +1,6 @@
 import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, prisma, registerUser, resetDb } from './helpers'
+import { authHeaders, householdOf, prisma, registerUser, resetDb } from './helpers'
 
 interface Category { id: string, name: string, type: 'INCOME' | 'EXPENSE' }
 interface Tx { id: string, amount: number, type: string }
@@ -28,7 +28,7 @@ describe('phase 2 api', async () => {
   })
 
   describe('categories', () => {
-    it('creates a category for the caller', async () => {
+    it('creates a category in the caller household', async () => {
       const { token, userId } = await registerUser()
 
       const created = await $fetch<Category>('/api/categories', {
@@ -39,7 +39,7 @@ describe('phase 2 api', async () => {
 
       expect(created.name).toBe('Pets')
       const inDb = await prisma.category.findUnique({ where: { id: created.id } })
-      expect(inDb?.userId).toBe(userId)
+      expect(inDb?.householdId).toBe(await householdOf(userId))
     })
 
     it('rejects invalid body (empty name)', async () => {
@@ -870,7 +870,7 @@ describe('phase 2 api', async () => {
         const { token, userId } = await registerUser()
 
         const old = await prisma.savingsEntry.create({
-          data: { userId, amount: 4000, type: 'DEPOSIT' }
+          data: { householdId: await householdOf(userId), userId, amount: 4000, type: 'DEPOSIT' }
         })
         await prisma.savingsEntry.update({
           where: { id: old.id },

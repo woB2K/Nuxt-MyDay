@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { registerSchema } from '~~/shared/schemas'
+import { homePath } from '~/utils/family'
 
 definePageMeta({ layout: 'auth' })
 
@@ -34,7 +35,7 @@ async function handleSubmit() {
   loading.value = true
   try {
     await authStore.register(result.data)
-    await navigateTo('/today')
+    await navigateTo(homePath())
   } catch (e: any) {
     const status = e?.statusCode ?? e?.data?.statusCode
 

@@ -29,7 +29,7 @@ const colors = {
 let timer: ReturnType<typeof setTimeout>
 
 onMounted(() => {
-  timer = setTimeout(emit, props.duration, 'close', props.id)
+  if (props.duration > 0) timer = setTimeout(emit, props.duration, 'close', props.id)
 })
 
 onUnmounted(() => {
