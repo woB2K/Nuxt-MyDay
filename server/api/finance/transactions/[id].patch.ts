@@ -1,11 +1,12 @@
+import { ownedFinanceTagIds } from '~~/server/utils/financeTags'
 import { getHousehold } from '~~/server/utils/household'
-import { mapAmount } from '~~/server/utils/mapper'
+import { toTransactionItem, transactionTags } from '~~/server/utils/mapper'
 import { updateTransactionSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const household = await getHousehold(event)
   const transactionId = getRouterParam(event, 'id')
-  const { date, ...rest } = await readValidatedBody(event, updateTransactionSchema.parse)
+  const { date, tagIds, ...rest } = await readValidatedBody(event, updateTransactionSchema.parse)
 
   const current = await prisma.transaction.findFirst({
     where: { id: transactionId, householdId: household.id, deletedAt: null }
@@ -23,13 +24,20 @@ export default defineEventHandler(async (event) => {
     if (category.type !== type) throw createError({ statusCode: 400, message: 'Category type does not match transaction type' })
   }
 
+  const ownedTagIds = await ownedFinanceTagIds(household.id, tagIds)
+
   const transaction = await prisma.transaction.update({
     where: {
       id: transactionId,
       householdId: household.id
     },
-    data: { ...rest, ...(date && { date: new Date(date) }) }
+    data: {
+      ...rest,
+      ...(date && { date: new Date(date) }),
+      ...(ownedTagIds && { tags: { deleteMany: {}, create: ownedTagIds.map(tagId => ({ tagId })) } })
+    },
+    include: transactionTags
   })
 
-  return mapAmount(transaction)
+  return toTransactionItem(transaction)
 })

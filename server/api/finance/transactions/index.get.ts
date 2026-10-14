@@ -1,5 +1,5 @@
 import { getHousehold } from '~~/server/utils/household'
-import { mapAmount } from '~~/server/utils/mapper'
+import { toTransactionItem, transactionTags } from '~~/server/utils/mapper'
 import { transactionWhere } from '~~/server/utils/transactionWhere'
 import { transactionQuerySchema } from '~~/shared/schemas'
 
@@ -15,13 +15,14 @@ export default defineEventHandler(async (event) => {
       where,
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }]
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+      include: transactionTags
     }),
     prisma.transaction.count({ where })
   ])
 
   return {
-    data: items.map(i => mapAmount(i)),
+    data: items.map(item => toTransactionItem(item)),
     total,
     page,
     limit

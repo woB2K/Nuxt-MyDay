@@ -1,6 +1,6 @@
 import { orNotFound } from '~~/server/utils/dbError'
 import { getHousehold } from '~~/server/utils/household'
-import { mapAmount } from '~~/server/utils/mapper'
+import { toTransactionItem, transactionTags } from '~~/server/utils/mapper'
 import { inTrash } from '~~/server/utils/trash'
 
 export default defineEventHandler(async (event) => {
@@ -14,10 +14,11 @@ export default defineEventHandler(async (event) => {
         householdId: household.id,
         deletedAt: inTrash()
       },
-      data: { deletedAt: null }
+      data: { deletedAt: null },
+      include: transactionTags
     }),
     'Transaction not found'
   )
 
-  return mapAmount(transaction)
+  return toTransactionItem(transaction)
 })

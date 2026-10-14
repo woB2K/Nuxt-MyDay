@@ -1,12 +1,13 @@
+import { ownedFinanceTagIds } from '~~/server/utils/financeTags'
 import { getHousehold } from '~~/server/utils/household'
-import { mapAmount } from '~~/server/utils/mapper'
+import { toTransactionItem, transactionTags } from '~~/server/utils/mapper'
 import { createTransactionSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
   const household = await getHousehold(event)
 
-  const body = await readValidatedBody(event, createTransactionSchema.parse)
+  const { tagIds, ...body } = await readValidatedBody(event, createTransactionSchema.parse)
 
   const category = await prisma.category.findFirst({
     where: { id: body.categoryId, householdId: household.id }
@@ -15,9 +16,18 @@ export default defineEventHandler(async (event) => {
   if (!category) throw createError({ statusCode: 400, message: 'Invalid category ID' })
   if (category.type !== body.type) throw createError({ statusCode: 400, message: 'Category type does not match transaction type' })
 
+  const ownedTagIds = await ownedFinanceTagIds(household.id, tagIds)
+
   const transaction = await prisma.transaction.create({
-    data: { ...body, date: new Date(body.date), householdId: household.id, userId }
+    data: {
+      ...body,
+      date: new Date(body.date),
+      householdId: household.id,
+      userId,
+      ...(ownedTagIds?.length && { tags: { create: ownedTagIds.map(tagId => ({ tagId })) } })
+    },
+    include: transactionTags
   })
 
-  return mapAmount(transaction)
+  return toTransactionItem(transaction)
 })

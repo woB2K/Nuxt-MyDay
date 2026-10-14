@@ -65,6 +65,37 @@ export function matchCategory<T extends Typed>(category: T, candidates: T[]): T 
     ?? sameType.find(candidate => candidate.name === category.name)
 }
 
+async function mergeFinanceTags(tx: Prisma.TransactionClient, fromId: string, toId: string) {
+  const [sourceTags, targetTags] = await Promise.all([
+    tx.financeTag.findMany({ where: { householdId: fromId } }),
+    tx.financeTag.findMany({ where: { householdId: toId } })
+  ])
+
+  for (const tag of sourceTags) {
+    const match = targetTags.find(candidate => candidate.name === tag.name)
+
+    if (!match) {
+      await tx.financeTag.update({ where: { id: tag.id }, data: { householdId: toId } })
+      continue
+    }
+
+    await tx.transactionTag.updateMany({ where: { tagId: tag.id }, data: { tagId: match.id } })
+    await tx.financeTag.delete({ where: { id: tag.id } })
+  }
+}
+
+async function copyFinanceTags(tx: Prisma.TransactionClient, fromId: string, toId: string) {
+  const tags = await tx.financeTag.findMany({ where: { householdId: fromId } })
+  const tagIds = new Map<string, string>()
+
+  for (const { id, name, color } of tags) {
+    const copy = await tx.financeTag.create({ data: { householdId: toId, name, color } })
+    tagIds.set(id, copy.id)
+  }
+
+  return tagIds
+}
+
 export async function mergeHousehold(tx: Prisma.TransactionClient, fromId: string, toId: string) {
   const [sourceCategories, targetCategories] = await Promise.all([
     tx.category.findMany({ where: { householdId: fromId } }),
@@ -92,6 +123,8 @@ export async function mergeHousehold(tx: Prisma.TransactionClient, fromId: strin
 
     await tx.category.delete({ where: { id: category.id } })
   }
+
+  await mergeFinanceTags(tx, fromId, toId)
 
   const move = { where: { householdId: fromId }, data: { householdId: toId } }
 
@@ -130,19 +163,32 @@ export async function detachMember(tx: Prisma.TransactionClient, householdId: st
     categoryIds.set(id, copy.id)
   }
 
-  const transactions = await tx.transaction.findMany({ where: { householdId, userId, deletedAt: null } })
+  const tagIds = await copyFinanceTags(tx, householdId, fresh.id)
+
+  const transactions = await tx.transaction.findMany({
+    where: { householdId, userId, deletedAt: null },
+    include: { tags: { select: { tagId: true } } }
+  })
+
+  const copyOf = ({ type, amount, notes, date, categoryId }: typeof transactions[number]) => ({
+    householdId: fresh.id,
+    userId,
+    type,
+    amount,
+    notes,
+    date,
+    categoryId: categoryIds.get(categoryId)!
+  })
 
   await tx.transaction.createMany({
-    data: transactions.map(({ type, amount, notes, date, categoryId }) => ({
-      householdId: fresh.id,
-      userId,
-      type,
-      amount,
-      notes,
-      date,
-      categoryId: categoryIds.get(categoryId)!
-    }))
+    data: transactions.filter(transaction => transaction.tags.length === 0).map(copyOf)
   })
+
+  for (const transaction of transactions.filter(item => item.tags.length > 0)) {
+    await tx.transaction.create({
+      data: { ...copyOf(transaction), tags: { create: transaction.tags.map(({ tagId }) => ({ tagId: tagIds.get(tagId)! })) } }
+    })
+  }
 
   if (household.shareSavings) {
     const entries = await tx.savingsEntry.findMany({ where: { householdId, userId, deletedAt: null } })

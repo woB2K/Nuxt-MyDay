@@ -1,5 +1,5 @@
 import { getHousehold } from '~~/server/utils/household'
-import { mapAmount, normalizeTags } from '~~/server/utils/mapper'
+import { mapAmount, normalizeTags, toTransactionItem, transactionTags } from '~~/server/utils/mapper'
 import { purgeExpiredTrash, trashScopes } from '~~/server/utils/trash'
 
 export default defineEventHandler(async (event) => {
@@ -20,13 +20,13 @@ export default defineEventHandler(async (event) => {
         tags: { include: { tag: true } }
       }
     }),
-    prisma.transaction.findMany({ where: { ...scopes.transaction, deletedAt }, orderBy }),
+    prisma.transaction.findMany({ where: { ...scopes.transaction, deletedAt }, orderBy, include: transactionTags }),
     prisma.savingsEntry.findMany({ where: { ...scopes.savings, deletedAt }, orderBy })
   ])
 
   return {
     tasks: tasks.map(el => normalizeTags(el)),
-    transactions: transactions.map(el => mapAmount(el)),
+    transactions: transactions.map(el => toTransactionItem(el)),
     savings: savings.map(el => mapAmount(el))
   }
 })

@@ -40,6 +40,7 @@ model Household {
   savings      SavingsEntry[]
   categories   Category[]
   budgets      Budget[]
+  financeTags  FinanceTag[]
 }
 
 model HouseholdMember {
@@ -186,12 +187,38 @@ model Transaction {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id])
-  category  Category  @relation(fields: [categoryId], references: [id])
+  household Household        @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id])
+  category  Category         @relation(fields: [categoryId], references: [id])
+  tags      TransactionTag[]
 
   @@index([householdId, deletedAt])
   @@index([userId, deletedAt])
+}
+
+model FinanceTag {
+  id          String   @id @default(cuid())
+  householdId String
+  name        String
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household    Household        @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions TransactionTag[]
+
+  @@unique([householdId, name])
+}
+
+model TransactionTag {
+  transactionId String
+  tagId         String
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  tag         FinanceTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([transactionId, tagId])
+  @@index([tagId])
 }
 
 model SavingsEntry {
