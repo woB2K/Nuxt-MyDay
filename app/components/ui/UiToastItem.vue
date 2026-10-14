@@ -46,7 +46,7 @@ function runAction() {
   <div
     class="flex items-center gap-3 px-4 py-3 rounded-lg bg-elev3 border border-hairline shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
   >
-    <div class="flex-none p-1.5 rounded-md" :class="[colors[type]]">
+    <div class="flex-none grid place-items-center size-7 rounded-md" :class="[colors[type]]">
       <UIcon :name="icons[type]" class="size-4" />
     </div>
     <p class="flex-1 text-footnote text-text">
@@ -61,7 +61,7 @@ function runAction() {
       {{ action.label }}
     </button>
     <button
-      class="flex-none text-text-mute hover:text-text transition-colors duration-fast"
+      class="flex-none flex text-text-mute hover:text-text transition-colors duration-fast"
       @click="emit('close', id)"
     >
       <UIcon name="i-heroicons-x-mark" class="size-4" />
