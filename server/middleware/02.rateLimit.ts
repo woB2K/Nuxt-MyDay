@@ -1,14 +1,17 @@
-import { checkRateLimit } from '../utils/rateLimit'
+import { checkRateLimit, clientIp } from '../utils/rateLimit'
+import { requestPath } from '../utils/requestPath'
 
 const RATE_LIMITED_PATHS = ['/api/auth/login', '/api/auth/register']
 
 export default defineEventHandler((event) => {
-  if (!RATE_LIMITED_PATHS.includes(event.path)) return
+  const path = requestPath(event)
 
-  const ip = getRequestIP(event, { xForwardedFor: true })
+  if (!RATE_LIMITED_PATHS.includes(path)) return
+
+  const ip = clientIp(event)
 
   if (!ip)
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
 
-  checkRateLimit(event, `${ip}:${event.path}`, 10, 15 * 60 * 1000)
+  checkRateLimit(event, `${ip}:${path}`, 10, 15 * 60 * 1000)
 })

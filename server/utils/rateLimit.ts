@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { createError, setResponseHeader } from 'h3'
+import { createError, getRequestHeader, getRequestIP, setResponseHeader } from 'h3'
 
 const store = new Map<string, { count: number, resetAt: number }>()
 
@@ -25,4 +25,13 @@ export function checkRateLimit(event: H3Event, key: string, maxAttempts: number,
   }
 
   entry.count++
+}
+
+export function clientIp(event: H3Event): string | undefined {
+  const forwarded = getRequestHeader(event, 'x-forwarded-for')
+    ?.split(',')
+    .map(part => part.trim())
+    .filter(Boolean)
+
+  return forwarded?.at(-1) ?? getRequestIP(event)
 }
