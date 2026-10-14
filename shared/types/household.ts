@@ -1,8 +1,9 @@
 import type { z } from 'zod'
 import type { HouseholdRole } from '~~/prisma/.generated/prisma'
-import type { updateHouseholdSchema } from '../schemas/household'
+import type { leaveHouseholdSchema, updateHouseholdSchema } from '../schemas/household'
 
 export type UpdateHouseholdInput = z.infer<typeof updateHouseholdSchema>
+export type LeaveHouseholdInput = z.input<typeof leaveHouseholdSchema>
 
 export interface HouseholdMemberItem {
   userId: string

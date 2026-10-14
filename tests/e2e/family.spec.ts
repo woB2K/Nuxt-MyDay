@@ -110,6 +110,23 @@ async function familyOfTwo(request: APIRequestContext) {
   return { ownerEmail, memberEmail, amounts }
 }
 
+test('при выходе можно забрать свои записи из семьи', async ({ page, request }) => {
+  const { ownerEmail, memberEmail, amounts } = await familyOfTwo(request)
+
+  await loginViaUi(page, memberEmail)
+  await page.goto('/settings/family')
+  await page.getByTestId('family-leave').click()
+  await expect(page.getByText('Everything stays in the family')).toBeVisible()
+
+  await page.getByRole('switch', { name: 'Remove my records from the family' }).click()
+  await expect(page.getByText('They leave the family')).toBeVisible()
+  await page.getByTestId('leave-confirm').click()
+  await expect(page.getByTestId('family-invite')).toBeVisible()
+
+  expect(await amounts(memberEmail)).toEqual([30])
+  expect(await amounts(ownerEmail)).toEqual([100])
+})
+
 test('записи ушедшего помечены бывшим участником, даже когда в семье никого не осталось', async ({ page, browser, request }) => {
   const { ownerEmail, memberEmail, amounts } = await familyOfTwo(request)
 

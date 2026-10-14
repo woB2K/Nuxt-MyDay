@@ -163,6 +163,18 @@ describe('savings goals api', async () => {
       expect((await goals(owner)).map(item => [item.name, item.saved])).toEqual([['Отпуск', 300]])
     })
 
+    it('takes the leaver\'s progress out of shared goals on request', async () => {
+      const { owner, member } = await family()
+      const goal = await addGoal(owner, 'Отпуск')
+      await save(owner, 100, goal.id)
+      await save(member, 200, goal.id)
+
+      await send(member, '/api/household/leave', 'POST', { takeRecords: true })
+
+      expect((await goals(member)).map(item => [item.name, item.saved])).toEqual([['Отпуск', 200]])
+      expect((await goals(owner)).map(item => [item.name, item.saved])).toEqual([['Отпуск', 100]])
+    })
+
     it('takes own goals along and unlinks others from them when savings are separate', async () => {
       const { owner, member } = await family()
       const shared = await addGoal(member, 'Отпуск')
