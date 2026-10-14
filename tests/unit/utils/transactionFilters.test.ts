@@ -15,7 +15,7 @@ describe('emptyFilters / hasActiveFilters', () => {
     expect(hasActiveFilters({ ...emptyFilters(), type: 'INCOME' })).toBe(true)
     expect(hasActiveFilters({ ...emptyFilters(), categoryIds: ['cat-1'] })).toBe(true)
     expect(hasActiveFilters({ ...emptyFilters(), search: 'кофе' })).toBe(true)
-    expect(hasActiveFilters({ ...emptyFilters(), mine: true })).toBe(true)
+    expect(hasActiveFilters({ ...emptyFilters(), authorId: 'user-1' })).toBe(true)
     expect(hasActiveFilters({ ...emptyFilters(), tagIds: ['tag-1'] })).toBe(true)
   })
 })
@@ -30,8 +30,8 @@ describe('filterQuery', () => {
       .toEqual({ type: 'EXPENSE', categoryIds: 'cat-1,cat-2', tagIds: 't-1,t-2', search: 'такси' })
   })
 
-  it('шлёт mine только когда чип «Только мои» включён', () => {
-    expect(filterQuery({ ...emptyFilters(), mine: true })).toEqual({ mine: 'true' })
+  it('шлёт author только когда выбран участник', () => {
+    expect(filterQuery({ ...emptyFilters(), authorId: 'user-1' })).toEqual({ author: 'user-1' })
   })
 })
 
@@ -45,7 +45,8 @@ describe('filterKey', () => {
     expect(filterKey(emptyFilters())).not.toBe(filterKey({ ...emptyFilters(), type: 'EXPENSE' }))
     expect(filterKey({ ...emptyFilters(), search: 'кофе' }))
       .not.toBe(filterKey({ ...emptyFilters(), search: 'кино' }))
-    expect(filterKey(emptyFilters())).not.toBe(filterKey({ ...emptyFilters(), mine: true }))
+    expect(filterKey(emptyFilters())).not.toBe(filterKey({ ...emptyFilters(), authorId: 'user-1' }))
+    expect(filterKey({ ...emptyFilters(), authorId: 'user-1' })).not.toBe(filterKey({ ...emptyFilters(), authorId: 'user-2' }))
     expect(filterKey({ ...emptyFilters(), tagIds: ['b', 'a'] })).toBe(filterKey({ ...emptyFilters(), tagIds: ['a', 'b'] }))
     expect(filterKey({ ...emptyFilters(), tagIds: ['a'] })).not.toBe(filterKey({ ...emptyFilters(), categoryIds: ['a'] }))
   })

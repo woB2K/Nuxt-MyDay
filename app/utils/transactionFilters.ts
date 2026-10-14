@@ -5,15 +5,15 @@ export interface TransactionFilters {
   categoryIds: string[]
   tagIds: string[]
   search: string
-  mine: boolean
+  authorId: string | null
 }
 
 export function emptyFilters(): TransactionFilters {
-  return { type: 'all', categoryIds: [], tagIds: [], search: '', mine: false }
+  return { type: 'all', categoryIds: [], tagIds: [], search: '', authorId: null }
 }
 
 export function hasActiveFilters(filters: TransactionFilters): boolean {
-  return filters.type !== 'all' || filters.categoryIds.length > 0 || filters.tagIds.length > 0 || filters.search !== '' || filters.mine
+  return filters.type !== 'all' || filters.categoryIds.length > 0 || filters.tagIds.length > 0 || filters.search !== '' || filters.authorId !== null
 }
 
 export function filterQuery(filters: TransactionFilters): Record<string, string> {
@@ -22,7 +22,7 @@ export function filterQuery(filters: TransactionFilters): Record<string, string>
     ...(filters.categoryIds.length > 0 && { categoryIds: filters.categoryIds.join(',') }),
     ...(filters.tagIds.length > 0 && { tagIds: filters.tagIds.join(',') }),
     ...(filters.search && { search: filters.search }),
-    ...(filters.mine && { mine: 'true' })
+    ...(filters.authorId && { author: filters.authorId })
   }
 }
 
@@ -32,6 +32,6 @@ export function filterKey(filters: TransactionFilters): string {
     [...filters.categoryIds].sort().join(','),
     [...filters.tagIds].sort().join(','),
     filters.search,
-    filters.mine ? 'mine' : ''
+    filters.authorId ?? ''
   ].join('|')
 }

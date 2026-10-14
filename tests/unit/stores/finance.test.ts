@@ -32,14 +32,14 @@ describe('useFinanceStore', () => {
   it('стартует без фильтров и сбрасывает их обратно', () => {
     const store = useFinanceStore()
 
-    expect(store.filters).toEqual({ type: 'all', categoryIds: [], tagIds: [], search: '', mine: false })
+    expect(store.filters).toEqual({ type: 'all', categoryIds: [], tagIds: [], search: '', authorId: null })
     expect(store.filtersActive).toBe(false)
 
-    store.filters = { type: 'EXPENSE', categoryIds: ['cat-1'], tagIds: ['tag-1'], search: 'такси', mine: true }
+    store.filters = { type: 'EXPENSE', categoryIds: ['cat-1'], tagIds: ['tag-1'], search: 'такси', authorId: 'user-1' }
     expect(store.filtersActive).toBe(true)
 
     store.resetFilters()
-    expect(store.filters).toEqual({ type: 'all', categoryIds: [], tagIds: [], search: '', mine: false })
+    expect(store.filters).toEqual({ type: 'all', categoryIds: [], tagIds: [], search: '', authorId: null })
     expect(store.filtersActive).toBe(false)
   })
 })

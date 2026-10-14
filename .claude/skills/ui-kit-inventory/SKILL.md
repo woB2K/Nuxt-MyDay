@@ -20,7 +20,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | `UiPillSelect` | `v-model`, `options: { value, label, color?, inkColor? }[]`, `full`, `bgClass` | `color` красит активную пилюлю (расход — danger, доход — success) |
 | `UiDateStrip` | `v-model` (`YYYY-MM-DD` или `''`), `days` (7) | Семь дней от сегодня, горизонтальный скролл. Повторный тап по выбранному дню снимает дату. Отдаёт календарный день строкой, не `Date` |
 | `UiSwitch` | `v-model` (boolean) | iOS-стиль, 51×31 |
-| `UiChip` | `label`, `count`, `active`, `icon`, `trailingIcon` | Фильтры, быстрые суммы. Счётчик рисуется только при `count > 0` |
+| `UiChip` | `label`, `count`, `active`, `icon`, `trailingIcon`, слот `#leading` | Фильтры, быстрые суммы. Счётчик рисуется только при `count > 0`. `#leading` заменяет иконку (аватар 20 в чипе «Участники») и ужимает левый отступ |
 | `UiRoundBtn` | `size` (36), `disabled` | Круглая кнопка: назад, стрелки периода, «+» в заголовке секции |
 | `UiCheckCircle` | `v-model`, `size` (26), `color` | Внутри строки-кнопки не вкладывать: это `<button>`, оборачивай ряд в `div` и гаси всплытие |
 | `UiFab` | событие `click` | Один на экран, живёт в `default.vue`; скрывается через `definePageMeta({ hideFab: true })` |

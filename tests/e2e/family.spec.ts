@@ -35,7 +35,7 @@ test('приглашение по ссылке: гость регистриру�
 
   await guest.waitForURL('**/finance')
   await expect(guest.getByTestId('finance-family')).toBeVisible()
-  await expect(guest.getByTestId('filter-mine')).toBeVisible()
+  await expect(guest.getByTestId('filter-author')).toBeVisible()
 
   await page.reload()
   await expect(page.getByTestId('family-member')).toHaveCount(2)

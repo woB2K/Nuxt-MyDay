@@ -9,18 +9,28 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { me, isFamily } = useFamily()
+const { myId, members, isFamily } = useFamily()
 const { data: tags } = useFinanceTagsQuery()
 
 const tagSheetOpen = ref(false)
+const authorSheetOpen = ref(false)
 const showTags = computed(() => (tags.value?.length ?? 0) > 0 || props.filters.tagIds.length > 0)
 
 function applyTags(tagIds: string[]) {
   emit('update:filters', { ...props.filters, tagIds })
 }
 
-function toggleMine() {
-  emit('update:filters', { ...props.filters, mine: !props.filters.mine })
+const showAuthor = computed(() => isFamily.value || props.filters.authorId !== null)
+const author = computed(() => members.value.find(member => member.userId === props.filters.authorId))
+
+const authorLabel = computed(() => {
+  if (props.filters.authorId === null) return t('family.finance.members')
+  if (props.filters.authorId === myId.value) return t('family.finance.mine')
+  return author.value?.name ?? t('family.formerMember')
+})
+
+function applyAuthor(authorId: string | null) {
+  emit('update:filters', { ...props.filters, authorId })
 }
 
 const SEARCH_DEBOUNCE = 300
@@ -109,21 +119,19 @@ function reset() {
       <div
         class="flex-1 min-w-0 flex gap-2 overflow-x-auto pb-0.5 after:w-3 after:shrink-0 [mask-image:linear-gradient(to_right,#000_calc(100%-1.25rem),transparent)]"
       >
-        <button
-          v-if="isFamily && me"
-          class="shrink-0 inline-flex items-center gap-1.5 h-9 pl-1.5 pr-3 rounded-full border text-[13px] font-semibold transition-colors duration-fast active:scale-[0.96]"
-          :class="props.filters.mine
-            ? 'bg-accent-soft border-accent text-accent'
-            : 'bg-elev1 border-hairline text-text-dim'"
-          type="button"
-          :aria-pressed="props.filters.mine"
-          data-testid="filter-mine"
-          @click="toggleMine"
+        <UiChip
+          v-if="showAuthor"
+          :label="authorLabel"
+          :active="props.filters.authorId !== null"
+          icon="i-lucide-users"
+          trailing-icon="i-lucide-chevron-down"
+          data-testid="filter-author"
+          @click="authorSheetOpen = true"
         >
-          <UiAvatar :name="me.name" :color-index="me.colorIndex" :size="20" />
-          {{ t('family.finance.onlyMine') }}
-          <UIcon v-if="props.filters.mine" name="i-lucide-x" class="size-3.5" />
-        </button>
+          <template v-if="author" #leading>
+            <UiAvatar :name="author.name" :color-index="author.colorIndex" :size="20" />
+          </template>
+        </UiChip>
         <UiChip
           :label="t('finance.filters.categories')"
           :count="props.filters.categoryIds.length"
@@ -160,5 +168,6 @@ function reset() {
     </div>
 
     <TagFilterSheet v-model:open="tagSheetOpen" :selected="props.filters.tagIds" @apply="applyTags" />
+    <AuthorFilterSheet v-model:open="authorSheetOpen" :selected="props.filters.authorId" @apply="applyAuthor" />
   </div>
 </template>

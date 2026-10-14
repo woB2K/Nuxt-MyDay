@@ -43,7 +43,7 @@ const transactionFilterShape = {
   search: z.string().max(100).optional().transform(s => s?.trim() || undefined),
   categoryIds: idList,
   tagIds: idList,
-  mine: z.enum(['true', 'false']).optional().transform(s => s === 'true' || undefined)
+  author: z.string().min(1).max(64).optional()
 }
 
 export const transactionFilterQuerySchema = z.object(transactionFilterShape).refine(isOrderedRange, orderedRangeError)

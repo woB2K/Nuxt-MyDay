@@ -721,7 +721,10 @@
       "toast": "Shared budget is on"
     },
     "finance": {
-      "onlyMine": "Only mine",
+      "members": "Members",
+      "mine": "Mine",
+      "everyone": "Everyone",
+      "whose": "Whose transactions",
       "shared": "Shared"
     }
   }
