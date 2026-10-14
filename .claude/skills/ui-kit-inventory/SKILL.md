@@ -36,11 +36,12 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | `UiStatsCard` | `type` streak/progress, `value`, `total` (progress) | Подписи свои, через `t('tasks.stats.*')`; стрик плюрализуется. Прогресс не уходит за 100% и не делит на ноль |
 | `UiCategoryTile` | `category`, `selected` | Плитка сетки категорий 4 в ряд |
 | `UiCategoryBar` | `category`, `amount`, `maxAmount`, `totalAmount` | Строка разбивки расходов с полосой и процентом |
-| `UiSavingsCard` | `balance`, `delta`, `sharedWith` (участники — бейдж «Общая»); события `add`, `withdraw` | `balance` — всегда за всё время, `delta` — за выбранный период |
+| `UiSavingsCard` | `balance`, `delta`, `sharedWith` (участники — бейдж «Общая»); события `add`, `withdraw` | `balance` — всегда за всё время, `delta` — за выбранный период. Тап по балансу переключает privacy mode, как сумма в hero «Финансов» |
 | `UiCard` | `padding` (16), `hero`, `pressable` | Радиус фиксированный (`rounded-2xl`), фон `bg-elev2` или градиент при `hero`. Для списков `:padding="0"` + `class="overflow-hidden border border-hairline"` |
 | `UiSectionHeader` | `title`, `caption`; слот `action` | В `action` кладут «See all →», «+» и т.п. |
 | `UiEmptyState` | `icon`, `title`, `subtitle`; слот `action` | В `action` — например «Сбросить фильтры» |
 | `UiBadge` | `color` accent/success/danger/info/neutral/warning | |
+| `UiMoney` | `amount`, `sign` (`'+'`, `'-'`, `'−'`) | Любая сумма на экране. В privacy mode — плашка-скелетон и «₽», иначе `{sign}{сумма} ₽` одним текстом |
 | `UiAvatar` | `name`, `colorIndex` (0–3, `null` — ушедший автор), `size` (40), `dashed`, `ring` | Цвет участника — токены `m0…m3`. `ring` — цвет фона под аватаром: даёт и обводку, и непрозрачную подложку (иначе в стопке перекрытие просвечивает) |
 | `UiAvatarStack` | `members: { name, colorIndex }[]`, `size` (24), `ring` (`var(--c-bg)`) | Перекрытие −30% размера |
 | `UiIconDisc` | `icon`, `tone` accent/success/warning/danger/neutral, `size` (36) | Круг с иконкой: шапки шторок, последствия, пункты списков |
@@ -62,6 +63,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 - Переиспользуемое без бизнес-логики → `app/components/ui/UiX.vue`.
 - Экранное, знает про запросы и стор → `app/components/features/{finance,tasks,auth,settings}/X.vue` без префикса.
 - Автоимпорт настроен с `pathPrefix: false`, поэтому имя файла = имя тега: `PeriodBar.vue` → `<PeriodBar />`.
+- Суммы на экране — только через `<UiMoney :amount :sign />`, а не `formatAmount(...) ₽` руками, иначе они не спрячутся в privacy mode (плашка-скелетон). `UiTxRow`, `UiCategoryBar`, `UiSavingsCard`, `TrashRow` уже так делают; для `aria-label` переключателя — `useMoney().toggleLabel()`. Поля ввода (`UiAmountInput`) и подсказки в шитах редактирования не прячем.
 - Цвета приоритета задач не хардкодим: `priorityBarClass` / `priorityTextClass` из `app/utils/priority.ts`.
 - Гайд установки PWA (`features/install/`): `InstallHint`, `InstallBanner`, `InstallSettingsCard` сами решают, показываться ли (`usePwaInstall`), и каждый держит свой `InstallSheet` — вставлять одной строкой без обёрток.
 - `features/settings/TrashRow.vue` — строка корзины (плитка-иконка, заголовок, подпись, сумма). Свайпы — снаружи, в `UiSwipeRow`.

@@ -2,14 +2,21 @@ import type { TxAuthor } from '../../../app/utils/family'
 import type { Category, Transaction } from '../../../prisma/.generated/prisma'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
 import UiTxRow from '../../../app/components/ui/UiTxRow.vue'
+import { useUiStore } from '../../../app/stores/ui'
 
 const dictionary: Record<string, string> = {
   'categories.food': 'Еда и напитки'
 }
 
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => dictionary[key] ?? key }))
+
+beforeEach(() => {
+  localStorage.clear()
+  setActivePinia(createPinia())
+})
 
 function category(overrides: Partial<Category> = {}): Category {
   return {
@@ -100,6 +107,16 @@ describe('uiTxRow', () => {
     const wrapper = mountRow()
 
     expect(wrapper.find('[data-testid="tx-tag"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('+')
+  })
+
+  it('в privacy mode вместо суммы и знака — плашка-скелетон', () => {
+    useUiStore().toggleAmountsHidden()
+
+    const wrapper = mountRow({ transaction: transaction({ type: 'INCOME', amount: 12_500 }) })
+
+    expect(wrapper.find('[data-testid="money-hidden"]').exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('12')
     expect(wrapper.text()).not.toContain('+')
   })
 })

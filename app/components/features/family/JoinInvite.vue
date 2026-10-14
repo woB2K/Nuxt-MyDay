@@ -15,6 +15,7 @@ const emit = defineEmits<{ join: [], cancel: [] }>()
 const MERGE_LIST_LIMIT = 4
 
 const { t } = useI18n()
+const { hidden } = useMoney()
 
 const mergeSub = computed(() => {
   const names = props.preview.mine.matchingCategories.map(category => categoryLabel(category, t))
@@ -29,7 +30,7 @@ const mergeSub = computed(() => {
 
 const items = computed<Consequence[]>(() => {
   const { transactionCount, savingsBalance } = props.preview.mine
-  const amount = `${formatAmount(savingsBalance)} ₽`
+  const amount = formatMoney(savingsBalance)
 
   return [
     ...(transactionCount > 0 || savingsBalance > 0
@@ -38,8 +39,8 @@ const items = computed<Consequence[]>(() => {
     { icon: 'i-lucide-shapes', tone: 'accent', title: t('family.join.merge'), sub: mergeSub.value },
     ...(savingsBalance > 0
       ? [props.preview.shareSavings
-          ? { icon: 'i-lucide-piggy-bank', tone: 'accent', title: t('family.join.savingsShared'), sub: t('family.join.savingsSharedSub', { amount }) } as const
-          : { icon: 'i-lucide-piggy-bank', tone: 'accent', title: t('family.join.savingsSeparate'), sub: t('family.join.savingsSeparateSub', { amount }) } as const]
+          ? { icon: 'i-lucide-piggy-bank', tone: 'accent', title: t('family.join.savingsShared'), sub: hidden.value ? '' : t('family.join.savingsSharedSub', { amount }) } as const
+          : { icon: 'i-lucide-piggy-bank', tone: 'accent', title: t('family.join.savingsSeparate'), sub: hidden.value ? '' : t('family.join.savingsSeparateSub', { amount }) } as const]
       : []),
     { icon: 'i-lucide-lock', tone: 'neutral', title: t('family.join.tasks'), sub: t('family.join.tasksSub') }
   ]

@@ -60,7 +60,7 @@ const hiddenTags = computed(() => Math.max(0, props.tags.length - VISIBLE_TAGS))
       class="ml-auto text-sm font-semibold truncate"
       :class="props.transaction.type === 'INCOME' ? 'text-success' : 'text-text'"
     >
-      {{ props.transaction.type === 'INCOME' ? '+' : '-' }}{{ formatAmount(props.transaction.amount) }} ₽
+      <UiMoney :amount="props.transaction.amount" :sign="props.transaction.type === 'INCOME' ? '+' : '-'" />
     </span>
   </div>
 </template>

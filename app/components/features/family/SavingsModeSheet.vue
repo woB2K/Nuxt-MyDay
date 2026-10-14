@@ -52,7 +52,7 @@ function confirm() {
           <UiAvatar :name="member.name" :color-index="member.colorIndex" :size="32" />
           <span class="flex-1 truncate text-[15px] font-semibold text-text">{{ member.name }}</span>
           <span class="font-display text-base font-semibold text-text">
-            {{ formatAmount(member.savingsBalance ?? 0) }} ₽
+            <UiMoney :amount="member.savingsBalance ?? 0" />
           </span>
         </div>
       </div>

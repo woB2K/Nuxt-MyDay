@@ -113,6 +113,10 @@
       "updateError": "Не удалось обновить цель",
       "deleteSuccess": "Цель удалена",
       "deleteError": "Не удалось удалить цель"
+    },
+    "privacy": {
+      "hidden": "Суммы скрыты",
+      "visible": "Суммы снова видны"
     }
   },
   "finance": {
@@ -213,7 +217,6 @@
       "removeDeadline": "Убрать",
       "until": "до {date}",
       "monthly": "откладывать {amount} ₽ в месяц",
-      "progress": "{saved} из {target} ₽",
       "reached": "Цель достигнута",
       "overdue": "Срок прошёл",
       "emptyTitle": "Копите на конкретное",
@@ -221,7 +224,13 @@
       "delete": "Удалить цель",
       "picker": "Цель",
       "none": "Без цели",
-      "nameError": "Укажите название цели"
+      "nameError": "Укажите название цели",
+      "of": "из"
+    },
+    "privacy": {
+      "toggle": "{amount}, скрыть суммы",
+      "show": "Суммы скрыты, показать",
+      "hiddenAmount": "сумма скрыта"
     }
   },
   "tasks": {

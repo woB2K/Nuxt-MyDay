@@ -16,7 +16,8 @@ interface Row {
   tileClass?: string
   tileColor?: string
   inkClass?: string
-  amount?: string
+  amount?: number
+  sign?: string
 }
 
 const { t } = useI18n()
@@ -72,7 +73,8 @@ const sections = computed(() => {
       inkClass: income ? 'text-success' : 'text-text',
       title: transaction.notes || label,
       caption: [label, daysLeft(transaction.deletedAt)].filter(Boolean).join(' · '),
-      amount: `${income ? '+' : '-'}${formatAmount(transaction.amount)} ₽`
+      amount: transaction.amount,
+      sign: income ? '+' : '-'
     }
   })
 
@@ -87,7 +89,8 @@ const sections = computed(() => {
       inkClass: looks.ink,
       title: entry.notes || t(looks.title),
       caption: daysLeft(entry.deletedAt),
-      amount: `${looks.sign}${formatAmount(entry.amount)} ₽`
+      amount: entry.amount,
+      sign: looks.sign
     }
   })
 

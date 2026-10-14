@@ -141,7 +141,7 @@ function applyPeriod(next: Period) {
                 class="ml-auto text-sm font-semibold shrink-0"
                 :class="savingsEntryLooks[entry.type].ink"
               >
-                {{ savingsEntryLooks[entry.type].sign }}{{ formatAmount(entry.amount) }} ₽
+                <UiMoney :amount="entry.amount" :sign="savingsEntryLooks[entry.type].sign" />
               </span>
             </div>
           </UiSwipeRow>

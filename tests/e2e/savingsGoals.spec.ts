@@ -19,13 +19,13 @@ test('цель накоплений: создание, пополнение в �
 
   const row = page.getByTestId('goal-row')
   await expect(row).toContainText('Bike')
-  await expect(page.getByTestId('goal-saved')).toHaveText(/^0 of 10.000 ₽$/)
+  await expect(page.getByTestId('goal-saved')).toHaveText(/^0 ₽ of 10.000 ₽$/)
 
   await page.getByRole('button', { name: 'Add', exact: true }).click()
   await page.locator('input[inputmode="decimal"]').fill('2500')
   await page.getByTestId('savings-goal-picker').getByRole('button', { name: 'Bike' }).click()
   await page.locator('button[type="submit"]').click()
 
-  await expect(page.getByTestId('goal-saved')).toHaveText(/^2.500 of 10.000 ₽$/)
+  await expect(page.getByTestId('goal-saved')).toHaveText(/^2.500 ₽ of 10.000 ₽$/)
   await expect(row).toContainText('25%')
 })

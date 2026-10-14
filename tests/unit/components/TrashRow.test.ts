@@ -1,5 +1,7 @@
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
 import TrashRow from '../../../app/components/features/settings/TrashRow.vue'
 
 function mountRow(props: Record<string, unknown> = {}) {
@@ -8,6 +10,12 @@ function mountRow(props: Record<string, unknown> = {}) {
     global: { stubs: { UIcon: { props: ['name'], template: '<i :data-icon="name" />' } } }
   })
 }
+
+mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+})
 
 describe('trashRow', () => {
   it('показывает заголовок и подпись', () => {
@@ -22,9 +30,9 @@ describe('trashRow', () => {
   })
 
   it('рисует сумму в цвете строки', () => {
-    const amount = mountRow({ amount: '+1 000 ₽', inkClass: 'text-success' }).find('span.ml-auto')
+    const amount = mountRow({ amount: 1000, sign: '+', inkClass: 'text-success' }).find('span.ml-auto')
 
-    expect(amount.text()).toBe('+1 000 ₽')
+    expect(amount.text()).toMatch(/^\+1\s000 ₽$/)
     expect(amount.classes()).toContain('text-success')
   })
 

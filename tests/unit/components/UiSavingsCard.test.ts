@@ -1,9 +1,16 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
 import UiSavingsCard from '../../../app/components/ui/UiSavingsCard.vue'
+import { useUiStore } from '../../../app/stores/ui'
 
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+
+beforeEach(() => {
+  localStorage.clear()
+  setActivePinia(createPinia())
+})
 
 function mountCard(props: { balance?: number, delta?: number } = {}) {
   return mount(UiSavingsCard, {
@@ -14,9 +21,23 @@ function mountCard(props: { balance?: number, delta?: number } = {}) {
 
 describe('uiSavingsCard', () => {
   it('keeps the balance on one line', () => {
-    const amount = mountCard().findAll('span').find(span => span.text().endsWith('₽'))
+    const amount = mountCard().find('[data-testid="savings-balance"]')
 
-    expect(amount?.classes()).toContain('whitespace-nowrap')
+    expect(amount.classes()).toContain('whitespace-nowrap')
+  })
+
+  it('tapping the balance hides every amount on the card', async () => {
+    const wrapper = mountCard({ delta: 245_000 })
+    const balance = wrapper.find('[data-testid="savings-balance"]')
+
+    expect(balance.attributes('aria-pressed')).toBe('false')
+
+    await balance.trigger('click')
+
+    expect(useUiStore().amountsHidden).toBe(true)
+    expect(balance.attributes('aria-pressed')).toBe('true')
+    expect(wrapper.findAll('[data-testid="money-hidden"]')).toHaveLength(2)
+    expect(wrapper.text()).not.toMatch(/\d/)
   })
 
   it('hides the badge and the period caption when there is no delta', () => {

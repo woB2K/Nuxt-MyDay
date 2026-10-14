@@ -113,6 +113,10 @@
       "updateError": "Failed to update goal",
       "deleteSuccess": "Goal deleted",
       "deleteError": "Failed to delete goal"
+    },
+    "privacy": {
+      "hidden": "Amounts hidden",
+      "visible": "Amounts visible"
     }
   },
   "finance": {
@@ -213,7 +217,6 @@
       "removeDeadline": "Remove",
       "until": "by {date}",
       "monthly": "save {amount} ₽ a month",
-      "progress": "{saved} of {target} ₽",
       "reached": "Goal reached",
       "overdue": "Deadline passed",
       "emptyTitle": "Save for something specific",
@@ -221,7 +224,13 @@
       "delete": "Delete goal",
       "picker": "Goal",
       "none": "No goal",
-      "nameError": "Name the goal"
+      "nameError": "Name the goal",
+      "of": "of"
+    },
+    "privacy": {
+      "toggle": "{amount}, hide amounts",
+      "show": "Amounts hidden, show them",
+      "hiddenAmount": "amount hidden"
     }
   },
   "tasks": {

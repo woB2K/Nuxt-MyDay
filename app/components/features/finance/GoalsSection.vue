@@ -6,6 +6,7 @@ import { goalProgress } from '~/utils/goals'
 const emit = defineEmits<{ edit: [goal: SavingsGoalItem | null] }>()
 
 const { t, locale } = useI18n()
+const { hidden } = useMoney()
 const { data: goals } = useGoalsQuery()
 
 const rows = computed(() => (goals.value ?? []).map((goal) => {
@@ -21,7 +22,7 @@ const rows = computed(() => (goals.value ?? []).map((goal) => {
   } else if (progress.overdue) {
     status = t('finance.goals.overdue')
     tone = 'text-warning'
-  } else if (progress.monthly) {
+  } else if (progress.monthly && !hidden.value) {
     status = `${until} · ${t('finance.goals.monthly', { amount: formatAmount(progress.monthly) })}`
   }
 
@@ -83,7 +84,7 @@ const rows = computed(() => (goals.value ?? []).map((goal) => {
         </span>
         <span class="flex items-center justify-between gap-3 text-xs">
           <span class="text-text-dim" data-testid="goal-saved">
-            {{ t('finance.goals.progress', { saved: formatAmount(goal.saved), target: formatAmount(goal.target) }) }}
+            <UiMoney :amount="goal.saved" /> {{ t('finance.goals.of') }} <UiMoney :amount="goal.target" />
           </span>
           <span v-if="status" class="truncate text-right" :class="tone">{{ status }}</span>
         </span>
