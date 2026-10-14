@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useAppLock } from '~/composables/useAppLock'
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: false })
 
 const maxAttempts = 10
 
@@ -75,7 +75,7 @@ async function signOut() {
     />
 
     <button
-      class="absolute right-4 top-4 z-10 text-xs font-medium text-text-mute transition-colors duration-fast active:text-danger"
+      class="absolute right-4 top-[calc(env(safe-area-inset-top,0px)+1rem)] z-10 text-xs font-medium text-text-mute transition-colors duration-fast active:text-danger"
       type="button"
       @click="signOut"
     >
