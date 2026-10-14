@@ -1,6 +1,6 @@
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { $fetch } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, prisma, registerUser, resetDb } from './helpers'
+import { authHeaders, householdOf, prisma, registerUser, resetDb, setupApi } from './helpers'
 
 interface Category {
   id: string
@@ -19,12 +19,7 @@ async function byKey(token: string, key: string) {
 }
 
 describe('phase 4 categories', async () => {
-  await setup({
-    nuxtConfig: {
-      routeRules: { '/': { prerender: false } },
-      nitro: { prerender: { crawlLinks: false, routes: [], ignore: ['/'] } }
-    }
-  })
+  await setupApi()
 
   beforeEach(async () => {
     await resetDb()
@@ -64,12 +59,12 @@ describe('phase 4 categories', async () => {
     const victim = await byKey(token, 'transport')
 
     await prisma.budget.create({
-      data: { userId, categoryId: victim.id, amount: 500, month: new Date('2026-05-01') }
+      data: { householdId: await householdOf(userId), categoryId: victim.id, amount: 500, month: new Date('2026-05-01') }
     })
 
     await $fetch(`/api/categories/${victim.id}`, { method: 'DELETE', headers: authHeaders(token) })
 
-    expect(await prisma.budget.count({ where: { userId } })).toBe(0)
+    expect(await prisma.budget.count({ where: { householdId: await householdOf(userId) } })).toBe(0)
   })
 
   it('не даёт удалить системную категорию и оставляет её на месте', async () => {

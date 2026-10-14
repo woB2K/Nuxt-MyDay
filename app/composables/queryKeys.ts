@@ -7,6 +7,11 @@ export const queryKeys = {
   budgets: (period: string) => ['budgets', { period }] as const,
   tasks: (filter: string, search: string) => ['tasks', { filter, search }] as const,
   tags: () => ['tags'] as const,
+  financeTags: () => ['financeTags'] as const,
+  goals: () => ['goals'] as const,
   templates: () => ['templates'] as const,
-  trash: () => ['trash'] as const
+  trash: () => ['trash'] as const,
+  household: () => ['household'] as const,
+  invitePreview: (token: string) => ['household', 'join', token] as const,
+  guestInvite: (token: string) => ['guestInvite', token] as const
 }

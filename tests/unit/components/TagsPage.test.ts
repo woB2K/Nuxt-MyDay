@@ -5,14 +5,17 @@ import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import TagsPage from '../../../app/pages/settings/tags.vue'
 
-const { state, remove } = vi.hoisted(() => ({
-  state: { list: [] as unknown[], pending: false },
-  remove: vi.fn()
+const { state, remove, removeFinance } = vi.hoisted(() => ({
+  state: { list: [] as unknown[], finance: [] as unknown[], pending: false },
+  remove: vi.fn(),
+  removeFinance: vi.fn()
 }))
 
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
 mockNuxtImport('useTagsQuery', () => () => ({ data: ref(state.list), isPending: ref(state.pending) }))
 mockNuxtImport('useDeleteTagMutation', () => () => ({ mutate: remove }))
+mockNuxtImport('useFinanceTagsQuery', () => () => ({ data: ref(state.finance), isPending: ref(false) }))
+mockNuxtImport('useDeleteFinanceTagMutation', () => () => ({ mutate: removeFinance }))
 
 function tag(id: string, name: string): Tag {
   return {
@@ -25,10 +28,12 @@ function tag(id: string, name: string): Tag {
   }
 }
 
-function mountPage(tags: Tag[], pending = false) {
+function mountPage(tags: Tag[], pending = false, finance: Tag[] = []) {
   state.list = tags
+  state.finance = finance
   state.pending = pending
   remove.mockReset()
+  removeFinance.mockReset()
 
   return mount(TagsPage, {
     global: {
@@ -36,6 +41,7 @@ function mountPage(tags: Tag[], pending = false) {
         UIcon: true,
         UiRoundBtn: true,
         UiCard: { template: '<div><slot /></div>' },
+        UiSectionHeader: { props: ['title'], template: '<h2 data-section>{{ title }}</h2>' },
         UiSkeletonRow: { template: '<div data-skeleton />' },
         UiEmptyState: { props: ['title'], template: '<div data-empty>{{ title }}</div>' },
         UiSwipeRow: { emits: ['delete'], template: '<div data-row><button data-delete @click="$emit(\'delete\')" /><slot /></div>' }
@@ -74,5 +80,23 @@ describe('страница тегов', () => {
 
     expect(wrapper.findAll('[data-skeleton]').length).toBeGreaterThan(0)
     expect(wrapper.find('[data-empty]').exists()).toBe(false)
+  })
+
+  it('семейные теги — отдельной секцией, и удаляются своей мутацией', async () => {
+    const wrapper = mountPage([tag('a', 'Дом')], false, [tag('f', 'Отпуск')])
+
+    expect(wrapper.findAll('[data-section]').map(el => el.text()))
+      .toEqual(['settings.tagsScreen.tasks', 'settings.tagsScreen.finance'])
+
+    await wrapper.find('[data-testid="tags-finance"] [data-delete]').trigger('click')
+
+    expect(removeFinance).toHaveBeenCalledWith('f')
+    expect(remove).not.toHaveBeenCalled()
+  })
+
+  it('пустая секция не показывается', () => {
+    const wrapper = mountPage([], false, [tag('f', 'Отпуск')])
+
+    expect(wrapper.findAll('[data-section]').map(el => el.text())).toEqual(['settings.tagsScreen.finance'])
   })
 })

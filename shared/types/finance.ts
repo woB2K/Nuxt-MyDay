@@ -1,6 +1,6 @@
 import type { z } from 'zod'
-import type { Budget, SavingsEntry, Transaction } from '~~/prisma/.generated/prisma'
-import type { createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, updateBudgetSchema, updateCategorySchema, updateSavingsSchema, updateTransactionSchema } from '../schemas/finance'
+import type { Budget, FinanceTag, SavingsEntry, SavingsGoal, Transaction } from '~~/prisma/.generated/prisma'
+import type { createBudgetSchema, createCategorySchema, createFinanceTagSchema, createSavingsGoalSchema, createSavingsSchema, createTransactionSchema, updateBudgetSchema, updateCategorySchema, updateFinanceTagSchema, updateSavingsGoalSchema, updateSavingsSchema, updateTransactionSchema } from '../schemas/finance'
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>
@@ -10,10 +10,16 @@ export type CreateBudgetInput = z.infer<typeof createBudgetSchema>
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>
 export type CreateSavingsSchema = z.infer<typeof createSavingsSchema>
 export type UpdateSavingsInput = z.infer<typeof updateSavingsSchema>
+export type CreateFinanceTagInput = z.infer<typeof createFinanceTagSchema>
+export type UpdateFinanceTagInput = z.infer<typeof updateFinanceTagSchema>
+export type FinanceTagItem = FinanceTag
+export type CreateSavingsGoalInput = z.infer<typeof createSavingsGoalSchema>
+export type UpdateSavingsGoalInput = z.infer<typeof updateSavingsGoalSchema>
+export type SavingsGoalItem = Omit<SavingsGoal, 'target'> & { target: number, saved: number }
 
 type WithNumberAmount<T extends { amount: unknown }> = Omit<T, 'amount'> & { amount: number }
 
-export type TransactionItem = WithNumberAmount<Transaction>
+export type TransactionItem = WithNumberAmount<Transaction> & { tagIds: string[] }
 export interface TransactionListResponse {
   data: TransactionItem[]
   total: number

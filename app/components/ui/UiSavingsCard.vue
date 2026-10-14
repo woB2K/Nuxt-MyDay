@@ -1,13 +1,20 @@
 <script lang="ts" setup>
+interface Person {
+  name: string
+  colorIndex: number | null
+}
+
 interface Props {
   balance: number
   delta: number
+  sharedWith?: Person[]
 }
 
 const props = defineProps<Props>()
 defineEmits<{ add: [], withdraw: [] }>()
 
 const { t } = useI18n()
+const { hidden, toggleLabel, toggleHidden } = useMoney()
 </script>
 
 <template>
@@ -21,12 +28,25 @@ const { t } = useI18n()
     />
 
     <div class="flex flex-col gap-1">
-      <span class="text-xs font-semibold uppercase tracking-widest text-text-mute">
-        {{ t('finance.savings.balance') }}
-      </span>
-      <span class="text-[44px] font-bold leading-none whitespace-nowrap text-text font-display">
-        {{ formatAmount(props.balance) }} ₽
-      </span>
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-xs font-semibold uppercase tracking-widest text-text-mute">
+          {{ t('finance.savings.balance') }}
+        </span>
+        <span v-if="props.sharedWith?.length" class="flex items-center gap-1.5" data-testid="savings-shared">
+          <UiAvatarStack :members="props.sharedWith" :size="20" ring="var(--c-elev1)" />
+          <span class="text-xs font-semibold text-text-dim">{{ t('family.finance.shared') }}</span>
+        </span>
+      </div>
+      <button
+        class="self-start text-left text-[44px] font-bold leading-none whitespace-nowrap text-text font-display cursor-pointer transition-opacity duration-fast active:opacity-60"
+        type="button"
+        :aria-pressed="hidden"
+        :aria-label="toggleLabel(props.balance)"
+        data-testid="savings-balance"
+        @click="toggleHidden"
+      >
+        <UiMoney :amount="props.balance" />
+      </button>
     </div>
 
     <div v-if="props.delta !== 0" class="flex items-center gap-2 -mt-1">
@@ -34,7 +54,7 @@ const { t } = useI18n()
         class="shrink-0 px-2.5 py-1 rounded-full text-sm font-semibold whitespace-nowrap"
         :class="props.delta > 0 ? 'bg-success/14 text-success' : 'bg-danger/14 text-danger'"
       >
-        {{ props.delta > 0 ? '+' : '−' }}{{ formatAmount(Math.abs(props.delta)) }} ₽
+        <UiMoney :amount="Math.abs(props.delta)" :sign="props.delta > 0 ? '+' : '−'" />
       </span>
       <span class="text-xs text-text-mute">
         {{ t('finance.savings.forPeriod') }}

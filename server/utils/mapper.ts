@@ -34,3 +34,11 @@ export function normalizeTags<TTag, T extends { tags: { tag: TTag }[] }>(
 export function mapAmount<T extends WithDecimal>(obj: T): Mapped<T> {
   return { ...obj, amount: obj.amount.toNumber() }
 }
+
+export const transactionTags = { tags: { select: { tagId: true } } } as const
+
+export function toTransactionItem<T extends WithDecimal & { tags: { tagId: string }[] }>(transaction: T) {
+  const { tags, ...rest } = mapAmount(transaction)
+
+  return { ...rest, tagIds: tags.map(tag => tag.tagId) }
+}

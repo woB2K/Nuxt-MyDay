@@ -26,6 +26,18 @@
   --c-warning:     #FBBF24;
   --c-danger:      #F87171;
   --c-info:        #60A5FA;
+  --c-success-soft: rgba(52, 211, 153, 0.14);
+  --c-warning-soft: rgba(251, 191, 36, 0.14);
+  --c-danger-soft:  rgba(248, 113, 113, 0.10);
+
+  --c-m0:          #5EEAD4;
+  --c-m1:          #F472B6;
+  --c-m2:          #FBBF24;
+  --c-m3:          #60A5FA;
+  --c-m0-soft:     rgba(94, 234, 212, 0.18);
+  --c-m1-soft:     rgba(244, 114, 182, 0.18);
+  --c-m2-soft:     rgba(251, 191, 36, 0.18);
+  --c-m3-soft:     rgba(96, 165, 250, 0.18);
 
   --c-p-high:      #F87171;
   --c-p-med:       #FBBF24;
@@ -63,6 +75,18 @@
   --c-warning:     #D97706;
   --c-danger:      #DC2626;
   --c-info:        #2563EB;
+  --c-success-soft: rgba(5, 150, 105, 0.10);
+  --c-warning-soft: rgba(217, 119, 6, 0.10);
+  --c-danger-soft:  rgba(220, 38, 38, 0.08);
+
+  --c-m0:          #0F766E;
+  --c-m1:          #BE185D;
+  --c-m2:          #B45309;
+  --c-m3:          #1D4ED8;
+  --c-m0-soft:     rgba(15, 118, 110, 0.12);
+  --c-m1-soft:     rgba(190, 24, 93, 0.12);
+  --c-m2-soft:     rgba(180, 83, 9, 0.12);
+  --c-m3-soft:     rgba(29, 78, 216, 0.12);
 
   --c-p-high:      #DC2626;
   --c-p-med:       #D97706;
@@ -176,11 +200,42 @@ body {
   --color-warning:     var(--c-warning);
   --color-danger:      var(--c-danger);
   --color-info:        var(--c-info);
+  --color-success-soft: var(--c-success-soft);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-danger-soft:  var(--c-danger-soft);
+
+  --color-m0:          var(--c-m0);
+  --color-m1:          var(--c-m1);
+  --color-m2:          var(--c-m2);
+  --color-m3:          var(--c-m3);
+  --color-m0-soft:     var(--c-m0-soft);
+  --color-m1-soft:     var(--c-m1-soft);
+  --color-m2-soft:     var(--c-m2-soft);
+  --color-m3-soft:     var(--c-m3-soft);
 
   --color-p-high:      var(--c-p-high);
   --color-p-med:       var(--c-p-med);
   --color-p-low:       var(--c-p-low);
   --color-p-none:      var(--c-p-none);
+
+  --animate-pop:      pop var(--duration-sheet) var(--ease-spring) both;
+  --animate-step-in:  step-in var(--duration-base) var(--ease-out) both;
+  --animate-slide-in: slide-in var(--duration-sheet) var(--ease-spring) both;
+
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes step-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
 }
 
 @utility pb-safe {
@@ -216,4 +271,14 @@ body {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.family-step-enter-active,
+.family-step-leave-active {
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+.family-step-enter-from,
+.family-step-leave-to {
+  opacity: 0;
 }

@@ -5,6 +5,9 @@ import { savingsEntryLooks } from '~/utils/savingsLooks'
 const { t } = useI18n()
 
 const financeStore = useFinanceStore()
+const { data: household, members, isFamily, authorFor } = useFamily()
+
+const sharedWith = computed(() => isFamily.value && household.value?.shareSavings ? members.value : undefined)
 const period = toRef(financeStore, 'period')
 
 const {
@@ -16,6 +19,17 @@ const {
 } = useSavingsQuery(period)
 
 const { mutate: deleteEntry } = useDeleteSavingsMutation()
+const { data: goals } = useGoalsQuery()
+
+const goalNames = computed(() => new Map((goals.value ?? []).map(goal => [goal.id, goal.name])))
+
+const goalSheetOpen = ref(false)
+const editingGoal = ref<SavingsGoalItem | null>(null)
+
+function openGoal(goal: SavingsGoalItem | null) {
+  editingGoal.value = goal
+  goalSheetOpen.value = true
+}
 
 type SavingsMode = SavingsEntryItem['type']
 
@@ -56,6 +70,7 @@ function applyPeriod(next: Period) {
       <UiSavingsCard
         :balance="summary.balance"
         :delta="summary.delta"
+        :shared-with="sharedWith"
         @add="openSheet('DEPOSIT')"
         @withdraw="openSheet('WITHDRAWAL')"
       />
@@ -69,6 +84,8 @@ function applyPeriod(next: Period) {
         <UIcon name="i-lucide-flag" class="w-4 h-4" />
         {{ t('finance.savings.setOpening') }}
       </button>
+
+      <GoalsSection @edit="openGoal" />
 
       <PeriodBar
         class="mt-2"
@@ -91,13 +108,21 @@ function applyPeriod(next: Period) {
           <UiSwipeRow @delete="deleteEntry(entry.id)">
             <div class="flex items-center gap-3 p-4 cursor-pointer" @click="openEdit(entry)">
               <div
-                class="w-10 h-10 rounded-md flex items-center justify-center shrink-0"
+                class="relative w-10 h-10 rounded-md flex items-center justify-center shrink-0"
                 :class="savingsEntryLooks[entry.type].tile"
               >
                 <UIcon
                   :name="savingsEntryLooks[entry.type].icon"
                   class="w-5 h-5"
                   :class="savingsEntryLooks[entry.type].ink"
+                />
+                <UiAvatar
+                  v-if="authorFor(entry.userId)"
+                  class="absolute -right-1 -bottom-1"
+                  :name="authorFor(entry.userId)!.name ?? ''"
+                  :color-index="authorFor(entry.userId)!.colorIndex"
+                  :size="18"
+                  ring="var(--c-elev2)"
                 />
               </div>
 
@@ -107,6 +132,7 @@ function applyPeriod(next: Period) {
                 </span>
                 <span class="text-text-dim text-xs">
                   {{ t(savingsEntryLooks[entry.type].caption) }} ·
+                  <template v-if="entry.goalId && goalNames.get(entry.goalId)">{{ goalNames.get(entry.goalId) }} · </template>
                   {{ formatDay(entry.createdAt) }}
                 </span>
               </div>
@@ -115,7 +141,7 @@ function applyPeriod(next: Period) {
                 class="ml-auto text-sm font-semibold shrink-0"
                 :class="savingsEntryLooks[entry.type].ink"
               >
-                {{ savingsEntryLooks[entry.type].sign }}{{ formatAmount(entry.amount) }} ₽
+                <UiMoney :amount="entry.amount" :sign="savingsEntryLooks[entry.type].sign" />
               </span>
             </div>
           </UiSwipeRow>
@@ -140,6 +166,8 @@ function applyPeriod(next: Period) {
       :entry="editing"
       :balance="summary?.balance ?? 0"
     />
+
+    <GoalSheet v-model:open="goalSheetOpen" :goal="editingGoal" />
 
     <PeriodSheet
       v-model:open="periodSheetOpen"

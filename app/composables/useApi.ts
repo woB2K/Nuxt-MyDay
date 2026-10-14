@@ -1,4 +1,4 @@
-import type { FetchOptions } from 'ofetch'
+import type { $Fetch, FetchOptions } from 'ofetch'
 import { statusOf } from '~/utils/httpStatus'
 
 export function useApi() {
@@ -11,11 +11,11 @@ export function useApi() {
         options.headers.set('Authorization', `Bearer ${authStore.accessToken}`)
       }
     }
-  })
+  }) as $Fetch
 
-  return async function api<T>(request: string, options?: FetchOptions): Promise<T> {
+  return async function api<T>(request: string, options?: FetchOptions<'json'>): Promise<T> {
     try {
-      return await client<T>(request, options as FetchOptions<'json'>)
+      return await client<T>(request, options)
     } catch (error) {
       if (statusOf(error) !== 401) throw error
 
@@ -24,7 +24,7 @@ export function useApi() {
         throw error
       }
 
-      return await client<T>(request, options as FetchOptions<'json'>)
+      return await client<T>(request, options)
     }
   }
 }

@@ -11,8 +11,6 @@ export default defineConfig({
     setupFiles: ['tests/integration/setup-env.ts'],
     // Одна общая БД — параллельные файлы устроят гонки. Гоняем последовательно.
     fileParallelism: false,
-    testTimeout: 30_000,
-    // Первый setup() собирает прод-билд Nuxt — это долго.
-    hookTimeout: 180_000
+    testTimeout: 30_000
   }
 })

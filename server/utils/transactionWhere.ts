@@ -1,12 +1,14 @@
 import type { Prisma } from '~~/prisma/.generated/prisma'
 import type { TransactionFilterQuery } from '~~/shared/schemas'
 
-export function transactionWhere(userId: string, filters: TransactionFilterQuery): Prisma.TransactionWhereInput {
-  const { type, from, to, search, categoryIds } = filters
+export function transactionWhere(householdId: string, filters: TransactionFilterQuery, userId: string): Prisma.TransactionWhereInput {
+  const { type, from, to, search, categoryIds, tagIds, mine } = filters
 
-  const where: Prisma.TransactionWhereInput = { userId, deletedAt: null }
+  const where: Prisma.TransactionWhereInput = { householdId, deletedAt: null }
 
   if (type) where.type = type
+
+  if (mine) where.userId = userId
 
   if (from || to) {
     where.date = {
@@ -16,6 +18,8 @@ export function transactionWhere(userId: string, filters: TransactionFilterQuery
   }
 
   if (categoryIds?.length) where.categoryId = { in: categoryIds }
+
+  if (tagIds?.length) where.tags = { some: { tagId: { in: tagIds } } }
 
   if (search) where.notes = { contains: search, mode: 'insensitive' }
 

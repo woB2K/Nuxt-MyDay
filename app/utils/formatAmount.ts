@@ -4,3 +4,7 @@ export function formatAmount(amount: number): string {
     maximumFractionDigits: 0
   }).format(amount)
 }
+
+export function formatMoney(amount: number, sign = ''): string {
+  return `${sign}${formatAmount(amount)} ₽`
+}

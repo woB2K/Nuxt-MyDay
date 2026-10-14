@@ -84,6 +84,8 @@ async function signOut() {
       </span>
     </UiCard>
 
+    <FamilyRow class="-mt-2" />
+
     <InstallSettingsCard />
 
     <UiCard class="gap-5">

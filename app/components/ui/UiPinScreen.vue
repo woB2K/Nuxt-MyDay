@@ -25,7 +25,10 @@ defineExpose({
 </script>
 
 <template>
-  <div class="relative min-h-dvh flex flex-col items-center justify-between overflow-hidden px-8 pt-16 pb-7">
+  <div
+    class="relative min-h-dvh flex flex-col items-center justify-between overflow-hidden bg-bg px-8 pt-[calc(env(safe-area-inset-top,0px)+4rem)] pb-[max(1.75rem,env(safe-area-inset-bottom,0px))]"
+    data-pin-screen
+  >
     <div
       class="pointer-events-none absolute -top-24 left-1/2 size-72 -translate-x-1/2 rounded-full bg-accent/20 blur-[80px]"
     />

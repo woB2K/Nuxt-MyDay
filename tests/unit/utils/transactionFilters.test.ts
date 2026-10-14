@@ -15,6 +15,8 @@ describe('emptyFilters / hasActiveFilters', () => {
     expect(hasActiveFilters({ ...emptyFilters(), type: 'INCOME' })).toBe(true)
     expect(hasActiveFilters({ ...emptyFilters(), categoryIds: ['cat-1'] })).toBe(true)
     expect(hasActiveFilters({ ...emptyFilters(), search: 'кофе' })).toBe(true)
+    expect(hasActiveFilters({ ...emptyFilters(), mine: true })).toBe(true)
+    expect(hasActiveFilters({ ...emptyFilters(), tagIds: ['tag-1'] })).toBe(true)
   })
 })
 
@@ -24,20 +26,27 @@ describe('filterQuery', () => {
   })
 
   it('склеивает категории в CSV, как ждёт transactionQuerySchema', () => {
-    expect(filterQuery({ type: 'EXPENSE', categoryIds: ['cat-1', 'cat-2'], search: 'такси' }))
-      .toEqual({ type: 'EXPENSE', categoryIds: 'cat-1,cat-2', search: 'такси' })
+    expect(filterQuery({ ...emptyFilters(), type: 'EXPENSE', categoryIds: ['cat-1', 'cat-2'], tagIds: ['t-1', 't-2'], search: 'такси' }))
+      .toEqual({ type: 'EXPENSE', categoryIds: 'cat-1,cat-2', tagIds: 't-1,t-2', search: 'такси' })
+  })
+
+  it('шлёт mine только когда чип «Только мои» включён', () => {
+    expect(filterQuery({ ...emptyFilters(), mine: true })).toEqual({ mine: 'true' })
   })
 })
 
 describe('filterKey', () => {
   it('не зависит от порядка выбора категорий — иначе кэш дублировался бы', () => {
-    expect(filterKey({ type: 'all', categoryIds: ['b', 'a'], search: '' }))
-      .toBe(filterKey({ type: 'all', categoryIds: ['a', 'b'], search: '' }))
+    expect(filterKey({ ...emptyFilters(), categoryIds: ['b', 'a'] }))
+      .toBe(filterKey({ ...emptyFilters(), categoryIds: ['a', 'b'] }))
   })
 
   it('различает разные наборы фильтров', () => {
     expect(filterKey(emptyFilters())).not.toBe(filterKey({ ...emptyFilters(), type: 'EXPENSE' }))
     expect(filterKey({ ...emptyFilters(), search: 'кофе' }))
       .not.toBe(filterKey({ ...emptyFilters(), search: 'кино' }))
+    expect(filterKey(emptyFilters())).not.toBe(filterKey({ ...emptyFilters(), mine: true }))
+    expect(filterKey({ ...emptyFilters(), tagIds: ['b', 'a'] })).toBe(filterKey({ ...emptyFilters(), tagIds: ['a', 'b'] }))
+    expect(filterKey({ ...emptyFilters(), tagIds: ['a'] })).not.toBe(filterKey({ ...emptyFilters(), categoryIds: ['a'] }))
   })
 })

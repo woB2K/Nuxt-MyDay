@@ -1,9 +1,11 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue'
 import SavingsOpSheet from '../../../app/components/features/finance/SavingsOpSheet.vue'
 
-const { addMutate, updateMutate, toastError } = vi.hoisted(() => ({
+const { addMutate, updateMutate, toastError, goals } = vi.hoisted(() => ({
+  goals: { list: [] as Array<{ id: string, name: string }> },
   addMutate: vi.fn(),
   updateMutate: vi.fn(),
   toastError: vi.fn()
@@ -13,12 +15,14 @@ mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
 mockNuxtImport('useAppToast', () => () => ({ success: () => {}, error: toastError, info: () => {} }))
 mockNuxtImport('useAddSavingsMutation', () => () => ({ mutate: addMutate, isPending: { value: false } }))
 mockNuxtImport('useUpdateSavingsMutation', () => () => ({ mutate: updateMutate, isPending: { value: false } }))
+mockNuxtImport('useGoalsQuery', () => () => ({ data: ref(goals.list) }))
 
 const withdrawal = {
   id: 'sv-1',
   type: 'WITHDRAWAL',
   amount: 3000,
   notes: 'Отпуск',
+  goalId: null,
   userId: 'u-1',
   createdAt: '2026-10-01T10:00:00.000Z'
 }
@@ -30,7 +34,7 @@ function mountSheet(props: Record<string, unknown> = {}) {
       stubs: {
         UiSheet: { props: ['title'], template: '<div><h2>{{ title }}</h2><slot /></div>' },
         UiInput: true,
-        UiChip: true,
+        UiChip: { props: ['label', 'active'], emits: ['click'], template: '<button type="button" :data-active="active" @click="$emit(\'click\')">{{ label }}</button>' },
         UiButton: { template: '<button type="submit"><slot /></button>' }
       }
     }
@@ -42,6 +46,7 @@ function amountField(wrapper: ReturnType<typeof mountSheet>) {
 }
 
 beforeEach(() => {
+  goals.list = []
   addMutate.mockReset()
   updateMutate.mockReset()
   toastError.mockReset()
@@ -75,7 +80,7 @@ describe('savingsOpSheet — редактирование', () => {
     await wrapper.find('form').trigger('submit')
 
     expect(addMutate).not.toHaveBeenCalled()
-    expect(updateMutate.mock.calls[0]![0]).toEqual({ id: 'sv-1', amount: 3500, notes: 'Отпуск' })
+    expect(updateMutate.mock.calls[0]![0]).toEqual({ id: 'sv-1', amount: 3500, notes: 'Отпуск', goalId: null })
   })
 
   it('при правке снятия считает доступным баланс вместе с текущей суммой записи', async () => {
@@ -95,5 +100,44 @@ describe('savingsOpSheet — редактирование', () => {
     const wrapper = mountSheet({ entry: { ...withdrawal, type: 'OPENING' } })
 
     expect(wrapper.find('h2').text()).toBe('finance.savings.opening')
+  })
+})
+
+describe('savingsOpSheet — цели', () => {
+  it('без целей выбора нет', () => {
+    expect(mountSheet().find('[data-testid="savings-goal-picker"]').exists()).toBe(false)
+  })
+
+  it('пополнение уходит в выбранную цель', async () => {
+    goals.list = [{ id: 'g-1', name: 'Машина' }]
+    const wrapper = mountSheet()
+
+    await wrapper.findAll('button').find(button => button.text() === 'Машина')!.trigger('click')
+    await amountField(wrapper).setValue('500')
+    await wrapper.find('form').trigger('submit')
+
+    expect(addMutate.mock.calls[0]![0]).toMatchObject({ type: 'DEPOSIT', amount: 500, goalId: 'g-1' })
+  })
+
+  it('по умолчанию — без цели', async () => {
+    goals.list = [{ id: 'g-1', name: 'Машина' }]
+    const wrapper = mountSheet()
+
+    await amountField(wrapper).setValue('500')
+    await wrapper.find('form').trigger('submit')
+
+    expect(addMutate.mock.calls[0]![0]).toMatchObject({ goalId: null })
+  })
+
+  it('стартовый остаток к цели не привязывается', async () => {
+    goals.list = [{ id: 'g-1', name: 'Машина' }]
+    const wrapper = mountSheet({ mode: 'OPENING' })
+
+    expect(wrapper.find('[data-testid="savings-goal-picker"]').exists()).toBe(false)
+
+    await amountField(wrapper).setValue('500')
+    await wrapper.find('form').trigger('submit')
+
+    expect(addMutate.mock.calls[0]![0]).not.toHaveProperty('goalId')
   })
 })

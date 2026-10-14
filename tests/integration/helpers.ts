@@ -1,6 +1,7 @@
 import process from 'node:process'
-import { $fetch } from '@nuxt/test-utils/e2e'
+import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { PrismaPg } from '@prisma/adapter-pg'
+import { inject } from 'vitest'
 import { PrismaClient } from '../../prisma/.generated/prisma/index.js'
 
 // Отдельный prisma-клиент тестового процесса (не серверный синглтон) —
@@ -9,10 +10,10 @@ export const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
 })
 
-// TRUNCATE ... CASCADE с User вычищает все зависимые таблицы по FK,
+// TRUNCATE ... CASCADE с User и Household вычищает все зависимые таблицы по FK,
 // RESTART IDENTITY сбрасывает счётчики. Дёшево и без порядка удаления.
 export async function resetDb() {
-  await prisma.$executeRawUnsafe('TRUNCATE TABLE "User" RESTART IDENTITY CASCADE')
+  await prisma.$executeRawUnsafe('TRUNCATE TABLE "User", "Household" RESTART IDENTITY CASCADE')
 }
 
 interface RegisteredUser {
@@ -38,7 +39,17 @@ export async function registerUser(): Promise<RegisteredUser> {
   return { token: res.accessToken, userId: res.user.id, email }
 }
 
+export async function householdOf(userId: string): Promise<string> {
+  const member = await prisma.householdMember.findUniqueOrThrow({ where: { userId } })
+  return member.householdId
+}
+
 // Шорткат для авторизованного запроса.
 export function authHeaders(token: string) {
   return { Authorization: `Bearer ${token}` }
+}
+
+// Сервер собирается и поднимается один раз в global-setup.ts — файлы только подключаются к нему.
+export function setupApi() {
+  return setup({ host: inject('apiUrl') })
 }

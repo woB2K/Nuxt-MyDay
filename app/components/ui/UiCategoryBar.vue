@@ -45,7 +45,7 @@ const percentage = computed(() => Math.round((props.amount / props.totalAmount) 
     </div>
 
     <span class="text-text text-sm font-semibold shrink-0 tabular-nums">
-      {{ formatAmount(props.amount) }} ₽
+      <UiMoney :amount="props.amount" />
     </span>
   </div>
 </template>

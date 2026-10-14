@@ -1,5 +1,6 @@
 import type { AccentName } from '~/utils/accents'
 import { defaultAccent } from '~/utils/accents'
+import { readAmountsHidden, writeAmountsHidden } from '~/utils/privacy'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -26,6 +27,7 @@ export const useUiStore = defineStore('ui', () => {
   const isLocked = ref(false)
   const lockPrimed = ref(false)
   const lockReturn = ref('/today')
+  const amountsHidden = ref(readAmountsHidden())
 
   let toastSeq = 0
 
@@ -43,6 +45,11 @@ export const useUiStore = defineStore('ui', () => {
     queue.value = queue.value.filter(toast => toast.id !== id)
   }
 
+  function toggleAmountsHidden() {
+    amountsHidden.value = !amountsHidden.value
+    writeAmountsHidden(amountsHidden.value)
+  }
+
   return {
     queue,
     toastStackHeight,
@@ -50,8 +57,10 @@ export const useUiStore = defineStore('ui', () => {
     isLocked,
     lockPrimed,
     lockReturn,
+    amountsHidden,
     addToast,
-    removeToast
+    removeToast,
+    toggleAmountsHidden
   }
 })
 

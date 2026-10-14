@@ -6,7 +6,8 @@ interface Props {
   tileClass?: string
   tileColor?: string
   inkClass?: string
-  amount?: string
+  amount?: number
+  sign?: string
 }
 
 const props = defineProps<Props>()
@@ -32,8 +33,8 @@ const props = defineProps<Props>()
       <span class="truncate text-xs text-text-dim">{{ props.caption }}</span>
     </span>
 
-    <span v-if="props.amount" class="ml-auto shrink-0 text-sm font-semibold" :class="props.inkClass">
-      {{ props.amount }}
+    <span v-if="props.amount !== undefined" class="ml-auto shrink-0 text-sm font-semibold" :class="props.inkClass">
+      <UiMoney :amount="props.amount" :sign="props.sign" />
     </span>
   </div>
 </template>

@@ -1,7 +1,7 @@
 import type { PinStatus, UserSettings } from '../../shared/types'
-import { $fetch, setup } from '@nuxt/test-utils/e2e'
+import { $fetch } from '@nuxt/test-utils/e2e'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, prisma, registerUser, resetDb } from './helpers'
+import { authHeaders, prisma, registerUser, resetDb, setupApi } from './helpers'
 
 const PASSWORD = 'password123'
 
@@ -31,12 +31,7 @@ async function statusCode(request: Promise<unknown>) {
 }
 
 describe('phase 4 pin lock', async () => {
-  await setup({
-    nuxtConfig: {
-      routeRules: { '/': { prerender: false } },
-      nitro: { prerender: { crawlLinks: false, routes: [], ignore: ['/'] } }
-    }
-  })
+  await setupApi()
 
   beforeEach(async () => {
     await resetDb()

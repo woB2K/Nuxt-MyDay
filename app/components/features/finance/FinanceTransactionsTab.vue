@@ -6,6 +6,9 @@ import type { TransactionFilters } from '~/utils/transactionFilters'
 const emit = defineEmits<{ edit: [transaction: TransactionItem] }>()
 
 const { t } = useI18n()
+const { hidden, toggleLabel, toggleHidden } = useMoney()
+const { authorFor } = useFamily()
+const tagNamesOf = useFinanceTagNames()
 
 const financeStore = useFinanceStore()
 const period = toRef(financeStore, 'period')
@@ -21,9 +24,10 @@ const periodSheetOpen = ref(false)
 const categoriesSheetOpen = ref(false)
 
 const net = computed(() => summary.value?.networth ?? 0)
+const netSign = computed(() => net.value < 0 ? '−' : '')
 
 const netFontClass = computed(() => {
-  const len = formatAmount(Math.abs(net.value)).length
+  const len = hidden.value ? 0 : formatAmount(Math.abs(net.value)).length
   if (len > 10) return 'text-[28px]'
   if (len > 7) return 'text-[36px]'
   return 'text-[44px]'
@@ -73,11 +77,17 @@ function applyCategories(ids: string[]) {
 
       <div class="relative flex flex-col gap-4">
         <span class="text-xs font-semibold uppercase tracking-widest text-text-dim">{{ t('finance.netPeriod') }}</span>
-        <span
-          class="font-bold leading-none"
+        <button
+          class="self-start text-left font-bold leading-none cursor-pointer transition-opacity duration-fast active:opacity-60"
           :class="[netFontClass, net < 0 ? 'text-danger' : 'text-text']"
+          type="button"
+          :aria-pressed="hidden"
+          :aria-label="toggleLabel(Math.abs(net), netSign)"
           data-testid="finance-net"
-        >{{ net < 0 ? '−' : '' }}{{ formatAmount(Math.abs(net)) }} ₽</span>
+          @click="toggleHidden"
+        >
+          <UiMoney :amount="Math.abs(net)" :sign="netSign" />
+        </button>
 
         <div class="h-2.5 flex rounded-full overflow-hidden gap-0.5 bg-hairline">
           <div
@@ -94,12 +104,12 @@ function applyCategories(ids: string[]) {
           <div class="flex gap-2 items-center">
             <span class="inline-block w-2 h-2 rounded-full bg-success" />
             <span class="text-text-dim text-xs">{{ t('finance.income') }}</span>
-            <span class="text-text font-semibold text-sm">{{ formatAmount(summary?.income ?? 0) }} ₽</span>
+            <span class="text-text font-semibold text-sm"><UiMoney :amount="summary?.income ?? 0" /></span>
           </div>
           <div class="flex gap-2 items-center">
             <span class="inline-block w-2 h-2 rounded-full bg-danger" />
             <span class="text-text-dim text-xs">{{ t('finance.expense') }}</span>
-            <span class="text-text font-semibold text-sm">{{ formatAmount(summary?.expense ?? 0) }} ₽</span>
+            <span class="text-text font-semibold text-sm"><UiMoney :amount="summary?.expense ?? 0" /></span>
           </div>
         </div>
       </div>
@@ -161,6 +171,8 @@ function applyCategories(ids: string[]) {
           class="cursor-pointer"
           :category="categories.find(c => c.id === tx.categoryId)!"
           :transaction="tx"
+          :author="authorFor(tx.userId)"
+          :tags="tagNamesOf(tx.tagIds)"
           @click="emit('edit', tx)"
         />
       </UiCard>

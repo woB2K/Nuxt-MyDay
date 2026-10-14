@@ -1,12 +1,14 @@
-export default defineEventHandler(async (event) => {
-  const userId = event.context.userId
+import { getHousehold } from '~~/server/utils/household'
+import { trashScopes } from '~~/server/utils/trash'
 
-  const where = { userId, deletedAt: { not: null } }
+export default defineEventHandler(async (event) => {
+  const scopes = trashScopes(event.context.userId, await getHousehold(event))
+  const deletedAt = { not: null }
 
   const [tasks, transactions, savings] = await prisma.$transaction([
-    prisma.task.deleteMany({ where }),
-    prisma.transaction.deleteMany({ where }),
-    prisma.savingsEntry.deleteMany({ where })
+    prisma.task.deleteMany({ where: { ...scopes.task, deletedAt } }),
+    prisma.transaction.deleteMany({ where: { ...scopes.transaction, deletedAt } }),
+    prisma.savingsEntry.deleteMany({ where: { ...scopes.savings, deletedAt } })
   ])
 
   return { deleted: tasks.count + transactions.count + savings.count }

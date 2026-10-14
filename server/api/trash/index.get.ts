@@ -1,29 +1,32 @@
-import { mapAmount, normalizeTags } from '~~/server/utils/mapper'
-import { purgeExpiredTrash } from '~~/server/utils/trash'
+import { getHousehold } from '~~/server/utils/household'
+import { mapAmount, normalizeTags, toTransactionItem, transactionTags } from '~~/server/utils/mapper'
+import { purgeExpiredTrash, trashScopes } from '~~/server/utils/trash'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
+  const household = await getHousehold(event)
 
-  await purgeExpiredTrash(userId)
+  await purgeExpiredTrash(userId, household)
 
-  const where = { userId, deletedAt: { not: null } }
+  const scopes = trashScopes(userId, household)
+  const deletedAt = { not: null }
   const orderBy = { deletedAt: 'desc' } as const
 
   const [tasks, transactions, savings] = await Promise.all([
     prisma.task.findMany({
-      where,
+      where: { ...scopes.task, deletedAt },
       orderBy,
       include: {
         tags: { include: { tag: true } }
       }
     }),
-    prisma.transaction.findMany({ where, orderBy }),
-    prisma.savingsEntry.findMany({ where, orderBy })
+    prisma.transaction.findMany({ where: { ...scopes.transaction, deletedAt }, orderBy, include: transactionTags }),
+    prisma.savingsEntry.findMany({ where: { ...scopes.savings, deletedAt }, orderBy })
   ])
 
   return {
     tasks: tasks.map(el => normalizeTags(el)),
-    transactions: transactions.map(el => mapAmount(el)),
+    transactions: transactions.map(el => toTransactionItem(el)),
     savings: savings.map(el => mapAmount(el))
   }
 })

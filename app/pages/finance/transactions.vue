@@ -8,6 +8,8 @@ import { groupByDay } from '~/utils/transactionGroups'
 definePageMeta({ hideFab: true })
 
 const { t, locale } = useI18n()
+const { authorFor } = useFamily()
+const tagNamesOf = useFinanceTagNames()
 
 const financeStore = useFinanceStore()
 const period = toRef(financeStore, 'period')
@@ -128,10 +130,10 @@ function applyCategories(ids: string[]) {
       <div class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border border-hairline bg-elev2">
         <span class="flex-1 text-xs font-semibold text-text-dim">{{ t('finance.ops', { count: total }, total) }}</span>
         <span v-if="summary && summary.income > 0" class="text-[13px] font-semibold text-success">
-          +{{ formatAmount(summary.income) }} ₽
+          <UiMoney :amount="summary.income" sign="+" />
         </span>
         <span v-if="summary && summary.expense > 0" class="text-[13px] font-semibold text-danger">
-          −{{ formatAmount(summary.expense) }} ₽
+          <UiMoney :amount="summary.expense" sign="−" />
         </span>
       </div>
 
@@ -144,7 +146,7 @@ function applyCategories(ids: string[]) {
             class="text-xs font-semibold"
             :class="group.net >= 0 ? 'text-success' : 'text-text-mute'"
           >
-            {{ group.net >= 0 ? '+' : '−' }}{{ formatAmount(Math.abs(group.net)) }} ₽
+            <UiMoney :amount="Math.abs(group.net)" :sign="group.net >= 0 ? '+' : '−'" />
           </span>
         </div>
 
@@ -161,6 +163,9 @@ function applyCategories(ids: string[]) {
                 class="cursor-pointer"
                 :category="categoryOf(tx)!"
                 :transaction="tx"
+                :author="authorFor(tx.userId)"
+                :tags="tagNamesOf(tx.tagIds)"
+                author-ring="var(--c-elev1)"
                 :show-date="false"
                 @click="openEdit(tx)"
               />

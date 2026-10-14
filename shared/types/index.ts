@@ -1,6 +1,7 @@
 export * from './auth'
 export * from './changelog'
 export * from './finance'
+export * from './household'
 export * from './settings'
 export * from './tag'
 export * from './task'

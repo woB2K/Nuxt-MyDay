@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { useUiStore } from '../../../app/stores/ui'
+import { amountsHiddenStorageKey } from '../../../app/utils/privacy'
 
 let savedRandomUUID: typeof globalThis.crypto.randomUUID | undefined
 
@@ -72,5 +73,29 @@ describe('очередь тостов', () => {
     ui.addToast({ message: 'Удалено', type: 'success', action: { label: 'Отменить', run } })
 
     expect(ui.queue[0]?.action).toEqual({ label: 'Отменить', run })
+  })
+})
+
+describe('privacy mode', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('стартует с выбора, сохранённого на устройстве', () => {
+    localStorage.setItem(amountsHiddenStorageKey, '1')
+
+    expect(useUiStore().amountsHidden).toBe(true)
+  })
+
+  it('переключение пишет выбор в localStorage', () => {
+    const ui = useUiStore()
+
+    ui.toggleAmountsHidden()
+    expect(ui.amountsHidden).toBe(true)
+    expect(localStorage.getItem(amountsHiddenStorageKey)).toBe('1')
+
+    ui.toggleAmountsHidden()
+    expect(ui.amountsHidden).toBe(false)
+    expect(localStorage.getItem(amountsHiddenStorageKey)).toBe('0')
   })
 })
