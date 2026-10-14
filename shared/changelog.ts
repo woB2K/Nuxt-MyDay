@@ -2,6 +2,69 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.1.0',
+    date: '2026-10-15',
+    title: { en: 'Offline Day', ru: 'День без сети' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Add expenses and income without internet — they\'re sent on their own once you\'re back online, and never twice',
+          ru: 'Траты и доходы можно записывать без интернета — они отправятся сами, когда появится связь, и не задвоятся'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'No internet no longer sends you back to the sign-in screen',
+          ru: 'Без интернета приложение больше не выкидывает на экран входа'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Finances can be filtered by any family member, not only by your own records',
+          ru: 'Финансы можно отфильтровать по любому участнику семьи, а не только по своим записям'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'The task list opens on open tasks, so finished ones stay out of the way',
+          ru: 'Список задач открывается на активных — выполненные не мешают'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The filter reset button no longer slides off the screen when many filters are selected',
+          ru: 'Кнопка сброса фильтров больше не уезжает за край, когда выбрано много фильтров'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Buttons in the category and tag filters stay at the bottom of the sheet',
+          ru: 'Кнопки в фильтрах по категориям и тегам всегда внизу шторки'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Joining and leaving a family is more reliable when there are many records',
+          ru: 'Вступление в семью и выход из неё надёжнее, когда записей много'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The icon in notifications is properly centered',
+          ru: 'Иконка в уведомлениях стоит ровно по центру'
+        }
+      }
+    ]
+  },
+  {
     version: '2.0.1',
     date: '2026-10-14',
     title: { en: 'Cleanup Day', ru: 'День уборки' },
