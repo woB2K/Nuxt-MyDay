@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const goalId = getRouterParam(event, 'id')
 
   return orNotFound(
-    prisma.savingsGoal.delete({ where: { id: goalId, ...goalScope(event.context.userId, household) } }),
+    prisma.savingsGoal.delete({ where: { ...goalScope(event.context.userId, household), id: goalId } }),
     'Goal not found'
   )
 })

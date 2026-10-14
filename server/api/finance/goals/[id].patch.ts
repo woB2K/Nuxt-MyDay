@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   const goal = await orNotFound(
     prisma.savingsGoal.update({
-      where: { id: goalId, ...goalScope(userId, household) },
+      where: { ...goalScope(userId, household), id: goalId },
       data: { ...body, ...(deadline !== undefined && { deadline: deadline ? new Date(deadline) : null }) }
     }),
     'Goal not found'

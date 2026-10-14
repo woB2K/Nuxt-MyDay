@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
   const entry = await orNotFound(
     prisma.savingsEntry.update({
       where: {
-        id: savingsId,
         ...savingsScope(userId, household),
+        id: savingsId,
         deletedAt: null
       },
       data: body
