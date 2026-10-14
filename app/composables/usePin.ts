@@ -59,6 +59,7 @@ export function useVerifyPinMutation() {
   const api = useApi()
 
   return useMutation({
+    networkMode: 'always',
     mutationFn: (body: PinAttemptInput) =>
       api<{ ok: true }>('/api/settings/pin/verify', { method: 'POST', body })
   })

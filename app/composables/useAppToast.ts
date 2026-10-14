@@ -4,10 +4,11 @@ import { useUiStore } from '~/stores/ui'
 export const useAppToast = () => {
   const uiStore = useUiStore()
 
-  function error(message: string) {
+  function error(message: string, options: { persistent?: boolean } = {}) {
     uiStore.addToast({
       message,
-      type: 'error'
+      type: 'error',
+      ...(options.persistent && { duration: 0 })
     })
   }
 

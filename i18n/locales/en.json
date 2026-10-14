@@ -33,7 +33,8 @@
       "deleteSuccess": "Transaction deleted",
       "deleteError": "Failed to delete transaction",
       "restoreSuccess": "Transaction restored",
-      "restoreError": "Failed to restore transaction"
+      "restoreError": "Failed to restore transaction",
+      "queued": "Saved offline. We'll sync it once you're back online"
     },
     "savings": {
       "addSuccess": "Savings entry added",
@@ -117,6 +118,10 @@
     "privacy": {
       "hidden": "Amounts hidden",
       "visible": "Amounts visible"
+    },
+    "outbox": {
+      "sent": "{count} offline record synced | {count} offline records synced",
+      "rejected": "Couldn't sync {count} offline record — please add it again | Couldn't sync {count} offline records — please add them again"
     }
   },
   "finance": {
@@ -436,7 +441,8 @@
       "submit": "Turn PIN off",
       "oauthOnly": "This account has no password — sign in with your provider again",
       "oauthHint": "This account was created through a sign-in provider, so there is no password to check. Sign out and sign in again to turn the PIN off."
-    }
+    },
+    "offline": "No connection. Your PIN will be checked once you're back online"
   },
   "install": {
     "banner": {
@@ -727,5 +733,9 @@
       "whose": "Whose transactions",
       "shared": "Shared"
     }
+  },
+  "outbox": {
+    "title": "Waiting to sync",
+    "hint": "Will be sent once you're back online"
   }
 }

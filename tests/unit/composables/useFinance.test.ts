@@ -1,12 +1,13 @@
 import type { SavingsCache, TransactionCache } from '../../../app/utils/financeCache'
 import type { SavingsResponse, SummaryResponse, TransactionListResponse } from '../../../shared/types'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { onlineManager, QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { h, ref } from 'vue'
 import { queryKeys } from '../../../app/composables/queryKeys'
 import {
+  SEND_TIMEOUT,
   useAddTransactionMutation,
   useDeleteSavingsMutation,
   useDeleteTransactionMutation,
@@ -16,19 +17,25 @@ import {
 } from '../../../app/composables/useFinance'
 import { monthPeriod, periodKey } from '../../../app/utils/period'
 import { emptyFilters, filterKey } from '../../../app/utils/transactionFilters'
+import { clientIdSchema } from '../../../shared/schemas/finance'
 
 // Хуки дёргают эти Nuxt auto-import'ы. Мокаем их, чтобы тест не тащил
 // реальный $fetch, стор тостов и i18n-конфиг. vi.hoisted — потому что
 // mockNuxtImport поднимает фабрику выше объявлений переменных.
-const { mockApi, toastSuccess, toastError } = vi.hoisted(() => ({
+const { mockApi, toastSuccess, toastError, toastInfo, enqueue, session } = vi.hoisted(() => ({
   mockApi: vi.fn(),
   toastSuccess: vi.fn(),
-  toastError: vi.fn()
+  toastError: vi.fn(),
+  toastInfo: vi.fn(),
+  enqueue: vi.fn(),
+  session: { user: { id: 'user-1' } as { id: string } | null }
 }))
 
 mockNuxtImport('useApi', () => () => mockApi)
-mockNuxtImport('useAppToast', () => () => ({ success: toastSuccess, error: toastError, info: () => {} }))
+mockNuxtImport('useAppToast', () => () => ({ success: toastSuccess, error: toastError, info: toastInfo }))
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useAuthStore', () => () => session)
+mockNuxtImport('useOutbox', () => () => ({ enqueue }))
 
 // Запускает composable внутри setup() с собственным QueryClient — иначе
 // useMutation/useQuery не найдут инжектнутый клиент и упадут.
@@ -65,7 +72,12 @@ beforeEach(() => {
   mockApi.mockReset()
   toastSuccess.mockReset()
   toastError.mockReset()
+  toastInfo.mockReset()
+  enqueue.mockReset().mockResolvedValue(undefined)
+  session.user = { id: 'user-1' }
 })
+
+const networkDown = () => Object.assign(new Error('fetch failed'), { name: 'FetchError' })
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -95,6 +107,87 @@ describe('useAddTransactionMutation', () => {
     expect(toastError).toHaveBeenCalledTimes(1)
     expect(toastSuccess).not.toHaveBeenCalled()
     expect(invalidate).not.toHaveBeenCalled()
+    expect(enqueue).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('шлёт клиентский id и таймаут — повтор той же записи сервер не задвоит', async () => {
+    mockApi.mockResolvedValueOnce({ id: 'tx-1', ...validTx })
+    const { result, wrapper } = withQueryClient(() => useAddTransactionMutation())
+
+    await result.mutateAsync(validTx)
+
+    const [url, options] = mockApi.mock.calls[0]!
+    expect(url).toBe('/api/finance/transactions')
+    expect(options).toMatchObject({ method: 'POST', timeout: SEND_TIMEOUT })
+    expect(clientIdSchema.safeParse(options.body.id).success).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('на обрыве сети кладёт запись в очередь с тем же id и не показывает ошибку', async () => {
+    mockApi.mockRejectedValueOnce(networkDown())
+    const { result, queryClient, wrapper } = withQueryClient(() => useAddTransactionMutation())
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await expect(result.mutateAsync(validTx)).resolves.toEqual({ queued: true })
+
+    const sentId = mockApi.mock.calls[0]![1].body.id
+    expect(enqueue).toHaveBeenCalledWith(expect.objectContaining({
+      id: sentId,
+      userId: 'user-1',
+      url: '/api/finance/transactions',
+      body: { ...validTx, id: sentId }
+    }))
+    expect(toastInfo).toHaveBeenCalledWith('toast.transactions.queued')
+    expect(toastError).not.toHaveBeenCalled()
+    expect(invalidate).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('без сети не ждёт таймаута и сразу ставит запись в очередь', async () => {
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+    const { result, wrapper } = withQueryClient(() => useAddTransactionMutation())
+
+    await expect(result.mutateAsync(validTx)).resolves.toEqual({ queued: true })
+
+    expect(mockApi).not.toHaveBeenCalled()
+    expect(enqueue).toHaveBeenCalledTimes(1)
+    wrapper.unmount()
+  })
+
+  it('выполняет мутацию, даже когда TanStack считает, что сети нет, — иначе шит висел бы на паузе', async () => {
+    mockApi.mockResolvedValueOnce({ id: 'tx-1' })
+    const { result, queryClient, wrapper } = withQueryClient(() => useAddTransactionMutation())
+    onlineManager.setOnline(false)
+
+    try {
+      await expect(result.mutateAsync(validTx)).resolves.toMatchObject({ queued: false })
+      expect(queryClient.isMutating()).toBe(0)
+    } finally {
+      onlineManager.setOnline(true)
+      wrapper.unmount()
+    }
+  })
+
+  it('не теряет запись, если очередь недоступна: тост-ошибка', async () => {
+    mockApi.mockRejectedValueOnce(networkDown())
+    enqueue.mockRejectedValueOnce(new Error('IndexedDB is unavailable'))
+    const { result, wrapper } = withQueryClient(() => useAddTransactionMutation())
+
+    await expect(result.mutateAsync(validTx)).rejects.toThrow('IndexedDB is unavailable')
+
+    expect(toastError).toHaveBeenCalledWith('toast.transactions.addError')
+    wrapper.unmount()
+  })
+
+  it('без сессии не шлёт и не ставит в очередь', async () => {
+    session.user = null
+    const { result, wrapper } = withQueryClient(() => useAddTransactionMutation())
+
+    await expect(result.mutateAsync(validTx)).rejects.toThrow()
+
+    expect(mockApi).not.toHaveBeenCalled()
+    expect(enqueue).not.toHaveBeenCalled()
     wrapper.unmount()
   })
 })

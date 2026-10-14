@@ -136,6 +136,7 @@ export default defineNuxtConfig({
       navigateFallback: '/',
       navigateFallbackDenylist: [/^\/api\//],
       cleanupOutdatedCaches: true,
+      importScripts: ['/sw-outbox.js'],
       runtimeCaching: [
         {
           urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/'),

@@ -1,15 +1,16 @@
 <script lang="ts" setup>
-import type { Category, Transaction } from '~~/prisma/.generated/prisma'
+import type { Category, TransactionType } from '~~/prisma/.generated/prisma'
 import type { TxAuthor } from '~/utils/family'
 import { categoryLabel } from '~/utils/categoryLabel'
 
 interface Props {
-  transaction: Transaction
-  category: Category
+  transaction: { type: TransactionType, amount: number, notes?: string | null, date: Date | string }
+  category: Pick<Category, 'icon' | 'color' | 'name' | 'key'>
   showDate?: boolean
   author?: TxAuthor
   authorRing?: string
   tags?: string[]
+  pending?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), { showDate: true, authorRing: 'var(--c-elev2)', tags: () => [] })
@@ -23,7 +24,7 @@ const hiddenTags = computed(() => Math.max(0, props.tags.length - VISIBLE_TAGS))
 </script>
 
 <template>
-  <div class="flex items-center gap-3 p-4 border-b border-hairline last:border-b-0">
+  <div class="flex items-center gap-3 p-4 border-b border-hairline last:border-b-0" :class="{ 'opacity-60': props.pending }">
     <div
       class="relative shrink-0 w-10 h-10 rounded-md flex items-center justify-center"
       :style="{ backgroundColor: `${props.category.color}33` }"
@@ -56,9 +57,16 @@ const hiddenTags = computed(() => Math.max(0, props.tags.length - VISIBLE_TAGS))
         <span v-if="hiddenTags" class="shrink-0 text-[11px] font-medium text-text-mute">+{{ hiddenTags }}</span>
       </span>
     </div>
+    <UIcon
+      v-if="props.pending"
+      name="i-lucide-clock"
+      class="ml-auto shrink-0 w-4 h-4 text-text-mute"
+      :aria-label="t('outbox.title')"
+      data-testid="tx-pending"
+    />
     <span
-      class="ml-auto text-sm font-semibold truncate"
-      :class="props.transaction.type === 'INCOME' ? 'text-success' : 'text-text'"
+      class="text-sm font-semibold truncate"
+      :class="[props.transaction.type === 'INCOME' ? 'text-success' : 'text-text', { 'ml-auto': !props.pending }]"
     >
       <UiMoney :amount="props.transaction.amount" :sign="props.transaction.type === 'INCOME' ? '+' : '-'" />
     </span>

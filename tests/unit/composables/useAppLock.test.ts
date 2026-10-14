@@ -179,10 +179,25 @@ describe('useAppLock', () => {
     await nextTick()
     expect(useUiStore().isLocked).toBe(true)
 
-    auth.accessToken = null
+    auth.forget()
     await nextTick()
 
     expect(useUiStore().isLocked).toBe(false)
+  })
+
+  it('держит замок в офлайн-сессии: токена нет, но профиль на месте', async () => {
+    const auth = useAuthStore()
+    auth.accessToken = 'token'
+    auth.user = profile(true)
+
+    startLock()
+    await nextTick()
+
+    auth.accessToken = null
+    await nextTick()
+
+    expect(auth.isOffline).toBe(true)
+    expect(useUiStore().isLocked).toBe(true)
   })
 
   it('unlock снимает замок и заново заводит таймер бездействия', async () => {

@@ -49,14 +49,15 @@ function transaction(overrides: Partial<Transaction> = {}): Transaction {
   } as unknown as Transaction
 }
 
-function mountRow(props: { category?: Category, transaction?: Transaction, author?: TxAuthor, tags?: string[] } = {}) {
+function mountRow(props: { category?: Category, transaction?: Transaction, author?: TxAuthor, tags?: string[], pending?: boolean } = {}) {
   return mount(UiTxRow, {
     props: {
       transaction: props.transaction ?? transaction(),
       category: props.category ?? category(),
       showDate: false,
       author: props.author,
-      tags: props.tags
+      tags: props.tags,
+      pending: props.pending
     },
     global: { stubs: { UIcon: true } }
   })
@@ -118,5 +119,30 @@ describe('uiTxRow', () => {
     expect(wrapper.find('[data-testid="money-hidden"]').exists()).toBe(true)
     expect(wrapper.text()).not.toContain('12')
     expect(wrapper.text()).not.toContain('+')
+  })
+
+  it('обычная строка — без значка ожидания', () => {
+    expect(mountRow().find('[data-testid="tx-pending"]').exists()).toBe(false)
+  })
+
+  it('неотправленная запись приглушена и помечена часами', () => {
+    const wrapper = mountRow({ pending: true })
+
+    expect(wrapper.find('[data-testid="tx-pending"]').exists()).toBe(true)
+    expect(wrapper.classes()).toContain('opacity-60')
+  })
+
+  it('принимает тело офлайн-записи: дата строкой, заметки может не быть', () => {
+    const wrapper = mount(UiTxRow, {
+      props: {
+        transaction: { type: 'EXPENSE', amount: 350, date: '2026-10-14' },
+        category: { icon: 'i-lucide-receipt', color: '#8A8A98', name: 'Категория', key: null },
+        pending: true
+      },
+      global: { stubs: { UIcon: true } }
+    })
+
+    expect(wrapper.text()).toContain('Категория')
+    expect(wrapper.text()).toContain('350')
   })
 })

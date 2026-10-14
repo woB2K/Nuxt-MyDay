@@ -1,18 +1,25 @@
 import type { QueryClient, QueryKey } from '@tanstack/vue-query'
-import type { Transaction } from '~~/prisma/.generated/prisma'
 import type { BudgetItem, SavingsEntryItem, SavingsResponse, SummaryResponse, TransactionItem, TransactionListResponse, TrashResponse } from '~~/shared/types'
 import type { SavingsCache, TransactionCache } from '~/utils/financeCache'
 import type { Period } from '~/utils/period'
 import type { TransactionFilters } from '~/utils/transactionFilters'
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { newClientId } from '~/utils/clientId'
 import { cachedTransactions, dropFromSummary, dropSavingsEntry, dropTransaction } from '~/utils/financeCache'
 import { statusOf } from '~/utils/httpStatus'
+import { isOnline, isTransportError } from '~/utils/network'
 import { invalidateWhenSettled, restoreQueries, snapshotQueries } from '~/utils/optimistic'
+import { transactionEntry, TRANSACTIONS_URL } from '~/utils/outbox'
 import { periodKey, periodRange } from '~/utils/period'
 import { filterKey, filterQuery } from '~/utils/transactionFilters'
 import { dropFromTrash } from '~/utils/trash'
 import { queryKeys } from './queryKeys'
 import { useApi } from './useApi'
+import { useOutbox } from './useOutbox'
+
+export const SEND_TIMEOUT = 10_000
+
+export type AddTransactionResult = { queued: false, transaction: TransactionItem } | { queued: true }
 
 function toQuery(period: Period, filters: TransactionFilters): Record<string, string> {
   return { ...periodRange(period), ...filterQuery(filters) }
@@ -116,11 +123,38 @@ export function useAddTransactionMutation() {
   const queryClient = useQueryClient()
   const { t } = useI18n()
   const toast = useAppToast()
+  const authStore = useAuthStore()
+  const outbox = useOutbox()
 
   return useMutation({
-    mutationFn: (data: CreateTransactionInput) =>
-      api<Transaction>('/api/finance/transactions', { method: 'POST', body: data }),
-    onSuccess: () => {
+    networkMode: 'always',
+    mutationFn: async (data: CreateTransactionInput): Promise<AddTransactionResult> => {
+      const userId = authStore.user?.id
+
+      if (!userId) throw new Error('No session to queue the transaction for')
+
+      const body = { ...data, id: data.id ?? newClientId() }
+
+      if (isOnline()) {
+        try {
+          const transaction = await api<TransactionItem>(TRANSACTIONS_URL, { method: 'POST', body, timeout: SEND_TIMEOUT })
+
+          return { queued: false, transaction }
+        } catch (error) {
+          if (!isTransportError(error)) throw error
+        }
+      }
+
+      await outbox.enqueue(transactionEntry(userId, body))
+
+      return { queued: true }
+    },
+    onSuccess: (result) => {
+      if (result.queued) {
+        toast.info(t('toast.transactions.queued'))
+        return
+      }
+
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['summary'] })
       toast.success(t('toast.transactions.addSuccess'))

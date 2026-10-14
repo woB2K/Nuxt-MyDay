@@ -69,13 +69,13 @@ myday/
 │   ├── components/
 │   │   ├── ui/                        # UiButton, UiInput, UiCard... — без бизнес-логики
 │   │   └── features/{auth,tasks,finance,settings,family}/
-│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useAppToast.ts, useMoney.ts
-│   ├── plugins/                       # errorHandler.ts, vue-query.ts
+│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useOutbox.ts, useAppToast.ts, useMoney.ts
+│   ├── plugins/                       # errorHandler.ts, vue-query.ts, outbox.client.ts, session.client.ts
 │   ├── layouts/                       # default.vue (TabBar+FAB), auth.vue
 │   ├── middleware/                    # auth.global.ts, lock.global.ts — оба глобальные, на страницах не объявляются
 │   ├── pages/
 │   ├── stores/                        # ТОЛЬКО client state — см. «Pinia vs TanStack» ниже
-│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, trash.ts, family.ts, clipboard.ts, goals.ts, privacy.ts, routes.ts
+│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, trash.ts, family.ts, clipboard.ts, goals.ts, privacy.ts, routes.ts, outbox.ts, network.ts, sessionMemory.ts
 │
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)

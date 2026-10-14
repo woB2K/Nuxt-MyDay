@@ -383,11 +383,23 @@ hero card: gradient bg, ambient glow blob, title2, UiCheckCircle size=32
 #### `UiTxRow`
 ```
 props:
-  transaction: Transaction
-  category:    Category
+  transaction: { type, amount, notes?, date }   — TransactionItem или тело офлайн-записи
+  category:    { icon, color, name, key }
+  pending?:    boolean                          — запись ждёт отправки
 
 layout: [icon в тинтованном квадрате 40px] [note + category·date] [±amount]
 income: success color, expense: text color
+pending: вся строка opacity-60, перед суммой i-lucide-clock 16px text-mute
+```
+
+#### `PendingTransactions` (Finance → «Транзакции», 9.1)
+```
+где:      между FilterBar и «Расходы по категориям»; пустая очередь — секции нет
+шапка:    UiSectionHeader «Ждут отправки» + счётчик
+подпись:  12px text-mute, px-5, под шапкой: «Отправим, когда появится сеть»
+строки:   UiCard без паддинга, UiTxRow pending, не кликабельны
+категория не в кэше → i-lucide-receipt, #8A8A98, подпись «Категория»
+в итоги, баланс и разбивку неотправленное не входит
 ```
 
 #### `UiCategoryTile`

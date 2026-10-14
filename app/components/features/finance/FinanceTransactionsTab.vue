@@ -121,6 +121,8 @@ function applyCategories(ids: string[]) {
       @open-categories="categoriesSheetOpen = true"
     />
 
+    <PendingTransactions />
+
     <template v-if="isPending">
       <UiCard :padding="0" class="overflow-hidden border border-hairline">
         <UiSkeletonRow v-for="n in 8" :key="n" />
