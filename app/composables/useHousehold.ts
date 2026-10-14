@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/vue-query'
-import type { GuestInvitePreviewResponse, HouseholdResponse, InviteCreatedResponse, InvitePreviewResponse } from '~~/shared/types'
+import type { GuestInvitePreviewResponse, HouseholdResponse, InviteCreatedResponse, InvitePreviewResponse, LeaveHouseholdInput } from '~~/shared/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { authorOf, othersOf } from '~/utils/family'
 import { queryKeys } from './queryKeys'
@@ -123,7 +123,7 @@ export function useLeaveHouseholdMutation() {
   const toast = useAppToast()
 
   return useMutation({
-    mutationFn: () => api<HouseholdResponse>('/api/household/leave', { method: 'POST' }),
+    mutationFn: (body: LeaveHouseholdInput) => api<HouseholdResponse>('/api/household/leave', { method: 'POST', body }),
     onSuccess: async () => {
       await resetFamilyScope(queryClient)
       toast.success(t('family.leave.done'))

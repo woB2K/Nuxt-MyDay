@@ -24,6 +24,7 @@ interface TransactionDto {
   userId: string
   amount: number
   categoryId: string
+  tagIds: string[]
 }
 
 interface SavingsResponseDto {
@@ -92,6 +93,7 @@ describe('household api', async () => {
   const tags = (user: User) => get<TagDto[]>(user, '/api/tags')
   const transactions = async (user: User) => (await get<{ data: TransactionDto[] }>(user, '/api/finance/transactions')).data
   const savings = (user: User) => get<SavingsResponseDto>(user, '/api/finance/savings')
+  const trash = (user: User) => get<{ transactions: TransactionDto[] }>(user, '/api/trash')
 
   async function byKey(user: User, key: string) {
     return (await categories(user)).find(category => category.key === key)!
@@ -480,6 +482,31 @@ describe('household api', async () => {
 
       expect((await savings(member)).balance).toBe(80)
       expect(await prisma.savingsEntry.count({ where: { householdId: await householdOf(owner.userId) } })).toBe(0)
+    })
+
+    it('takes the leaver\'s records out of the family on request, with tags and trash', async () => {
+      const { owner, member } = await family()
+      const food = await byKey(owner, 'food')
+      const trip = await send<TagDto>(owner, '/api/finance/tags', 'POST', { name: 'trip' })
+      await spend(owner, food.id, 100)
+      const tagged = await send<TransactionDto>(member, '/api/finance/transactions', 'POST', { type: 'EXPENSE', amount: 30, categoryId: food.id, date: '2026-10-01', tagIds: [trip.id] })
+      const trashed = await spend(member, food.id, 5)
+      await send(member, `/api/finance/transactions/${trashed.id}`, 'DELETE')
+      await deposit(member, 70)
+
+      await send(member, '/api/household/leave', 'POST', { takeRecords: true })
+
+      expect((await transactions(owner)).map(tx => tx.amount)).toEqual([100])
+      expect((await savings(owner)).balance).toBe(0)
+      expect((await trash(owner)).transactions).toEqual([])
+
+      const own = await transactions(member)
+      const memberTrip = (await get<TagDto[]>(member, '/api/finance/tags')).find(tag => tag.name === 'trip')
+      expect(own.map(tx => tx.id)).toEqual([tagged.id])
+      expect((await categories(member)).find(category => category.id === own[0]!.categoryId)?.key).toBe('food')
+      expect(own[0]!.tagIds).toEqual([memberTrip!.id])
+      expect((await savings(member)).balance).toBe(70)
+      expect((await trash(member)).transactions.map(tx => tx.id)).toEqual([trashed.id])
     })
 
     it('hands the family over to the longest member when the owner leaves', async () => {

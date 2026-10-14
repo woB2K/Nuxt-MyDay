@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import process from 'node:process'
 import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { PrismaPg } from '@prisma/adapter-pg'
@@ -31,9 +32,9 @@ export async function registerUser(): Promise<RegisteredUser> {
   const email = `user${counter}-${Date.now()}@test.local`
   const res = await $fetch<{ accessToken: string, user: { id: string } }>('/api/auth/register', {
     method: 'POST',
-    // Уникальный X-Forwarded-For на каждого — rate limiter ключует бакет по IP,
-    // иначе 10 регистраций исчерпают лимит в пределах одного прогона.
-    headers: { 'x-forwarded-for': `10.0.${Math.floor(counter / 250)}.${counter % 250}` },
+    // Случайный X-Forwarded-For на каждого — rate limiter ключует бакет по IP, а сервер
+    // общий на все файлы прогона: счётчик в каждом файле свой и давал одинаковые адреса.
+    headers: { 'x-forwarded-for': `10.${randomInt(1, 250)}.${randomInt(0, 250)}.${randomInt(1, 250)}` },
     body: { name: 'Test User', email, password: 'password123' }
   })
   return { token: res.accessToken, userId: res.user.id, email }

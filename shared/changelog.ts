@@ -2,6 +2,55 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.0.1',
+    date: '2026-10-14',
+    title: { en: 'Cleanup Day', ru: 'День уборки' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'When you leave a family, you can take your records with you — the others won\'t see them anymore',
+          ru: 'При выходе из семьи можно забрать свои записи — остальные их больше не увидят'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Authorization no longer has a critical vulnerability, and your data is better protected',
+          ru: 'В авторизации больше нет критической уязвимости, а данные защищены надёжнее'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Signing out is more reliable',
+          ru: 'Выход из аккаунта стал надёжнее'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Records of someone who left the family are marked as a former member\'s, even if you\'re the only one left',
+          ru: 'Записи ушедшего из семьи помечены как записи бывшего участника, даже если ты остался один'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'After leaving a family, the app takes you back to Settings',
+          ru: 'После выхода из семьи приложение возвращает в настройки'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'Notes and names have a length limit, so very long text no longer ends in an error',
+          ru: 'У заметок и названий появился предел длины — слишком длинный текст больше не приводит к ошибке'
+        }
+      }
+    ]
+  },
+  {
     version: '2.0.0',
     date: '2026-10-14',
     title: { en: 'A Day with Family', ru: 'День с семьёй' },

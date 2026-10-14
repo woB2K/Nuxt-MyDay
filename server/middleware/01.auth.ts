@@ -1,20 +1,33 @@
+import { requestPath } from '~~/server/utils/requestPath'
+
+const PUBLIC_PREFIXES = ['/api/auth/', '/api/_nuxt_icon']
+
+function unauthorized() {
+  return createError({ statusCode: 401, message: 'Unauthorized' })
+}
+
 export default defineEventHandler(async (event) => {
-  const path = getRequestURL(event).pathname
+  Object.defineProperty(event.context, 'userId', {
+    configurable: true,
+    get() {
+      throw unauthorized()
+    }
+  })
+
+  const path = requestPath(event)
 
   if (!path.startsWith('/api')) return
 
-  if (path.includes('/api/auth/')) return
-
-  if (path.startsWith('/api/_nuxt_icon')) return
+  if (PUBLIC_PREFIXES.some(prefix => path.startsWith(prefix))) return
 
   const token = getHeader(event, 'Authorization')?.replace('Bearer ', '')
 
-  if (!token) throw createError({ statusCode: 401, message: 'Unauthorized' })
+  if (!token) throw unauthorized()
 
   try {
     const userId = await verifyAccessToken(token)
-    event.context.userId = userId
+    Object.defineProperty(event.context, 'userId', { value: userId, configurable: true, enumerable: true, writable: true })
   } catch {
-    throw createError({ statusCode: 401, message: 'Unauthorized' })
+    throw unauthorized()
   }
 })

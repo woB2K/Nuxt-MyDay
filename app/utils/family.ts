@@ -32,7 +32,7 @@ export function othersOf<T extends Member>(members: T[], myId: string | undefine
 }
 
 export function authorOf(members: Member[], myId: string | undefined, userId: string): TxAuthor | undefined {
-  if (members.length < 2 || userId === myId) return undefined
+  if (userId === myId) return undefined
 
   const author = members.find(member => member.userId === userId)
 

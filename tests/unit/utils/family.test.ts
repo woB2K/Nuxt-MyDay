@@ -11,9 +11,13 @@ function preview(state: 'ready' | 'alreadyMember' | 'mustLeave') {
 }
 
 describe('authorOf', () => {
-  it('не рисует автора у своих операций и в семье из одного', () => {
+  it('не рисует автора у своих операций', () => {
     expect(authorOf([max, masha], 'max', 'max')).toBeUndefined()
-    expect(authorOf([max], 'max', 'someone')).toBeUndefined()
+    expect(authorOf([max], 'max', 'max')).toBeUndefined()
+  })
+
+  it('в семье из одного помечает записи ушедшего как бывшего участника', () => {
+    expect(authorOf([max], 'max', 'gone')).toEqual({ name: null, colorIndex: null, named: false })
   })
 
   it('отдаёт имя и цвет участника', () => {

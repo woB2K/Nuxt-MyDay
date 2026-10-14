@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   await assertGoal(body.goalId, userId, household)
 
   if (body.goalId) {
-    const opening = await prisma.savingsEntry.count({ where: { id: savingsId, type: 'OPENING' } })
+    const opening = await prisma.savingsEntry.count({ where: { ...savingsScope(userId, household), id: savingsId, type: 'OPENING' } })
     if (opening > 0) throw createError({ statusCode: 400, message: 'Opening balance cannot belong to a goal' })
   }
 

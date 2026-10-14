@@ -6,6 +6,7 @@ interface Props {
   multiline?: boolean
   rows?: number
   error?: string
+  maxlength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -42,6 +43,7 @@ const inputType = computed(() => {
         v-if="multiline"
         v-model="model"
         :rows="props.rows"
+        :maxlength="props.maxlength"
         class="outline-none bg-transparent flex-1 resize-none"
         :placeholder="props.placeholder"
         @focus="focused = true"
@@ -51,6 +53,7 @@ const inputType = computed(() => {
         v-else
         v-model="model"
         :type="inputType"
+        :maxlength="props.maxlength"
         class="outline-none bg-transparent flex-1"
         :placeholder="props.placeholder"
         @focus="focused = true"

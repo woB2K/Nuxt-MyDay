@@ -36,8 +36,16 @@ export const useAuthStore = defineStore('auth', () => {
 
   let renewing: Promise<void> | null = null
 
+  async function refreshSession() {
+    await refresh()
+
+    const subject = tokenSubject(accessToken.value)
+
+    if (user.value && subject && subject !== user.value.id) await fetchUser()
+  }
+
   async function renew(): Promise<boolean> {
-    renewing ??= refresh().finally(() => {
+    renewing ??= refreshSession().finally(() => {
       renewing = null
     })
 
@@ -104,9 +112,14 @@ export const useAuthStore = defineStore('auth', () => {
     await $fetch('/api/auth/logout', {
       method: 'POST'
     })
+    forget()
+    await clearApiCache()
+    announceSignOut()
+  }
+
+  function forget() {
     user.value = null
     accessToken.value = null
-    await clearApiCache()
   }
 
   return {
@@ -117,6 +130,7 @@ export const useAuthStore = defineStore('auth', () => {
     init,
     login,
     logout,
+    forget,
     register,
     isAuthenticated
   }
