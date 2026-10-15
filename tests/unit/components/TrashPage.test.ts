@@ -9,6 +9,7 @@ const { state, mocks } = vi.hoisted(() => ({
   state: { trash: undefined as unknown, pending: false, categories: [] as unknown[] },
   mocks: {
     restoreTask: vi.fn(),
+    restoreHabit: vi.fn(),
     restoreTransaction: vi.fn(),
     restoreSavings: vi.fn(),
     deleteForever: vi.fn(),
@@ -20,6 +21,7 @@ const dictionary: Record<string, string> = {
   'categories.food': 'Еда',
   'finance.savings.deposit': 'Пополнение',
   'settings.trashScreen.tasks': 'Задачи',
+  'settings.trashScreen.habits': 'Привычки',
   'settings.trashScreen.transactions': 'Транзакции',
   'settings.trashScreen.savings': 'Накопления'
 }
@@ -31,6 +33,7 @@ mockNuxtImport('useI18n', () => () => ({
 mockNuxtImport('useTrashQuery', () => () => ({ data: ref(state.trash), isPending: ref(state.pending) }))
 mockNuxtImport('useCategoriesQuery', () => () => ({ data: ref(state.categories) }))
 mockNuxtImport('useRestoreTaskMutation', () => () => ({ mutate: mocks.restoreTask }))
+mockNuxtImport('useRestoreHabitMutation', () => () => ({ mutate: mocks.restoreHabit }))
 mockNuxtImport('useRestoreTransactionMutation', () => () => ({ mutate: mocks.restoreTransaction }))
 mockNuxtImport('useRestoreSavingsMutation', () => () => ({ mutate: mocks.restoreSavings }))
 mockNuxtImport('useDeleteForeverMutation', () => () => ({ mutate: mocks.deleteForever }))
@@ -41,6 +44,7 @@ const deletedAt = new Date().toISOString()
 function fullTrash(): TrashResponse {
   return {
     tasks: [{ id: 't-1', title: 'Отчёт', deletedAt, tags: [] }],
+    habits: [{ id: 'h-1', name: 'Медитация', icon: 'leaf', color: 'green', perWeek: null, marks: [], deletedAt }],
     transactions: [{ id: 'tx-1', type: 'EXPENSE', amount: 250, notes: null, categoryId: 'cat-food', deletedAt }],
     savings: [{ id: 's-1', type: 'DEPOSIT', amount: 1000, notes: null, deletedAt }]
   } as unknown as TrashResponse
@@ -77,14 +81,14 @@ beforeEach(() => {
 })
 
 describe('страница корзины', () => {
-  it('показывает секции задач, транзакций и накоплений по порядку', () => {
+  it('показывает секции задач, привычек, транзакций и накоплений по порядку', () => {
     const sections = mountPage(fullTrash()).findAll('[data-section]').map(el => el.attributes('data-section'))
 
-    expect(sections).toEqual(['tasks', 'transactions', 'savings'])
+    expect(sections).toEqual(['tasks', 'habits', 'transactions', 'savings'])
   })
 
   it('пустые секции не рисует', () => {
-    const wrapper = mountPage({ ...fullTrash(), transactions: [], savings: [] })
+    const wrapper = mountPage({ ...fullTrash(), habits: [], transactions: [], savings: [] })
 
     expect(wrapper.findAll('[data-section]').map(el => el.attributes('data-section'))).toEqual(['tasks'])
   })
@@ -97,6 +101,13 @@ describe('страница корзины', () => {
     const text = mountPage(fullTrash()).find('[data-section="tasks"]').text()
 
     expect(text).toContain('Отчёт')
+    expect(text).toContain('settings.trashScreen.daysLeft({"count":30})')
+  })
+
+  it('привычка показывает название и сколько дней ей осталось', () => {
+    const text = mountPage(fullTrash()).find('[data-section="habits"]').text()
+
+    expect(text).toContain('Медитация')
     expect(text).toContain('settings.trashScreen.daysLeft({"count":30})')
   })
 
@@ -132,10 +143,12 @@ describe('страница корзины', () => {
     const wrapper = mountPage(fullTrash())
 
     await wrapper.find('[data-section="tasks"] [data-restore]').trigger('click')
+    await wrapper.find('[data-section="habits"] [data-restore]').trigger('click')
     await wrapper.find('[data-section="transactions"] [data-restore]').trigger('click')
     await wrapper.find('[data-section="savings"] [data-restore]').trigger('click')
 
     expect(mocks.restoreTask).toHaveBeenCalledWith('t-1')
+    expect(mocks.restoreHabit).toHaveBeenCalledWith('h-1')
     expect(mocks.restoreTransaction).toHaveBeenCalledWith('tx-1')
     expect(mocks.restoreSavings).toHaveBeenCalledWith('s-1')
   })
@@ -144,11 +157,13 @@ describe('страница корзины', () => {
     const wrapper = mountPage(fullTrash())
 
     await wrapper.find('[data-section="tasks"] [data-forever]').trigger('click')
+    await wrapper.find('[data-section="habits"] [data-forever]').trigger('click')
     await wrapper.find('[data-section="transactions"] [data-forever]').trigger('click')
     await wrapper.find('[data-section="savings"] [data-forever]').trigger('click')
 
     expect(mocks.deleteForever.mock.calls).toEqual([
       [{ kind: 'task', id: 't-1' }],
+      [{ kind: 'habit', id: 'h-1' }],
       [{ kind: 'transaction', id: 'tx-1' }],
       [{ kind: 'savings', id: 's-1' }]
     ])
@@ -160,7 +175,7 @@ describe('страница корзины', () => {
     expect(wrapper.find('[data-sheet]').exists()).toBe(false)
     await wrapper.findAll('button').find(el => el.text() === 'settings.trashScreen.empty')!.trigger('click')
 
-    expect(wrapper.find('[data-sheet]').text()).toContain('settings.trashScreen.confirmText({"count":3})')
+    expect(wrapper.find('[data-sheet]').text()).toContain('settings.trashScreen.confirmText({"count":4})')
     expect(mocks.emptyTrash).not.toHaveBeenCalled()
   })
 
@@ -194,7 +209,7 @@ describe('страница корзины', () => {
   })
 
   it('пустая корзина: пустое состояние без подсказки и без кнопки очистки', () => {
-    const wrapper = mountPage({ tasks: [], transactions: [], savings: [] })
+    const wrapper = mountPage({ tasks: [], habits: [], transactions: [], savings: [] })
 
     expect(wrapper.find('[data-empty]').text()).toBe('settings.trashScreen.emptyTitle')
     expect(wrapper.text()).not.toContain('settings.trashScreen.hint')

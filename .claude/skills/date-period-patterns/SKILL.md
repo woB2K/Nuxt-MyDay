@@ -1,6 +1,6 @@
 ---
 name: date-period-patterns
-description: Работа с датами и периодами в MyDay — контракт YYYY-MM-DD между клиентом и сервером, утилиты formatDate/period/transactionFilters, разница @db.Date и timestamp, фильтрация по периоду и сборка ключей кэша. Используй при любой работе с датами: поля дат в формах и API, фильтры и переключатели периода, группировка по дням, дедлайны задач, агрегации за месяц.
+description: Работа с датами и периодами в MyDay — контракт YYYY-MM-DD между клиентом и сервером, утилиты formatDate/period/transactionFilters, разница @db.Date и timestamp, фильтрация по периоду и сборка ключей кэша, арифметика дней и недель через shared/calendarDay.ts. Используй при любой работе с датами: поля дат в формах и API, фильтры и переключатели периода, группировка по дням, дедлайны задач, агрегации за месяц, серии и окна «последние N дней».
 ---
 
 # Даты и периоды — MyDay
@@ -71,6 +71,12 @@ queryFn: () => api(url, { query: { ...periodRange(period.value), ...filterQuery(
 
 Список транзакций и summary принимают одинаковый набор фильтров: `transactionFilterQuerySchema` (+ `page`/`limit` в списке), WHERE собирает `server/utils/transactionWhere.ts`. Копилка — `savingsQuerySchema`. Валидировать только через `getValidatedQuery(event, schema.parse)`: ручной `schema.parse(getQuery(event))` отдаёт ZodError как 500 вместо 400.
 
+## Арифметика дней и недель: `shared/calendarDay.ts`
+
+Когда считаешь не период, а дни подряд, недели или окно «последние N дней», не крути `Date` в локальной зоне — бери строки `YYYY-MM-DD` и `shared/calendarDay.ts`: `dayNumber` / `fromDayNumber` (номер дня от эпохи через `Date.UTC`), `shiftDay(date, ±n)`, `weekdayIndex` (пн = 0), `weekStart` (понедельник). Так переход на летнее время не съедает и не дублирует день, а модуль общий для клиента и сервера.
+
+Так сделаны привычки: серии и календарь — `app/utils/habits.ts`, окно отметки на сервере — `assertMarkWindow` в `server/utils/habits.ts`. Сервер TZ-agnostic, поэтому «сегодня» для окна присылает клиент (`?today=YYYY-MM-DD`), а сервер верит ему только в пределах ±1 суток от своего UTC-дня. Неделя — пн–вс для обеих локалей.
+
 ## Проверь себя
 
 - Дата ушла на сервер строкой `YYYY-MM-DD`, а не `toISOString()`?
@@ -78,3 +84,4 @@ queryFn: () => api(url, { query: { ...periodRange(period.value), ...filterQuery(
 - Фильтр по timestamp-колонке закрывает последний день (`< to + 1 день`)?
 - Ключ кэша содержит период и фильтры и не зависит от порядка элементов?
 - Границы периода считает клиент, а не `new Date()` на сервере?
+- Дни подряд и недели считаются через `shared/calendarDay.ts`, а не `setDate(getDate() - 1)` в локальной зоне?

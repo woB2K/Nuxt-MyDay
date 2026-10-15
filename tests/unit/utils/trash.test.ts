@@ -12,6 +12,7 @@ function ago(days: number) {
 function cache(): TrashResponse {
   return {
     tasks: [{ id: 'a' }, { id: 'shared' }],
+    habits: [{ id: 'shared' }, { id: 'h' }],
     transactions: [{ id: 'shared' }, { id: 'b' }],
     savings: [{ id: 'shared' }]
   } as unknown as TrashResponse
@@ -22,8 +23,16 @@ describe('dropFromTrash', () => {
     const next = dropFromTrash(cache(), 'task', 'shared')
 
     expect(next.tasks.map(el => el.id)).toEqual(['a'])
+    expect(next.habits).toHaveLength(2)
     expect(next.transactions).toHaveLength(2)
     expect(next.savings).toHaveLength(1)
+  })
+
+  it('убирает привычку и не трогает задачу с тем же id', () => {
+    const next = dropFromTrash(cache(), 'habit', 'shared')
+
+    expect(next.habits.map(el => el.id)).toEqual(['h'])
+    expect(next.tasks).toHaveLength(2)
   })
 
   it('убирает транзакцию', () => {
@@ -49,7 +58,7 @@ describe('emptyTrash / trashSize', () => {
   })
 
   it('считает объекты всех видов', () => {
-    expect(trashSize(cache())).toBe(5)
+    expect(trashSize(cache())).toBe(7)
   })
 
   it('без данных — ноль', () => {

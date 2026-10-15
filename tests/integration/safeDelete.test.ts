@@ -39,6 +39,7 @@ interface SavingsResponseDto {
 
 interface TrashDto {
   tasks: TaskDto[]
+  habits: { id: string }[]
   transactions: TransactionDto[]
   savings: SavingsDto[]
 }
@@ -389,7 +390,7 @@ describe('safe delete api', async () => {
       const task = await createTask(owner.token)
       await del(owner.token, `/api/tasks/${task.id}`)
 
-      expect(await getTrash(stranger.token)).toEqual({ tasks: [], transactions: [], savings: [] })
+      expect(await getTrash(stranger.token)).toEqual({ tasks: [], habits: [], transactions: [], savings: [] })
     })
 
     it('purges items older than 30 days and keeps younger ones', async () => {
@@ -450,7 +451,7 @@ describe('safe delete api', async () => {
       await del(token, `/api/trash/transaction/${tx.id}`)
       await del(token, `/api/trash/savings/${entry.id}`)
 
-      expect(await getTrash(token)).toEqual({ tasks: [], transactions: [], savings: [] })
+      expect(await getTrash(token)).toEqual({ tasks: [], habits: [], transactions: [], savings: [] })
       expect(await prisma.task.findUnique({ where: { id: task.id } })).toBeNull()
       expect(await prisma.transaction.findUnique({ where: { id: tx.id } })).toBeNull()
       expect(await prisma.savingsEntry.findUnique({ where: { id: entry.id } })).toBeNull()
@@ -496,7 +497,7 @@ describe('safe delete api', async () => {
       const result = await $fetch<{ deleted: number }>('/api/trash', { method: 'DELETE', headers: authHeaders(owner.token) })
 
       expect(result.deleted).toBe(3)
-      expect(await getTrash(owner.token)).toEqual({ tasks: [], transactions: [], savings: [] })
+      expect(await getTrash(owner.token)).toEqual({ tasks: [], habits: [], transactions: [], savings: [] })
       expect((await listTasks(owner.token)).map(el => el.id)).toEqual([alive.id])
       expect((await getTrash(other.token)).tasks).toHaveLength(1)
     })

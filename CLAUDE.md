@@ -16,6 +16,7 @@
 | `ARCHITECTURE.md` | Решения по БД, ER-диаграмма, auth-flow, зоны риска, известные баги, журнал реализации шагов | Работа с БД/архитектурой, риск-рефакторинг, «как на самом деле сделан шаг N» |
 | `ROADMAP.md` | Чеклист фаз реализации, одна строка на пункт | Перед стартом/завершением конкретного шага |
 | `DESIGN.md` | Дизайн-токены, спеки экранов и компонентов | Вёрстка UI |
+| `design_handoff_myday/` (gitignored, только локально) | Макеты-прототипы (HTML/JSX) и README-спеки по фичам: базовые экраны, Finance v3, семья, `design_handoff_habits/` | **Перед вёрсткой любой фичи** — проверить, нет ли её handoff: он важнее догадок и вопросов |
 | `.claude/skills/*` | Готовые кодовые паттерны проекта (auth, Prisma, TanStack Query, UI feedback, даты и периоды, инвентарь Ui-компонентов) и процесс релиза (`/release`) | Подгружаются автоматически, когда релевантны задаче |
 
 ---
@@ -68,23 +69,24 @@ myday/
 │   ├── assets/css/main.css            # Tailwind v4 @theme — конфиг-файла нет
 │   ├── components/
 │   │   ├── ui/                        # UiButton, UiInput, UiCard... — без бизнес-логики
-│   │   └── features/{auth,tasks,finance,settings,family}/
-│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useOutbox.ts, useAppToast.ts, useMoney.ts
+│   │   └── features/{auth,tasks,habits,finance,settings,family}/
+│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useHabits.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useOutbox.ts, useAppToast.ts, useMoney.ts
 │   ├── plugins/                       # errorHandler.ts, vue-query.ts, outbox.client.ts, session.client.ts
 │   ├── layouts/                       # default.vue (TabBar+FAB), auth.vue
 │   ├── middleware/                    # auth.global.ts, lock.global.ts — оба глобальные, на страницах не объявляются
 │   ├── pages/
 │   ├── stores/                        # ТОЛЬКО client state — см. «Pinia vs TanStack» ниже
-│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, trash.ts, family.ts, clipboard.ts, goals.ts, privacy.ts, routes.ts, outbox.ts, network.ts, sessionMemory.ts
+│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, trash.ts, habits.ts, family.ts, clipboard.ts, goals.ts, privacy.ts, routes.ts, outbox.ts, network.ts, sessionMemory.ts
 │
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts, household.ts, householdView.ts, invite.ts, financeTags.ts, savingsGoals.ts
+│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts, habits.ts, household.ts, householdView.ts, invite.ts, financeTags.ts, savingsGoals.ts
 │
 ├── shared/                            # изоморфный слой (client + server)
-│   ├── types/                         # singular: task.ts, tag.ts, finance.ts, household.ts
+│   ├── types/                         # singular: task.ts, tag.ts, habit.ts, finance.ts, household.ts
 │   ├── schemas/                       # Zod — одна схема на клиент и сервер
+│   ├── calendarDay.ts                 # арифметика календарных дней YYYY-MM-DD (неделя с понедельника)
 │   └── changelog.ts                   # patch notes en/ru — пишет скилл /release
 │
 ├── scripts/release/                   # pnpm release:status|check|notes — сбор коммитов и чек в CI

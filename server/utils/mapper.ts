@@ -12,7 +12,8 @@ export function toPublicSettings(settings: AppSettings) {
     theme: settings.theme,
     accent: settings.accent,
     lang: settings.lang,
-    pinEnabled: settings.pinEnabled
+    pinEnabled: settings.pinEnabled,
+    habitsOnToday: settings.habitsOnToday
   }
 }
 

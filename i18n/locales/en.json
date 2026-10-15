@@ -85,6 +85,19 @@
       "deleteSuccess": "Template deleted",
       "deleteError": "Failed to delete template"
     },
+    "habits": {
+      "added": "Habit added",
+      "saved": "Saved",
+      "deleted": "“{name}” moved to Recently deleted",
+      "record": "New record — {n}",
+      "addError": "Failed to add habit",
+      "updateError": "Failed to update habit",
+      "deleteError": "Failed to delete habit",
+      "restoreSuccess": "Habit restored",
+      "restoreError": "Failed to restore habit",
+      "markError": "Failed to save the mark",
+      "reorderError": "Failed to save the order"
+    },
     "pin": {
       "saved": "PIN saved",
       "disabled": "PIN turned off",
@@ -278,7 +291,7 @@
     "notes": "Notes",
     "delete": "Delete task",
     "stats": {
-      "streak": "day streak | days streak",
+      "streak": "task streak",
       "done": "Done today"
     },
     "templates": {
@@ -293,6 +306,82 @@
     },
     "error": {
       "title": "Give the task a title"
+    }
+  },
+  "habits": {
+    "title": "Habits",
+    "days": "{count} day | {count} days",
+    "times": "{count} time | {count} times",
+    "trashMarks": "{count} mark | {count} marks",
+    "plan": {
+      "daily": "Every day",
+      "weekly": "Once a week | {count} times a week",
+      "short": "{count}× a week"
+    },
+    "today": {
+      "allDone": "All done today",
+      "week": "Week",
+      "weekDone": "Week plan done",
+      "emptyTitle": "Add your first habit",
+      "emptySub": "Meditate, stretch, read — one tap a day",
+      "hide": "Hide habits",
+      "hiddenToast": "Habits hidden. Turn them back on in Settings"
+    },
+    "list": {
+      "back": "Today",
+      "sub": "Today {n} of {m}",
+      "subWeek": "This week {n} of {m} on plan",
+      "reorder": "Reorder",
+      "done": "Done",
+      "hint": "Swipe left to delete · tap a habit to see its history",
+      "reorderHint": "Drag to change the order on Today",
+      "restart": "Start again?",
+      "best": "best {n}",
+      "emptyTitle": "No habits yet",
+      "emptySub": "Tap + to add one"
+    },
+    "detail": {
+      "back": "Habits",
+      "current": "Current streak",
+      "best": "Best streak",
+      "rate": "Last 30 days",
+      "record": "Record",
+      "markToday": "Mark today",
+      "doneToday": "Done today",
+      "atRisk": "Mark today to keep your {n}-day streak",
+      "brokenTitle": "The streak ended",
+      "brokenBody": "Start again? Your best is {n} — it stays here.",
+      "legendDone": "Done",
+      "legendCan": "Can mark",
+      "legendMissed": "Missed",
+      "legendPlan": "Week on plan",
+      "hint": "You can mark today and the 6 days before it.",
+      "hintWeekly": "Any day counts. You can change today and the 6 days before it.",
+      "weeks": "weeks on plan",
+      "weeksValue": "{n} of {m}",
+      "weekRisk": "{need} more by Sunday to keep your streak of {n}",
+      "weekProgress": "This week: {n} of {m}",
+      "weekDone": "Week plan done",
+      "edit": "Edit",
+      "delete": "Delete",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month"
+    },
+    "sheet": {
+      "newTitle": "New habit",
+      "editTitle": "Edit habit",
+      "name": "Name",
+      "namePlaceholder": "e.g. Read 20 minutes",
+      "icon": "Icon",
+      "color": "Color",
+      "schedule": "Schedule",
+      "perWeek": "Times a week",
+      "fewer": "Fewer",
+      "more": "More",
+      "scheduleHint": "Mark on any day. The streak grows while every week hits the plan.",
+      "create": "Add habit",
+      "save": "Save",
+      "delete": "Delete habit"
     }
   },
   "auth": {
@@ -335,6 +424,9 @@
     "language": "Language",
     "templates": "Task templates",
     "templatesSub": "Add a task in one tap",
+    "habits": "Habits",
+    "habitsSub": "Daily and weekly habits",
+    "habitsOnToday": "Show on Today",
     "signOut": "Sign out",
     "signOutError": "Could not sign out",
     "saveError": "Could not save settings",
@@ -374,13 +466,14 @@
       "subtitle": "Items are deleted forever after {days} days",
       "hint": "Swipe right to restore, left to delete forever",
       "tasks": "Tasks",
+      "habits": "Habits",
       "transactions": "Transactions",
       "savings": "Savings",
       "daysLeft": "{count} day left | {count} days left",
       "restore": "Restore",
       "empty": "Empty trash",
       "emptyTitle": "Trash is empty",
-      "emptySubtitle": "Deleted tasks, transactions and savings entries stay here for {days} days",
+      "emptySubtitle": "Deleted tasks, habits, transactions and savings entries stay here for {days} days",
       "confirmTitle": "Empty the trash?",
       "confirmText": "{count} item will be deleted forever. This can't be undone. | {count} items will be deleted forever. This can't be undone.",
       "confirm": "Delete forever",

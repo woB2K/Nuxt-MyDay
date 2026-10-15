@@ -1,6 +1,6 @@
 ---
 name: tanstack-query-patterns
-description: Паттерны работы с TanStack Query (server state) в проекте MyDay — настройка плагина, централизованные query keys, useQuery/useMutation, оптимистичные апдейты через onMutate/onError/onSettled, структура composables (useFinance.ts, useTasks.ts, useCategories.ts). Используй при добавлении или изменении хуков для серверных данных: transactions, tasks, categories, tags, savings, budgets, templates.
+description: Паттерны работы с TanStack Query (server state) в проекте MyDay — настройка плагина, централизованные query keys, useQuery/useMutation, оптимистичные апдейты через onMutate/onError/onSettled, структура composables (useFinance.ts, useTasks.ts, useCategories.ts, useHabits.ts). Используй при добавлении или изменении хуков для серверных данных: transactions, tasks, categories, tags, savings, budgets, templates, habits.
 ---
 
 # TanStack Query Patterns — MyDay
@@ -44,8 +44,11 @@ export const queryKeys = {
   tasks:            (filter: string, search: string)    => ['tasks', { filter, search }]              as const,
   tags:             ()                                  => ['tags']                                   as const,
   templates:        ()                                  => ['templates']                              as const,
+  habits:           ()                                  => ['habits']                                 as const,
 }
 ```
+
+`['habits']` — один список со всеми отметками каждой привычки: серии, календарь месяца и «за 30 дней» клиент считает из него же (`app/utils/habits.ts`), отдельного ключа на месяц нет.
 
 `period` и `filters` — строки из `periodKey()` и `filterKey()` (`app/utils/period.ts`, `app/utils/transactionFilters.ts`), а не сырые объекты: ключ должен быть стабильным и не зависеть от порядка выбранных категорий. Постраничный список живёт под тем же префиксом `['transactions']`, поэтому инвалидация из мутаций достаёт и его.
 
@@ -235,13 +238,24 @@ export function useDeleteTemplateMutation() { ... }
 export function useDeleteTagMutation() { ... }    // оптимистичный: снимает тег и с задач
 export function useRestoreTaskMutation() { ... }  // undo из тоста и восстановление из корзины
 
+// app/composables/useHabits.ts — привычки (личные)
+export function useHabitsQuery() { ... }
+export function useAddHabitMutation() { ... }
+export function useUpdateHabitMutation() { ... }
+export function useToggleHabitMarkMutation() { ... } // оптимистичный: PUT/DELETE отметки с ?today= клиента
+export function useReorderHabitsMutation() { ... }   // оптимистичный: полный список id
+export function useDeleteHabitMutation() { ... }     // оптимистичный, принимает { id, name } — имя нужно тосту
+export function useRestoreHabitMutation() { ... }
+
 // app/composables/useTrash.ts — корзина «Недавно удалённые»
 export function useTrashQuery() { ... }
 export function useDeleteForeverMutation() { ... }
 export function useEmptyTrashMutation() { ... }
 ```
 
-Удаление задачи, транзакции и записи копилки — soft delete: `onSuccess` показывает тост с «Отменить», который зовёт соответствующую `useRestore*Mutation` (см. `ARCHITECTURE.md` → «Корзина и undo").
+Удаление задачи, привычки, транзакции и записи копилки — soft delete: `onSuccess` показывает тост с «Отменить», который зовёт соответствующую `useRestore*Mutation` (см. `ARCHITECTURE.md` → «Корзина и undo").
+
+Отметку привычки из UI не зовут мутацией напрямую — только через `useHabitMarking(today)`: он же решает про анимацию кольца, тост «Новый рекорд» и «Всё на сегодня», а мутация остаётся чистой (снапшот → патч → откат).
 
 ## useApi — авторизованные запросы с клиента
 

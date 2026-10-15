@@ -15,6 +15,7 @@ export function inTrash(now = new Date()) {
 export function trashScopes(userId: string, household: HouseholdContext) {
   return {
     task: { userId },
+    habit: { userId },
     transaction: { householdId: household.id },
     savings: savingsScope(userId, household)
   }
@@ -26,6 +27,7 @@ export async function purgeExpiredTrash(userId: string, household: HouseholdCont
 
   await prisma.$transaction([
     prisma.task.deleteMany({ where: { ...scopes.task, deletedAt } }),
+    prisma.habit.deleteMany({ where: { ...scopes.habit, deletedAt } }),
     prisma.transaction.deleteMany({ where: { ...scopes.transaction, deletedAt } }),
     prisma.savingsEntry.deleteMany({ where: { ...scopes.savings, deletedAt } })
   ])

@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { TAB_ITEMS } from '~/utils/routes'
+import type { TabItem } from '~/utils/routes'
+import { isTabActive, TAB_ITEMS } from '~/utils/routes'
 
 const { t } = useI18n()
 
 const route = useRoute()
-const isActive = (path: string) => route.path.startsWith(path)
+const isActive = (tab: TabItem) => isTabActive(tab, route.path)
 </script>
 
 <template>
@@ -14,17 +15,17 @@ const isActive = (path: string) => route.path.startsWith(path)
       :key="tab.path"
       :to="tab.path"
       class="flex flex-1 flex-col items-center gap-1.5 transition-colors duration-base"
-      :class="isActive(tab.path) ? 'text-accent' : 'text-text-mute'"
+      :class="isActive(tab) ? 'text-accent' : 'text-text-mute'"
     >
       <span class="relative flex size-10 items-center justify-center">
         <Transition name="tab-dot">
-          <span v-if="isActive(tab.path)" class="absolute inset-0 rounded-full bg-accent-soft" />
+          <span v-if="isActive(tab)" class="absolute inset-0 rounded-full bg-accent-soft" />
         </Transition>
 
         <UIcon
           :name="tab.icon"
           class="relative size-6 transition-transform duration-base ease-spring"
-          :class="isActive(tab.path) ? 'scale-110' : 'scale-100'"
+          :class="isActive(tab) ? 'scale-110' : 'scale-100'"
         />
       </span>
 

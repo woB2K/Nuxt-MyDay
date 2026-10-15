@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
 
   const deleteByKind = {
     task: () => prisma.task.deleteMany({ where: { id, ...scopes.task, deletedAt } }),
+    habit: () => prisma.habit.deleteMany({ where: { id, ...scopes.habit, deletedAt } }),
     transaction: () => prisma.transaction.deleteMany({ where: { id, ...scopes.transaction, deletedAt } }),
     savings: () => prisma.savingsEntry.deleteMany({ where: { id, ...scopes.savings, deletedAt } })
   }

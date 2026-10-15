@@ -2,6 +2,27 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.2.0',
+    date: '2026-10-15',
+    title: { en: 'Day by Day', ru: 'День за днём' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Habits: daily or a few times a week — mark them with one tap on Today, follow your streak in a calendar and catch up on any of the last 7 days',
+          ru: 'Привычки: каждый день или несколько раз в неделю — отмечай одним тапом на «Сегодня», следи за серией в календаре, а забытую отметку ставь за любой из последних 7 дней'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'The streak card on Today now says “task streak”, so it isn’t mixed up with habit streaks',
+          ru: 'Карточка серии на «Сегодня» подписана «серия задач», чтобы не путать её с сериями привычек'
+        }
+      }
+    ]
+  },
+  {
     version: '2.1.0',
     date: '2026-10-15',
     title: { en: 'Offline Day', ru: 'День без сети' },

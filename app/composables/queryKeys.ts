@@ -10,6 +10,7 @@ export const queryKeys = {
   financeTags: () => ['financeTags'] as const,
   goals: () => ['goals'] as const,
   templates: () => ['templates'] as const,
+  habits: () => ['habits'] as const,
   trash: () => ['trash'] as const,
   household: () => ['household'] as const,
   invitePreview: (token: string) => ['household', 'join', token] as const,

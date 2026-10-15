@@ -28,6 +28,7 @@ const focus = computed(() => focusTask(list.value))
 const doneCount = computed(() => doneTodayCount(list.value, today.value))
 const streak = computed(() => completionStreak(tasks.value ?? []))
 const openCount = computed(() => list.value.length - doneCount.value)
+const habitsOnToday = computed(() => authStore.user?.settings.habitsOnToday ?? true)
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
@@ -74,6 +75,8 @@ useFabAction(() => openSheet())
       <UiStatsCard type="streak" :value="streak" />
       <UiStatsCard type="progress" :value="doneCount" :total="list.length" />
     </div>
+
+    <HabitsTodayBlock v-if="habitsOnToday" :today="today" />
 
     <template v-if="isPending">
       <UiSkeleton class="h-28 rounded-2xl" />

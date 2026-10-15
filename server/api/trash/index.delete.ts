@@ -5,11 +5,12 @@ export default defineEventHandler(async (event) => {
   const scopes = trashScopes(event.context.userId, await getHousehold(event))
   const deletedAt = { not: null }
 
-  const [tasks, transactions, savings] = await prisma.$transaction([
+  const [tasks, habits, transactions, savings] = await prisma.$transaction([
     prisma.task.deleteMany({ where: { ...scopes.task, deletedAt } }),
+    prisma.habit.deleteMany({ where: { ...scopes.habit, deletedAt } }),
     prisma.transaction.deleteMany({ where: { ...scopes.transaction, deletedAt } }),
     prisma.savingsEntry.deleteMany({ where: { ...scopes.savings, deletedAt } })
   ])
 
-  return { deleted: tasks.count + transactions.count + savings.count }
+  return { deleted: tasks.count + habits.count + transactions.count + savings.count }
 })

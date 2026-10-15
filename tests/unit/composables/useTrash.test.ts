@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
 import { queryKeys } from '../../../app/composables/queryKeys'
 import { useRestoreSavingsMutation, useRestoreTransactionMutation } from '../../../app/composables/useFinance'
+import { useRestoreHabitMutation } from '../../../app/composables/useHabits'
 import { useRestoreTaskMutation } from '../../../app/composables/useTasks'
 import { useDeleteForeverMutation, useEmptyTrashMutation, useTrashQuery } from '../../../app/composables/useTrash'
 
@@ -53,6 +54,7 @@ function deferred<T>() {
 function trash(): TrashResponse {
   return {
     tasks: [{ id: 't-1' }, { id: 't-2' }],
+    habits: [{ id: 'h-1' }],
     transactions: [{ id: 'tx-1' }],
     savings: [{ id: 's-1' }]
   } as unknown as TrashResponse
@@ -130,7 +132,7 @@ describe('useEmptyTrashMutation', () => {
 
     result.mutate()
 
-    await vi.waitFor(() => expect(queryClient.getQueryData(key)).toEqual({ tasks: [], transactions: [], savings: [] }))
+    await vi.waitFor(() => expect(queryClient.getQueryData(key)).toEqual({ tasks: [], habits: [], transactions: [], savings: [] }))
     expect(mockApi).toHaveBeenCalledWith('/api/trash', { method: 'DELETE' })
 
     pending.resolve({ deleted: 4 })
@@ -163,6 +165,7 @@ describe('useEmptyTrashMutation', () => {
 describe('восстановление убирает объект из корзины сразу', () => {
   const cases = [
     { name: 'задача', hook: useRestoreTaskMutation, id: 't-1', list: 'tasks', left: ['t-2'] },
+    { name: 'привычка', hook: useRestoreHabitMutation, id: 'h-1', list: 'habits', left: [] },
     { name: 'транзакция', hook: useRestoreTransactionMutation, id: 'tx-1', list: 'transactions', left: [] },
     { name: 'запись копилки', hook: useRestoreSavingsMutation, id: 's-1', list: 'savings', left: [] }
   ] as const

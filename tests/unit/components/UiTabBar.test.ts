@@ -33,6 +33,13 @@ describe('uiTabBar', () => {
     expect(marked[0]!.attributes('href')).toBe('/settings')
   })
 
+  it('привычки — под-страница «Сегодня»: активна вкладка Today', () => {
+    const marked = mountBar('/habits/h-1').findAll('a')
+      .filter(link => link.find('.bg-accent-soft').exists())
+
+    expect(marked.map(link => link.attributes('href'))).toEqual(['/today'])
+  })
+
   it('красит активную вкладку акцентом, остальные — приглушённым текстом', () => {
     const links = mountBar('/tasks').findAll('a')
 
