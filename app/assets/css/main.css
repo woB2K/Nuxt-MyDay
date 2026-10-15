@@ -44,6 +44,24 @@
   --c-p-low:       #60A5FA;
   --c-p-none:      #6B6B75;
 
+  --c-h-red:         #F87171;
+  --c-h-amber:       #FBBF24;
+  --c-h-green:       #34D399;
+  --c-h-teal:        #5EEAD4;
+  --c-h-blue:        #60A5FA;
+  --c-h-violet:      #A78BFA;
+  --c-h-pink:        #F472B6;
+  --c-h-orange:      #FB923C;
+  --c-h-red-soft:    rgba(248, 113, 113, 0.16);
+  --c-h-amber-soft:  rgba(251, 191, 36, 0.16);
+  --c-h-green-soft:  rgba(52, 211, 153, 0.16);
+  --c-h-teal-soft:   rgba(94, 234, 212, 0.16);
+  --c-h-blue-soft:   rgba(96, 165, 250, 0.16);
+  --c-h-violet-soft: rgba(167, 139, 250, 0.16);
+  --c-h-pink-soft:   rgba(244, 114, 182, 0.16);
+  --c-h-orange-soft: rgba(251, 146, 60, 0.16);
+  --c-h-ink:         #0F0F14;
+
   --c-shadow-sm:    0 1px 2px rgba(0, 0, 0, 0.40);
   --c-shadow-md:    0 4px 14px rgba(0, 0, 0, 0.35);
   --c-shadow-lg:    0 12px 36px rgba(0, 0, 0, 0.45);
@@ -92,6 +110,24 @@
   --c-p-med:       #D97706;
   --c-p-low:       #2563EB;
   --c-p-none:      #8A8A98;
+
+  --c-h-red:         #DC2626;
+  --c-h-amber:       #D97706;
+  --c-h-green:       #059669;
+  --c-h-teal:        #0D9488;
+  --c-h-blue:        #2563EB;
+  --c-h-violet:      #7C3AED;
+  --c-h-pink:        #DB2777;
+  --c-h-orange:      #EA580C;
+  --c-h-red-soft:    rgba(220, 38, 38, 0.12);
+  --c-h-amber-soft:  rgba(217, 119, 6, 0.12);
+  --c-h-green-soft:  rgba(5, 150, 105, 0.12);
+  --c-h-teal-soft:   rgba(13, 148, 136, 0.12);
+  --c-h-blue-soft:   rgba(37, 99, 235, 0.12);
+  --c-h-violet-soft: rgba(124, 58, 237, 0.12);
+  --c-h-pink-soft:   rgba(219, 39, 119, 0.12);
+  --c-h-orange-soft: rgba(234, 88, 12, 0.12);
+  --c-h-ink:         #FFFFFF;
 
   --c-shadow-sm:    0 1px 2px rgba(15, 15, 20, 0.06);
   --c-shadow-md:    0 4px 14px rgba(15, 15, 20, 0.08);
@@ -260,6 +296,46 @@ body {
 
 @utility bottom-toast {
   bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@keyframes habit-pop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.88); }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes habit-off {
+  from { transform: scale(0.94); }
+  to   { transform: scale(1); }
+}
+
+@keyframes habit-press {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+@keyframes habit-wave {
+  0%   { transform: none; }
+  45%  { transform: translateY(-4px) scale(1.06); }
+  100% { transform: none; }
+}
+
+@keyframes habit-flare {
+  0%   { transform: scale(0.6); opacity: 0.4; }
+  60%  { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes habit-burst {
+  from { transform: rotate(var(--burst-angle)) translateY(0) scale(1); opacity: 1; }
+  to   { transform: rotate(var(--burst-angle)) translateY(var(--burst-distance)) scale(0.3); opacity: 0; }
+}
+
+@keyframes habit-badge {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {

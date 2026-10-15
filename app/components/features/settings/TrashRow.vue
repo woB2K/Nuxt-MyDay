@@ -5,6 +5,7 @@ interface Props {
   caption: string
   tileClass?: string
   tileColor?: string
+  tileSoft?: string
   inkClass?: string
   amount?: number
   sign?: string
@@ -18,7 +19,7 @@ const props = defineProps<Props>()
     <span
       class="shrink-0 flex size-10 items-center justify-center rounded-md"
       :class="props.tileClass"
-      :style="props.tileColor ? { backgroundColor: `${props.tileColor}33` } : undefined"
+      :style="props.tileColor ? { backgroundColor: props.tileSoft ?? `${props.tileColor}33` } : undefined"
     >
       <UIcon
         :name="props.icon"

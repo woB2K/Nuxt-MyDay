@@ -23,7 +23,7 @@ test.describe('iPhone в Safari', () => {
     const banner = page.getByText('How to install')
 
     await expect(banner).toBeVisible()
-    await page.getByLabel('Hide').click()
+    await page.getByLabel('Hide', { exact: true }).click()
     await expect(banner).toHaveCount(0)
 
     await page.reload()

@@ -36,6 +36,13 @@ const localeOptions = [
   { value: 'ru', label: 'RU' }
 ]
 
+const habitsOnToday = computed(() => authStore.user?.settings.habitsOnToday ?? true)
+
+function changeHabitsOnToday(value: boolean) {
+  if (authStore.user) authStore.user.settings.habitsOnToday = value
+  saveSettings({ habitsOnToday: value })
+}
+
 const initial = computed(() => authStore.user?.name?.trim().charAt(0).toUpperCase() ?? '?')
 
 const pinEnabled = computed(() => authStore.user?.settings.pinEnabled ?? false)
@@ -158,13 +165,38 @@ async function signOut() {
 
     <UiCard :padding="0">
       <UiSettingRow
+        icon="i-lucide-flame"
+        :label="t('settings.habits')"
+        :sub="t('settings.habitsSub')"
+        clickable
+        @click="navigateTo('/habits')"
+      />
+
+      <UiSettingRow
+        icon="i-lucide-sun"
+        :label="t('settings.habitsOnToday')"
+        last
+      >
+        <template #trailing>
+          <UiSwitch
+            :model-value="habitsOnToday"
+            :aria-label="t('settings.habitsOnToday')"
+            data-habits-on-today
+            @update:model-value="changeHabitsOnToday"
+          />
+        </template>
+      </UiSettingRow>
+    </UiCard>
+
+    <UiCard :padding="0">
+      <UiSettingRow
         icon="i-lucide-lock"
         :label="t('settings.pin.lock')"
         :sub="t('settings.pin.lockSub')"
         :last="!pinEnabled"
       >
         <template #trailing>
-          <UiSwitch :model-value="pinEnabled" @update:model-value="togglePin" />
+          <UiSwitch :model-value="pinEnabled" :aria-label="t('settings.pin.lock')" @update:model-value="togglePin" />
         </template>
       </UiSettingRow>
 

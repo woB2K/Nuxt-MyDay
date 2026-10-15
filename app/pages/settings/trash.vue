@@ -2,6 +2,7 @@
 import type { TrashKind } from '~~/shared/types'
 import { TRASH_RETENTION_DAYS } from '~~/shared/schemas'
 import { categoryLabel } from '~/utils/categoryLabel'
+import { habitColor, habitIconName, habitSoft } from '~/utils/habits'
 import { savingsEntryLooks } from '~/utils/savingsLooks'
 import { trashDaysLeft, trashSize } from '~/utils/trash'
 
@@ -15,6 +16,7 @@ interface Row {
   caption: string
   tileClass?: string
   tileColor?: string
+  tileSoft?: string
   inkClass?: string
   amount?: number
   sign?: string
@@ -25,6 +27,7 @@ const { t } = useI18n()
 const { data: trash, isPending } = useTrashQuery()
 const { data: categories } = useCategoriesQuery()
 const { mutate: restoreTask } = useRestoreTaskMutation()
+const { mutate: restoreHabit } = useRestoreHabitMutation()
 const { mutate: restoreTransaction } = useRestoreTransactionMutation()
 const { mutate: restoreSavings } = useRestoreSavingsMutation()
 const { mutate: deleteForever } = useDeleteForeverMutation()
@@ -57,6 +60,19 @@ const sections = computed(() => {
     inkClass: 'text-accent',
     title: task.title,
     caption: daysLeft(task.deletedAt)
+  }))
+
+  const habits: Row[] = trash.value.habits.map(habit => ({
+    kind: 'habit',
+    id: habit.id,
+    icon: habitIconName(habit.icon),
+    tileColor: habitColor(habit.color),
+    tileSoft: habitSoft(habit.color),
+    title: habit.name,
+    caption: [
+      t('habits.trashMarks', { count: habit.marks.length }, habit.marks.length),
+      daysLeft(habit.deletedAt)
+    ].join(' · ')
   }))
 
   const transactions: Row[] = trash.value.transactions.map((transaction) => {
@@ -96,6 +112,7 @@ const sections = computed(() => {
 
   return [
     { key: 'tasks', title: t('settings.trashScreen.tasks'), rows: tasks },
+    { key: 'habits', title: t('settings.trashScreen.habits'), rows: habits },
     { key: 'transactions', title: t('settings.trashScreen.transactions'), rows: transactions },
     { key: 'savings', title: t('settings.trashScreen.savings'), rows: savings }
   ].filter(section => section.rows.length)
@@ -103,6 +120,7 @@ const sections = computed(() => {
 
 function restore(row: Row) {
   if (row.kind === 'task') restoreTask(row.id)
+  if (row.kind === 'habit') restoreHabit(row.id)
   if (row.kind === 'transaction') restoreTransaction(row.id)
   if (row.kind === 'savings') restoreSavings(row.id)
 }
