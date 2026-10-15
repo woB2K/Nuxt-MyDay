@@ -156,6 +156,7 @@
 - [x] **6.1** `Dockerfile` — multi-stage `deps → migrate / build → runtime`
 - [x] **6.2** `docker-compose.yml` — `db` + `migrate` + `app`
 - [x] **6.3** Деплой на сервер (`docker compose up -d --build`)
+- [ ] **6.4** Бэкап БД: сервис `backup` — `pg_dump` → restic → Google Drive (rclone), ротация, healthchecks, `restore check|apply`
 
 ---
 
