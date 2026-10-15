@@ -47,7 +47,7 @@ services:
         condition: service_completed_successfully
 
   backup:
-    build: ./docker/backup
+    image: ghcr.io/wob2k/pg-backup:16
     restart: unless-stopped
     init: true
     environment:
