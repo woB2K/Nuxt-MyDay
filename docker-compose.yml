@@ -46,5 +46,25 @@ services:
       migrate:
         condition: service_completed_successfully
 
+  backup:
+    build: ./docker/backup
+    restart: unless-stopped
+    init: true
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-myday}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      PGDATABASE: ${POSTGRES_DB:-myday}
+      RESTIC_REPOSITORY: ${BACKUP_REPOSITORY:-rclone:gdrive:myday-backup}
+      RESTIC_PASSWORD: ${BACKUP_PASSWORD:?set BACKUP_PASSWORD in .env}
+      BACKUP_SCHEDULE: '${BACKUP_SCHEDULE:-0 1 * * *}'
+      BACKUP_PING_URL: ${BACKUP_PING_URL:-}
+    volumes:
+      - backup-state:/var/lib/backup
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  backup-state:

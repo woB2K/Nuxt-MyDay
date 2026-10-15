@@ -90,6 +90,7 @@ myday/
 │   └── changelog.ts                   # patch notes en/ru — пишет скилл /release
 │
 ├── scripts/release/                   # pnpm release:status|check|notes — сбор коммитов и чек в CI
+├── docker/backup/                     # сервис бэкапа БД: pg_dump → restic → Google Drive; runbook в README.md
 │
 ├── prisma/
 │   ├── schema.prisma

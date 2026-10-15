@@ -1,0 +1,23 @@
+name: backup
+
+on:
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - docker/backup/**
+      - docker-compose.yml
+      - .github/workflows/backup.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: backup smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh docker/backup/smoke.sh
