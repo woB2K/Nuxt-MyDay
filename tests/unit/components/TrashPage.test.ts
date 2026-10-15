@@ -41,6 +41,7 @@ const deletedAt = new Date().toISOString()
 function fullTrash(): TrashResponse {
   return {
     tasks: [{ id: 't-1', title: 'Отчёт', deletedAt, tags: [] }],
+    habits: [],
     transactions: [{ id: 'tx-1', type: 'EXPENSE', amount: 250, notes: null, categoryId: 'cat-food', deletedAt }],
     savings: [{ id: 's-1', type: 'DEPOSIT', amount: 1000, notes: null, deletedAt }]
   } as unknown as TrashResponse
@@ -194,7 +195,7 @@ describe('страница корзины', () => {
   })
 
   it('пустая корзина: пустое состояние без подсказки и без кнопки очистки', () => {
-    const wrapper = mountPage({ tasks: [], transactions: [], savings: [] })
+    const wrapper = mountPage({ tasks: [], habits: [], transactions: [], savings: [] })
 
     expect(wrapper.find('[data-empty]').text()).toBe('settings.trashScreen.emptyTitle')
     expect(wrapper.text()).not.toContain('settings.trashScreen.hint')

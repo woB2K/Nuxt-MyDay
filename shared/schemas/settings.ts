@@ -7,7 +7,8 @@ export const langSchema = z.enum(['en', 'ru'])
 export const updateSettingsSchema = z.object({
   theme: themeSchema.optional(),
   accent: accentSchema.optional(),
-  lang: langSchema.optional()
+  lang: langSchema.optional(),
+  habitsOnToday: z.boolean().optional()
 }).refine(body => Object.keys(body).length > 0, { message: 'No settings to update' })
 
 export const pinLength = 4

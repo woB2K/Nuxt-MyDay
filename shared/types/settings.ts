@@ -29,4 +29,5 @@ export interface UserSettings {
   accent: string
   lang: string
   pinEnabled: boolean
+  habitsOnToday: boolean
 }

@@ -53,6 +53,7 @@ function deferred<T>() {
 function trash(): TrashResponse {
   return {
     tasks: [{ id: 't-1' }, { id: 't-2' }],
+    habits: [{ id: 'h-1' }],
     transactions: [{ id: 'tx-1' }],
     savings: [{ id: 's-1' }]
   } as unknown as TrashResponse
@@ -130,7 +131,7 @@ describe('useEmptyTrashMutation', () => {
 
     result.mutate()
 
-    await vi.waitFor(() => expect(queryClient.getQueryData(key)).toEqual({ tasks: [], transactions: [], savings: [] }))
+    await vi.waitFor(() => expect(queryClient.getQueryData(key)).toEqual({ tasks: [], habits: [], transactions: [], savings: [] }))
     expect(mockApi).toHaveBeenCalledWith('/api/trash', { method: 'DELETE' })
 
     pending.resolve({ deleted: 4 })
