@@ -126,7 +126,7 @@ sequenceDiagram
 | `requestPath()` в `01.auth.ts` и `02.rateLimit.ts` | Middleware обязан видеть тот же путь, что роутер. `getRequestURL().pathname` — сырой URL: `/%61pi/tasks` проходил без токена и отдавал задачи всех пользователей — см. «Защита API» |
 | Бросающий геттер `event.context.userId` в `01.auth.ts` | Без него любая новая ошибка в сопоставлении путей снова даст хендлеру `userId: undefined`, а Prisma с `undefined` в `where` снимает фильтр |
 | Последний адрес `X-Forwarded-For` в `clientIp()` | Первый адрес пишет клиент: подставляя каждый раз новый, он перебирает пароль без лимита |
-| Тег `pg-backup:16` той же мажорной версии, что `db` | `pg_dump` старше сервера отказывается снимать дамп: после апгрейда `db` каждую ночь будет приходить `/fail`, пока не поднят тег образа бэкапа |
+| Мажорная версия в теге `pg-backup:16-…` совпадает с `db` | `pg_dump` старше сервера отказывается снимать дамп: после апгрейда `db` каждую ночь будет приходить `/fail`, пока не поднят тег образа бэкапа. Тег и дайджест меняются вместе |
 | `POSTGRES_DB=myday` | Образ берёт из `PGDATABASE` хост снимков в restic и имя дампа. Если сменить имя базы, `restore` перестанет видеть снимки на Drive, тогда нужно задать сервису `BACKUP_NAME: myday` |
 | Хук `close` в `nuxt.config.ts` | `nuxt build` перестанет завершаться — см. «Известные баги» |
 | `clearApiCache()` в `authStore.logout()` и сброс в `plugins/session.client.ts` | Данные прошлого пользователя останутся в кэше service worker или в памяти TanStack Query и достанутся следующему — см. ниже |
@@ -390,7 +390,9 @@ sequenceDiagram
 
 ### Бэкап базы
 
-Сервис `backup` в `docker-compose.yml` на общем образе `ghcr.io/wob2k/pg-backup:16` ([woB2K/pg-backup](https://github.com/woB2K/pg-backup)). Каждую ночь по `BACKUP_SCHEDULE` (UTC): `pg_dump` → restic → Google Drive через rclone, ротация 7 дневных, 4 недельных и 6 месячных снимков, `restic check`, пинги в healthchecks.io (`BACKUP_PING_URL`). Настройка, восстановление, Komodo, что делать без сервера и почему устроено именно так — в README образа.
+Сервис `backup` в `docker-compose.yml` на общем образе `ghcr.io/wob2k/pg-backup` ([woB2K/pg-backup](https://github.com/woB2K/pg-backup)). Каждую ночь по `BACKUP_SCHEDULE` (UTC): `pg_dump` → restic → Google Drive через rclone, ротация 7 дневных, 4 недельных и 6 месячных снимков, `restic check`, пинги в healthchecks.io (`BACKUP_PING_URL`). Настройка, восстановление, что делать без сервера и почему устроено именно так — в README образа.
+
+**Образ закреплён по дайджесту.** Контейнер держит пароль суперпользователя базы, ключ restic и токен Drive. С плавающим тегом `:16` новая версия образа приезжала бы на прод при очередном pull, мимо ревью в этом репо. Обновление — явная правка: выбрать версию в тегах pg-backup, взять дайджест через `docker buildx imagetools inspect ghcr.io/wob2k/pg-backup:16-<версия>` и заменить тег и дайджест вместе.
 
 **Образ вынесен в отдельный репозиторий.** Тот же бэкап нужен другим проектам на Postgres, и копии в каждом репо разъезжались бы. От образа MyDay отличается только переменными окружения.
 
