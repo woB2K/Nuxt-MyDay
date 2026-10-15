@@ -21,4 +21,3 @@ context
 Dockerfile
 docker-compose*.yml
 *.md
-docker
