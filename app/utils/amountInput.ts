@@ -1,5 +1,4 @@
 const groupSeparator = ' '
-const decimalSeparator = ','
 
 export function parseAmountInput(text: string): string {
   const cleaned = text.replace(/[^\d.,]/g, '')
@@ -13,7 +12,7 @@ export function parseAmountInput(text: string): string {
   return `${integer}.${fraction}`
 }
 
-export function formatAmountInput(raw: string): string {
+export function formatAmountInput(raw: string, decimalSeparator = ','): string {
   const [integer = '', fraction] = raw.split('.')
   const grouped = integer.replace(/\B(?=(\d{3})+(?!\d))/g, groupSeparator)
 

@@ -1,7 +1,12 @@
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import UiAmountInput from '../../../app/components/ui/UiAmountInput.vue'
+
+const i18n = vi.hoisted(() => ({ locale: { value: 'ru' } }))
+
+mockNuxtImport('useI18n', () => () => i18n)
 
 const nbsp = ' '
 
@@ -23,6 +28,10 @@ function type(input: HTMLInputElement, value: string, caret = value.length) {
   input.setSelectionRange(caret, caret)
   input.dispatchEvent(new Event('input'))
 }
+
+afterEach(() => {
+  i18n.locale.value = 'ru'
+})
 
 describe('uiAmountInput', () => {
   it('делит число на разряды прямо при наборе', async () => {
@@ -72,6 +81,18 @@ describe('uiAmountInput', () => {
     await nextTick()
 
     expect(input.value).toBe('5')
+    wrapper.unmount()
+  })
+
+  it('в английском интерфейсе отделяет копейки точкой', async () => {
+    i18n.locale.value = 'en'
+    const { wrapper, input } = mountInput()
+
+    type(input, '1234,5')
+    await nextTick()
+
+    expect(wrapper.props('modelValue')).toBe('1234.5')
+    expect(input.value).toBe(`1${nbsp}234.5`)
     wrapper.unmount()
   })
 })

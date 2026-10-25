@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 const model = defineModel<string>({ default: '' })
 
-const display = computed(() => formatAmountInput(model.value))
+const { locale } = useI18n()
+const separator = computed(() => decimalSeparator(locale.value))
+const display = computed(() => formatAmountInput(model.value, separator.value))
 const width = computed(() => `${Math.max(display.value.length, 1) + 0.5}ch`)
 
 function onInput(event: Event) {
@@ -10,7 +12,7 @@ function onInput(event: Event) {
   const charsBeforeCaret = countAmountChars(input.value.slice(0, caret))
 
   const raw = parseAmountInput(input.value)
-  const text = formatAmountInput(raw)
+  const text = formatAmountInput(raw, separator.value)
   const position = caretAfterAmountChars(text, charsBeforeCaret)
 
   input.value = text
