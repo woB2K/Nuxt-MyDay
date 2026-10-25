@@ -84,6 +84,9 @@ export default defineNuxtConfig({
     passwordHashRounds: 12,
     proxyHops: 1,
     allowRegistration: true,
+    demo: false,
+    demoEmail: 'anna@example.com',
+    demoPassword: 'demo-family',
     clientIpHeader: '',
     public: {
       appUrl: '',

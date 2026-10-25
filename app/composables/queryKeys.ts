@@ -15,5 +15,5 @@ export const queryKeys = {
   household: () => ['household'] as const,
   invitePreview: (token: string) => ['household', 'join', token] as const,
   guestInvite: (token: string) => ['guestInvite', token] as const,
-  registration: () => ['registration'] as const
+  instance: () => ['instance'] as const
 }

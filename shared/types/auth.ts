@@ -7,6 +7,11 @@ export type RegisterInput = z.infer<typeof registerSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>
 
+export interface InstanceInfo {
+  registration: boolean
+  demo: { email: string, password: string } | null
+}
+
 export interface UserProfile {
   id: string
   name: string

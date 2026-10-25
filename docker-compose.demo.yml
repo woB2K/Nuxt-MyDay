@@ -1,0 +1,19 @@
+services:
+  app:
+    environment:
+      NUXT_DEMO: 'true'
+      NUXT_DEMO_PASSWORD: ${DEMO_PASSWORD:-demo-family}
+      NUXT_ALLOW_REGISTRATION: 'false'
+
+  demo-reset:
+    image: ghcr.io/wob2k/myday-migrate:${MYDAY_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-myday}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-myday}?schema=public
+      NUXT_DEMO: 'true'
+      NUXT_DEMO_PASSWORD: ${DEMO_PASSWORD:-demo-family}
+      DEMO_LANG: ${DEMO_LANG:-ru}
+    command: [sh, -c, 'while true; do until pnpm -s admin demo-reset "$$DEMO_LANG"; do sleep 60; done; sleep 86400; done']
+    depends_on:
+      migrate:
+        condition: service_completed_successfully

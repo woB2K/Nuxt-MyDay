@@ -16,7 +16,10 @@
     "getStarted": "Get started",
     "continueEmail": "Continue with email",
     "alreadyHaveAccount": "Already have an account?",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "demo": "Try the demo",
+    "demoHint": "A ready family with three months of history. Everything resets once a day.",
+    "demoError": "Couldn’t open the demo — try again in a minute"
   },
   "tabbar": {
     "today": "Today",
@@ -571,7 +574,8 @@
       "error": "Couldn’t import the file — try again"
     },
     "import": "Import from CSV",
-    "importSub": "Zenmoney, CoinKeeper or a table"
+    "importSub": "Zenmoney, CoinKeeper or a table",
+    "demoNote": "This is the demo: anyone can open it, and everything resets once a day. The PIN lock and family changes are turned off here."
   },
   "categories": {
     "food": "Food & Drink",

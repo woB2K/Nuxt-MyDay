@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { clearPendingInvite, pendingInvite } from '~/utils/family'
+import { clearPendingInvite, homePath, pendingInvite } from '~/utils/family'
 
 definePageMeta({
   layout: 'auth'
@@ -8,8 +8,25 @@ const { t } = useI18n()
 
 const inviteToken = ref<string>()
 const { data: invite, error: inviteError } = useGuestInviteQuery(inviteToken)
-const { data: registration } = useRegistration()
-const closed = computed(() => registration.value?.open === false && !invite.value)
+const { data: instance } = useInstanceQuery()
+const closed = computed(() => instance.value?.registration === false && !invite.value)
+const authStore = useAuthStore()
+const enteringDemo = ref(false)
+
+async function enterDemo() {
+  const demo = instance.value?.demo
+  if (!demo) return
+
+  enteringDemo.value = true
+  try {
+    await authStore.login(demo)
+    await navigateTo(homePath())
+  } catch {
+    useAppToast().error(t('welcome.demoError'))
+  } finally {
+    enteringDemo.value = false
+  }
+}
 
 onMounted(() => {
   inviteToken.value = pendingInvite()
@@ -60,7 +77,16 @@ watch(inviteError, (error) => {
       <p v-else class="text-text text-xl">
         {{ t('welcome.getStarted') }}
       </p>
-      <p v-if="closed" class="text-sm text-text-dim" data-testid="registration-closed">
+      <template v-if="instance?.demo && !invite">
+        <UiButton class="w-full" :loading="enteringDemo" data-testid="enter-demo" @click="enterDemo">
+          <UIcon name="i-lucide-play" />
+          <span>{{ t('welcome.demo') }}</span>
+        </UiButton>
+        <p class="-mt-3 text-xs text-text-mute">
+          {{ t('welcome.demoHint') }}
+        </p>
+      </template>
+      <p v-if="closed && !instance?.demo" class="text-sm text-text-dim" data-testid="registration-closed">
         {{ t('auth.registrationClosed.body') }}
       </p>
       <UiButton v-else variant="secondary" class="w-full" to="/auth/register">

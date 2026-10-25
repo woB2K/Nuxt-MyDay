@@ -38,6 +38,7 @@ const localeOptions = [
 
 const { currency, name: currencyName } = useCurrency()
 const { isOwner } = useFamily()
+const { data: instance } = useInstanceQuery()
 const currencySheetOpen = ref(false)
 
 const currencySub = computed(() => isOwner.value
@@ -100,6 +101,10 @@ async function signOut() {
     </UiCard>
 
     <FamilyRow class="-mt-2" />
+
+    <p v-if="instance?.demo" class="rounded-xl border border-hairline bg-elev2 px-4 py-3 text-[13px] text-text-dim" data-testid="demo-note">
+      {{ t('settings.demoNote') }}
+    </p>
 
     <InstallSettingsCard />
 

@@ -1,5 +1,9 @@
+import type { ChildProcess } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { randomInt } from 'node:crypto'
+import { resolve } from 'node:path'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import { $fetch, setup } from '@nuxt/test-utils/e2e'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { inject } from 'vitest'
@@ -53,4 +57,42 @@ export function authHeaders(token: string) {
 // Сервер собирается и поднимается один раз в global-setup.ts — файлы только подключаются к нему.
 export function setupApi() {
   return setup({ host: inject('apiUrl') })
+}
+
+const builtServer = resolve(fileURLToPath(new URL('../..', import.meta.url)), '.nuxt/test/api/output/server/index.mjs')
+
+export interface ExtraServer {
+  url: string
+  stop: () => void
+  request: <T>(path: string, init?: { method?: string, headers?: Record<string, string>, body?: object }) => Promise<T>
+}
+
+export async function startExtraServer(port: number, env: Record<string, string>): Promise<ExtraServer> {
+  const server: ChildProcess = spawn(process.execPath, [builtServer], {
+    env: { ...process.env, PORT: String(port), HOST: '127.0.0.1', ...env },
+    stdio: 'ignore'
+  })
+  const url = `http://127.0.0.1:${port}`
+
+  async function request<T>(path: string, init: { method?: string, headers?: Record<string, string>, body?: object } = {}): Promise<T> {
+    const response = await fetch(`${url}${path}`, {
+      method: init.method ?? 'GET',
+      headers: { 'content-type': 'application/json', ...init.headers },
+      body: init.body ? JSON.stringify(init.body) : undefined
+    })
+    if (!response.ok) throw Object.assign(new Error(`HTTP ${response.status}`), { statusCode: response.status })
+    return await response.json() as T
+  }
+
+  for (let attempt = 0; attempt < 100; attempt++) {
+    try {
+      await request('/api/auth/instance')
+      return { url, stop: () => server.kill(), request }
+    } catch {
+      await new Promise(done => setTimeout(done, 200))
+    }
+  }
+
+  server.kill()
+  throw new Error(`Extra server on :${port} did not start`)
 }

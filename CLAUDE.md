@@ -91,12 +91,14 @@ myday/
 │   └── changelog.ts                   # patch notes en/ru — пишет скилл /release
 │
 ├── scripts/release/                   # pnpm release:status|check|notes — сбор коммитов и чек в CI
+├── scripts/admin/                     # pnpm admin users|reset-password|demo-reset — CLI в образе migrate
+├── scripts/selfhost/init-env.sh       # .env со свежими секретами для self-host
 │
 ├── prisma/
 │   ├── schema.prisma
 │   ├── migrations/
 │   ├── seed.ts
-│   └── seeds/                         # categories.ts, users.ts
+│   └── seeds/                         # categories.ts
 │
 ├── i18n/locales/{en,ru}.json
 │
@@ -232,7 +234,7 @@ pnpm prisma generate
 # Применить миграции
 pnpm prisma migrate dev
 
-# Сидировать БД
+# Сидировать пустую БД демо-семьёй (DEMO_LANG=en|ru)
 pnpm prisma db seed
 
 # Dev сервер

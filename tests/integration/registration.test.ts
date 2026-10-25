@@ -1,49 +1,15 @@
-import type { ChildProcess } from 'node:child_process'
-import { spawn } from 'node:child_process'
-import { resolve } from 'node:path'
-import process from 'node:process'
-import { fileURLToPath } from 'node:url'
+import type { ExtraServer } from './helpers'
 import { $fetch } from '@nuxt/test-utils/e2e'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { authHeaders, registerUser, resetDb, setupApi } from './helpers'
-
-const output = resolve(fileURLToPath(new URL('../..', import.meta.url)), '.nuxt/test/api/output/server/index.mjs')
-const PORT = 3911
-const closedUrl = `http://127.0.0.1:${PORT}`
-
-async function closed<T>(path: string, init: { method?: string, headers?: Record<string, string>, body?: object } = {}): Promise<T> {
-  const response = await fetch(`${closedUrl}${path}`, {
-    method: init.method ?? 'GET',
-    headers: { 'content-type': 'application/json', ...init.headers },
-    body: init.body ? JSON.stringify(init.body) : undefined
-  })
-  if (!response.ok) throw Object.assign(new Error(`HTTP ${response.status}`), { statusCode: response.status })
-  return await response.json() as T
-}
-
-async function waitForServer() {
-  for (let attempt = 0; attempt < 100; attempt++) {
-    try {
-      await closed('/api/auth/registration')
-      return
-    } catch {
-      await new Promise(done => setTimeout(done, 200))
-    }
-  }
-  throw new Error('Closed-registration server did not start')
-}
+import { authHeaders, registerUser, resetDb, setupApi, startExtraServer } from './helpers'
 
 describe('closed registration', async () => {
   await setupApi()
 
-  let server: ChildProcess
+  let closed: ExtraServer
 
   beforeAll(async () => {
-    server = spawn(process.execPath, [output], {
-      env: { ...process.env, PORT: String(PORT), HOST: '127.0.0.1', NUXT_ALLOW_REGISTRATION: 'false' },
-      stdio: 'ignore'
-    })
-    await waitForServer()
+    closed = await startExtraServer(3911, { NUXT_ALLOW_REGISTRATION: 'false' })
   })
 
   beforeEach(async () => {
@@ -51,14 +17,14 @@ describe('closed registration', async () => {
   })
 
   afterAll(() => {
-    server.kill()
+    closed.stop()
   })
 
   let ip = 0
 
   function register(body: object) {
     ip += 1
-    return closed<{ accessToken: string }>('/api/auth/register', {
+    return closed.request<{ accessToken: string }>('/api/auth/register', {
       method: 'POST',
       headers: { 'x-forwarded-for': `10.42.${Math.floor(ip / 250)}.${ip % 250}` },
       body: { name: 'Guest', email: `guest${ip}-${Date.now()}@test.local`, password: 'password123', ...body }
@@ -70,15 +36,15 @@ describe('closed registration', async () => {
   }
 
   it('lets the very first account in, so a fresh server can get its owner', async () => {
-    expect(await closed('/api/auth/registration')).toEqual({ open: true })
+    expect(await closed.request('/api/auth/instance')).toMatchObject({ registration: true })
     await expect(register({})).resolves.toMatchObject({ accessToken: expect.any(String) })
-    expect(await closed('/api/auth/registration')).toEqual({ open: false })
+    expect(await closed.request('/api/auth/instance')).toMatchObject({ registration: false })
   })
 
   it('says registration is closed and refuses a sign-up without an invite', async () => {
     await registerUser()
 
-    expect(await closed('/api/auth/registration')).toEqual({ open: false })
+    expect(await closed.request('/api/auth/instance')).toMatchObject({ registration: false })
     await expect(register({})).rejects.toMatchObject({ statusCode: 403 })
     await expect(register({ inviteToken: 'nope' })).rejects.toMatchObject({ statusCode: 403 })
   })
@@ -94,7 +60,7 @@ describe('closed registration', async () => {
     expect(household.members).toHaveLength(2)
   })
 
-  it('closes the door again once the invite is used or expired', async () => {
+  it('closes the door again once the invite is used', async () => {
     const owner = await registerUser()
     const { token } = await inviteFrom(owner)
     const guest = await register({ inviteToken: token })
@@ -103,7 +69,7 @@ describe('closed registration', async () => {
     await expect(register({ inviteToken: token })).rejects.toMatchObject({ statusCode: 403 })
   })
 
-  it('keeps registration open by default', async () => {
-    expect(await $fetch('/api/auth/registration')).toEqual({ open: true })
+  it('keeps registration open by default and shows no demo', async () => {
+    expect(await $fetch('/api/auth/instance')).toEqual({ registration: true, demo: null })
   })
 })
