@@ -2,6 +2,7 @@
 import process from 'node:process'
 import { apiCacheName } from './app/utils/swCache'
 import pkg from './package.json'
+import { habitIcons } from './shared/schemas/habit'
 
 let built = false
 
@@ -138,10 +139,12 @@ export default defineNuxtConfig({
     }
   },
   icon: {
+    provider: 'server',
     fallbackToApi: false,
     serverBundle: { collections: ['lucide'] },
     clientBundle: {
       scan: { globInclude: ['app/**/*.{vue,ts}', 'shared/**/*.ts', 'prisma/seeds/**/*.ts'] },
+      icons: habitIcons.map(icon => `lucide:${icon}`),
       sizeLimitKb: 512
     }
   },
