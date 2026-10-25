@@ -7,7 +7,7 @@
 Репозиторий `awesome-selfhosted/awesome-selfhosted-data`, одна запись — YAML-файл в `software/`. Требования по памяти — заметный возраст с первого релиза (несколько месяцев), активная поддержка, рабочая инструкция по установке, свободная лицензия; перед подачей сверить с их актуальным `CONTRIBUTING.md`. Категория — **Personal Dashboards** или **Money, Budgeting & Management**; лучше вторая, там ищут.
 
 ```yaml
-name: "MyDay"
+name: MyDay
 website_url: "https://github.com/woB2K/Nuxt-MyDay"
 source_code_url: "https://github.com/woB2K/Nuxt-MyDay"
 description: "Shared family budget, tasks and habits in one mobile-first PWA, with offline entry and CSV import."
@@ -18,7 +18,7 @@ platforms:
   - Docker
 tags:
   - Money, Budgeting & Management
-demo_url: "<ссылка на демо>"
+demo_url: <ссылка на демо>
 ```
 
 ## selfh.st
