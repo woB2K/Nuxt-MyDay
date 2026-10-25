@@ -62,3 +62,12 @@ test('выход в одной вкладке выводит из аккаунт
 
   await page.waitForURL('**/auth/welcome')
 })
+
+test('«Забыли пароль?» объясняет сброс и подставляет email в команду для админа', async ({ page }) => {
+  await page.goto('/auth/login')
+  await page.locator('input[type="email"]').fill('anna@example.com')
+  await page.getByTestId('forgot-password').click()
+
+  await expect(page.getByText('Forgot your password?')).toBeVisible()
+  await expect(page.getByTestId('forgot-command')).toHaveText('docker compose run --rm migrate pnpm admin reset-password anna@example.com')
+})

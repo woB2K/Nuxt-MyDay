@@ -403,7 +403,16 @@
     "errorShortName": "Name must be at least 2 characters.",
     "errorEmailTaken": "This email is already registered.",
     "errorTooManyAttempts": "Too many attempts. Try again in a few minutes.",
-    "alreadyHaveAccount": "Already have an account?"
+    "alreadyHaveAccount": "Already have an account?",
+    "forgot": {
+      "title": "Forgot your password?",
+      "body": "MyDay doesn’t send emails, so the password is reset by whoever runs your MyDay server — one command, a minute of their time. Ask them, and they’ll give you a new password.",
+      "adminTitle": "For the server admin",
+      "adminHint": "Run this next to docker-compose.yml. It prints a new password and signs the account out on every device.",
+      "copy": "Copy command",
+      "copied": "Command copied",
+      "copyError": "Couldn’t copy — select the text by hand"
+    }
   },
   "settings": {
     "title": "Settings",

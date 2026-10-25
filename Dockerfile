@@ -13,6 +13,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
 FROM deps AS migrate
 COPY prisma.config.ts ./
 COPY prisma ./prisma
+COPY shared ./shared
+COPY scripts/admin ./scripts/admin
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm prisma generate
 CMD ["pnpm", "prisma", "migrate", "deploy"]
 
 FROM deps AS build

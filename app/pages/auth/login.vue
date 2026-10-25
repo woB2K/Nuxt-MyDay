@@ -13,6 +13,7 @@ const loading = ref(false)
 const emailError = ref('')
 const passwordError = ref('')
 const formError = ref('')
+const forgotOpen = ref(false)
 
 async function handleSubmit() {
   emailError.value = ''
@@ -72,9 +73,9 @@ async function handleSubmit() {
       <p v-if="formError" class="text-error text-sm">
         {{ formError }}
       </p>
-      <p class="text-accent ml-auto cursor-pointer">
+      <button type="button" class="text-accent ml-auto" data-testid="forgot-password" @click="forgotOpen = true">
         {{ t('auth.forgotPass') }}
-      </p>
+      </button>
       <UiButton size="lg" :loading="loading" type="submit">
         <span>{{ t('auth.signIn') }}</span>
       </UiButton>
@@ -86,5 +87,7 @@ async function handleSubmit() {
       {{ t('auth.dontHaveAccount') }}
       <NuxtLink class="text-accent cursor-pointer" to="/auth/register">{{ t('auth.createAccount') }}</NuxtLink>
     </span>
+
+    <ForgotPasswordSheet v-model:open="forgotOpen" :email="email" />
   </div>
 </template>
