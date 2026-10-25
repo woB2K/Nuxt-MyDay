@@ -19,19 +19,16 @@ services:
       retries: 20
 
   migrate:
-    build:
-      context: .
-      target: migrate
+    image: ghcr.io/wob2k/myday-migrate:${MYDAY_VERSION:-latest}
     environment:
       DATABASE_URL: *database-url
+      NUXT_PASSWORD_HASH_ROUNDS: ${NUXT_PASSWORD_HASH_ROUNDS:-12}
     depends_on:
       db:
         condition: service_healthy
 
   app:
-    build:
-      context: .
-      target: runtime
+    image: ghcr.io/wob2k/myday:${MYDAY_VERSION:-latest}
     restart: unless-stopped
     environment:
       DATABASE_URL: *database-url
@@ -40,14 +37,32 @@ services:
       NUXT_GOOGLE_CLIENT_ID: ${NUXT_GOOGLE_CLIENT_ID:-}
       NUXT_GOOGLE_CLIENT_SECRET: ${NUXT_GOOGLE_CLIENT_SECRET:-}
       NUXT_PUBLIC_APP_URL: ${NUXT_PUBLIC_APP_URL:?set NUXT_PUBLIC_APP_URL in .env}
+      NUXT_ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-false}
+      NUXT_PROXY_HOPS: ${NUXT_PROXY_HOPS:-1}
+      NUXT_CLIENT_IP_HEADER: ${NUXT_CLIENT_IP_HEADER:-}
     ports:
       - ${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000
     depends_on:
       migrate:
         condition: service_completed_successfully
 
+  caddy:
+    image: caddy:2-alpine
+    profiles: [caddy]
+    restart: unless-stopped
+    command: caddy reverse-proxy --from ${MYDAY_DOMAIN:-localhost} --to app:3000
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - caddy-data:/data
+    depends_on:
+      - app
+
   backup:
     image: ghcr.io/wob2k/pg-backup:16-1.0.0@sha256:22900502f82af72f9831ea89c770a016a1f6ce821fae78c19ec36ea884a2e0af
+    profiles: [backup]
     restart: unless-stopped
     init: true
     environment:
@@ -56,7 +71,7 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       PGDATABASE: ${POSTGRES_DB:-myday}
       RESTIC_REPOSITORY: ${BACKUP_REPOSITORY:-rclone:gdrive:myday-backup}
-      RESTIC_PASSWORD: ${BACKUP_PASSWORD:?set BACKUP_PASSWORD in .env}
+      RESTIC_PASSWORD: ${BACKUP_PASSWORD:-}
       BACKUP_SCHEDULE: '${BACKUP_SCHEDULE:-0 1 * * *}'
       BACKUP_PING_URL: ${BACKUP_PING_URL:-}
     volumes:
@@ -68,3 +83,4 @@ services:
 volumes:
   pgdata:
   backup-state:
+  caddy-data:

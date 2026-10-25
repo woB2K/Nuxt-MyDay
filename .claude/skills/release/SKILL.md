@@ -91,6 +91,6 @@ gh pr list --base main --head dev --state open   # уже открыт → gh pr
 gh pr create --base main --head dev --title "release: v1.1.0" --body-file /tmp/release-notes.md
 ```
 
-Дай Максиму ссылку на PR. Мержит он сам, когда все четыре чека зелёные (`lint · typecheck · unit · build`, `integration api`, `e2e`, `changelog`). Напрямую в `main` не пушить — защита ветки это и так запрещает.
+Дай Максиму ссылку на PR. Мержит он сам, когда все чеки зелёные (`lint · typecheck · unit · build`, `integration api`, `e2e`, `changelog`, `docker images`). Напрямую в `main` не пушить — защита ветки это и так запрещает.
 
-После мержа `release.yml` ставит тег `v1.1.0` и создаёт GitHub Release с тем же текстом. Деплой на сервер по-прежнему ручной: `docker compose up -d --build`.
+После мержа `release.yml` ставит тег `v1.1.0`, создаёт GitHub Release с тем же текстом и публикует образы `ghcr.io/wob2k/myday` и `myday-migrate` (amd64 + arm64, теги `1.1.0`, `1.1`, `1`, `latest`). Деплой на сервер ручной: `docker compose pull && docker compose up -d`, а если на сервере в `.env` стоит `COMPOSE_FILE=docker-compose.yml:docker-compose.build.yml` — `docker compose up -d --build`.

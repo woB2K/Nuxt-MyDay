@@ -18,12 +18,16 @@ COPY scripts/admin ./scripts/admin
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm prisma generate
 CMD ["pnpm", "prisma", "migrate", "deploy"]
 
-FROM deps AS build
+FROM --platform=$BUILDPLATFORM base AS build
 ARG BUILD_MEMORY_MB=4096
 ENV NODE_OPTIONS=--max-old-space-size=${BUILD_MEMORY_MB}
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .nuxtrc ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile --ignore-scripts
 COPY . .
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm prisma generate \
-    && pnpm build
+    && pnpm build \
+    && cp -r node_modules/bcrypt/prebuilds/linux-* .output/server/node_modules/bcrypt/prebuilds/
 
 FROM node:24-slim AS runtime
 ENV NODE_ENV=production \

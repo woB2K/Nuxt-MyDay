@@ -69,7 +69,15 @@ describe('closed registration', async () => {
     return $fetch<{ token: string }>('/api/household/invite', { method: 'POST', headers: authHeaders(owner.token) })
   }
 
+  it('lets the very first account in, so a fresh server can get its owner', async () => {
+    expect(await closed('/api/auth/registration')).toEqual({ open: true })
+    await expect(register({})).resolves.toMatchObject({ accessToken: expect.any(String) })
+    expect(await closed('/api/auth/registration')).toEqual({ open: false })
+  })
+
   it('says registration is closed and refuses a sign-up without an invite', async () => {
+    await registerUser()
+
     expect(await closed('/api/auth/registration')).toEqual({ open: false })
     await expect(register({})).rejects.toMatchObject({ statusCode: 403 })
     await expect(register({ inviteToken: 'nope' })).rejects.toMatchObject({ statusCode: 403 })

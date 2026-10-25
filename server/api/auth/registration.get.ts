@@ -1,3 +1,3 @@
 import { registrationOpen } from '~~/server/utils/registration'
 
-export default defineEventHandler(event => ({ open: registrationOpen(event) }))
+export default defineEventHandler(async event => ({ open: await registrationOpen(event) }))
