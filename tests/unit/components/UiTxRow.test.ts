@@ -11,7 +11,7 @@ const dictionary: Record<string, string> = {
   'categories.food': 'Еда и напитки'
 }
 
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => dictionary[key] ?? key }))
+mockNuxtImport('useI18n', () => () => ({ locale: { value: 'ru' }, t: (key: string) => dictionary[key] ?? key }))
 
 beforeEach(() => {
   localStorage.clear()

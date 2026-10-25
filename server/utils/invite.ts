@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import type { InviteState } from '~~/shared/types'
 import { getHousehold, matchCategory } from '~~/server/utils/household'
 import { hashToken } from '~~/server/utils/jwt'
+import { toCurrency } from '~~/shared/currency'
 
 export async function findValidInvite(token: string) {
   const invite = await prisma.householdInvite.findUnique({
@@ -11,6 +12,7 @@ export async function findValidInvite(token: string) {
       household: {
         select: {
           shareSavings: true,
+          currency: true,
           members: { orderBy: { joinedAt: 'asc' }, select: { role: true, colorIndex: true, user: { select: { name: true } } } }
         }
       }
@@ -47,7 +49,8 @@ export async function previewInvite(event: H3Event, token: string) {
     if (members > 1) state = 'mustLeave'
   }
 
-  const [transactionCount, mine, theirs, balance] = await Promise.all([
+  const [own, transactionCount, mine, theirs, balance] = await Promise.all([
+    prisma.household.findUniqueOrThrow({ where: { id: household.id }, select: { currency: true } }),
     prisma.transaction.count({ where: { householdId: household.id, deletedAt: null } }),
     prisma.category.findMany({ where: { householdId: household.id } }),
     prisma.category.findMany({ where: { householdId: invite.householdId } }),
@@ -58,6 +61,7 @@ export async function previewInvite(event: H3Event, token: string) {
     inviterName: invite.createdBy.name,
     members: invite.household.members.map(member => ({ name: member.user.name, role: member.role, colorIndex: member.colorIndex })),
     shareSavings: invite.household.shareSavings,
+    currency: toCurrency(invite.household.currency),
     state,
     own: invite.createdById === event.context.userId,
     mine: {
@@ -65,7 +69,8 @@ export async function previewInvite(event: H3Event, token: string) {
       matchingCategories: mine
         .filter(category => matchCategory(category, theirs))
         .map(({ name, key }) => ({ name, key })),
-      savingsBalance: balance
+      savingsBalance: balance,
+      currency: toCurrency(own.currency)
     }
   }
 }

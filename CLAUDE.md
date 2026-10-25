@@ -70,7 +70,7 @@ myday/
 │   ├── components/
 │   │   ├── ui/                        # UiButton, UiInput, UiCard... — без бизнес-логики
 │   │   └── features/{auth,tasks,habits,finance,settings,family}/
-│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useHabits.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useOutbox.ts, useAppToast.ts, useMoney.ts
+│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useHabits.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useOutbox.ts, useAppToast.ts, useMoney.ts, useCurrency.ts
 │   ├── plugins/                       # errorHandler.ts, vue-query.ts, outbox.client.ts, session.client.ts
 │   ├── layouts/                       # default.vue (TabBar+FAB), auth.vue
 │   ├── middleware/                    # auth.global.ts, lock.global.ts — оба глобальные, на страницах не объявляются
@@ -86,6 +86,7 @@ myday/
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, habit.ts, finance.ts, household.ts
 │   ├── schemas/                       # Zod — одна схема на клиент и сервер
+│   ├── currency.ts                    # список валют семьи, DEFAULT_CURRENCY, toCurrency()
 │   ├── calendarDay.ts                 # арифметика календарных дней YYYY-MM-DD (неделя с понедельника)
 │   └── changelog.ts                   # patch notes en/ru — пишет скилл /release
 │

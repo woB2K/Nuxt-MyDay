@@ -13,9 +13,11 @@ const props = defineProps<{
 const emit = defineEmits<{ join: [], cancel: [] }>()
 
 const MERGE_LIST_LIMIT = 4
+const CURRENCY_EXAMPLE = 100
 
 const { t } = useI18n()
 const { hidden } = useMoney()
+const { money, name } = useCurrency()
 
 const mergeSub = computed(() => {
   const names = props.preview.mine.matchingCategories.map(category => categoryLabel(category, t))
@@ -30,10 +32,11 @@ const mergeSub = computed(() => {
 
 const items = computed<Consequence[]>(() => {
   const { transactionCount, savingsBalance } = props.preview.mine
-  const amount = formatMoney(savingsBalance)
+  const amount = money(savingsBalance, '', props.preview.mine.currency)
+  const hasData = transactionCount > 0 || savingsBalance > 0
 
   return [
-    ...(transactionCount > 0 || savingsBalance > 0
+    ...(hasData
       ? [{ icon: 'i-lucide-merge', tone: 'accent', title: t('family.join.move', { tx: t('family.plural.tx', transactionCount) }), sub: '' } as const]
       : []),
     { icon: 'i-lucide-shapes', tone: 'accent', title: t('family.join.merge'), sub: mergeSub.value },
@@ -41,6 +44,17 @@ const items = computed<Consequence[]>(() => {
       ? [props.preview.shareSavings
           ? { icon: 'i-lucide-piggy-bank', tone: 'accent', title: t('family.join.savingsShared'), sub: hidden.value ? '' : t('family.join.savingsSharedSub', { amount }) } as const
           : { icon: 'i-lucide-piggy-bank', tone: 'accent', title: t('family.join.savingsSeparate'), sub: hidden.value ? '' : t('family.join.savingsSeparateSub', { amount }) } as const]
+      : []),
+    ...(hasData && props.preview.currency !== props.preview.mine.currency
+      ? [{
+          icon: 'i-lucide-coins',
+          tone: 'warning',
+          title: t('family.join.currency', { name: name(props.preview.currency) }),
+          sub: t('family.join.currencySub', {
+            from: money(CURRENCY_EXAMPLE, '', props.preview.mine.currency),
+            to: money(CURRENCY_EXAMPLE, '', props.preview.currency)
+          })
+        } as const]
       : []),
     { icon: 'i-lucide-lock', tone: 'neutral', title: t('family.join.tasks'), sub: t('family.join.tasksSub') }
   ]

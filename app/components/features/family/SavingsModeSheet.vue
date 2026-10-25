@@ -19,7 +19,7 @@ const toShared = computed(() => props.target)
 function confirm() {
   const mode = t(toShared.value ? 'family.savingsMode.sharedLower' : 'family.savingsMode.separateLower')
 
-  update(props.target, {
+  update({ shareSavings: props.target }, {
     onSuccess: () => {
       toast.success(t('family.savingsMode.done', { mode }))
       emit('update:open', false)

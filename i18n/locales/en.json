@@ -111,6 +111,7 @@
     },
     "family": {
       "updateError": "Couldn’t change savings",
+      "currencyError": "Couldn’t change the currency",
       "inviteError": "Couldn’t create a link",
       "revokeError": "Couldn’t revoke the link",
       "leaveError": "Couldn’t leave the family",
@@ -234,7 +235,7 @@
       "noDeadline": "No deadline — add one to see how much to save each month",
       "removeDeadline": "Remove",
       "until": "by {date}",
-      "monthly": "save {amount} ₽ a month",
+      "monthly": "save {amount} a month",
       "reached": "Goal reached",
       "overdue": "Deadline passed",
       "emptyTitle": "Save for something specific",
@@ -503,6 +504,14 @@
         "improved": "Improved",
         "fixed": "Fixed"
       }
+    },
+    "currency": "Currency",
+    "currencyOwnerOnly": "{name} · changed by the family owner",
+    "currencyScreen": {
+      "title": "Currency",
+      "hint": "Amounts aren’t converted — only the currency sign changes.",
+      "hintFamily": "One currency for the whole family. Amounts aren’t converted — only the currency sign changes.",
+      "done": "Currency: {name}"
     }
   },
   "categories": {
@@ -793,7 +802,9 @@
       "leaveNote": "You can leave anytime and take a copy of your records.",
       "cta": "Join family",
       "joining": "Joining…",
-      "notNow": "Not now"
+      "notNow": "Not now",
+      "currency": "The family uses another currency — {name}",
+      "currencySub": "Amounts aren’t converted: your {from} will become {to}."
     },
     "busy": {
       "title": "You’re already in a family",

@@ -7,6 +7,7 @@ const emit = defineEmits<{ edit: [goal: SavingsGoalItem | null] }>()
 
 const { t, locale } = useI18n()
 const { hidden } = useMoney()
+const { money } = useCurrency()
 const { data: goals } = useGoalsQuery()
 
 const rows = computed(() => (goals.value ?? []).map((goal) => {
@@ -23,7 +24,7 @@ const rows = computed(() => (goals.value ?? []).map((goal) => {
     status = t('finance.goals.overdue')
     tone = 'text-warning'
   } else if (progress.monthly && !hidden.value) {
-    status = `${until} · ${t('finance.goals.monthly', { amount: formatAmount(progress.monthly) })}`
+    status = `${until} · ${t('finance.goals.monthly', { amount: money(progress.monthly) })}`
   }
 
   return { goal, progress, status, tone }

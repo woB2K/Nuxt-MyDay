@@ -11,6 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const { t, locale } = useI18n()
+const { affix } = useCurrency()
 const toast = useAppToast()
 const { members, isFamily } = useFamily()
 
@@ -142,12 +143,13 @@ function remove() {
 
       <div class="flex flex-col items-center gap-1.5">
         <div class="flex max-w-full items-baseline justify-center gap-1.5">
+          <span v-if="affix.prefix" class="text-[34px] font-bold text-text-mute">{{ affix.prefix }}</span>
           <UiAmountInput
             v-model="amount"
             class="text-[48px] font-bold tracking-[-0.03em]"
             :class="type === 'INCOME' ? 'text-success' : 'text-text'"
           />
-          <span class="text-[34px] font-bold text-text-mute">₽</span>
+          <span v-if="affix.suffix" class="text-[34px] font-bold text-text-mute">{{ affix.suffix }}</span>
         </div>
         <span v-if="amountError" class="text-sm text-danger">{{ amountError }}</span>
         <span v-if="authorLine" class="text-[13px] text-text-mute" data-testid="tx-author-line">{{ authorLine }}</span>

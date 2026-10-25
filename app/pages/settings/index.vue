@@ -36,6 +36,14 @@ const localeOptions = [
   { value: 'ru', label: 'RU' }
 ]
 
+const { currency, name: currencyName } = useCurrency()
+const { isOwner } = useFamily()
+const currencySheetOpen = ref(false)
+
+const currencySub = computed(() => isOwner.value
+  ? `${currencyName()} · ${currency.value}`
+  : t('settings.currencyOwnerOnly', { name: currencyName() }))
+
 const habitsOnToday = computed(() => authStore.user?.settings.habitsOnToday ?? true)
 
 function changeHabitsOnToday(value: boolean) {
@@ -128,6 +136,15 @@ async function signOut() {
           />
         </template>
       </UiSettingRow>
+
+      <UiSettingRow
+        icon="i-lucide-coins"
+        :label="t('settings.currency')"
+        :sub="currencySub"
+        :clickable="isOwner"
+        data-testid="currency-row"
+        @click="currencySheetOpen = true"
+      />
 
       <UiSettingRow
         icon="i-lucide-shapes"
@@ -233,6 +250,7 @@ async function signOut() {
     </button>
 
     <PinSheet v-model:open="pinSheetOpen" :mode="pinMode" />
+    <CurrencySheet v-model:open="currencySheetOpen" />
   </div>
 </template>
 

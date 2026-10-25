@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import UiMoney from '../../../app/components/ui/UiMoney.vue'
 import { useUiStore } from '../../../app/stores/ui'
 
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useI18n', () => () => ({ locale: { value: 'ru' }, t: (key: string) => key }))
 
 beforeEach(() => {
   localStorage.clear()
@@ -14,7 +14,7 @@ beforeEach(() => {
 
 describe('uiMoney', () => {
   it('показывает сумму со знаком одним текстом', () => {
-    expect(mount(UiMoney, { props: { amount: 1500, sign: '+' } }).text()).toMatch(/^\+1\s500 ₽$/)
+    expect(mount(UiMoney, { props: { amount: 1500, sign: '+' } }).text()).toMatch(/^\+1\s500\s₽$/)
   })
 
   it('в скрытом режиме — плашка фиксированной ширины без цифр и знака, ₽ остаётся', () => {

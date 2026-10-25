@@ -30,11 +30,11 @@ test('тег из шита операции виден в строке и фил
   await expect(page.getByTestId('tx-tag')).toHaveText('#Vacation')
 
   await addExpense(page, '40')
-  await expect(net).toHaveText('−190 ₽')
+  await expect(net).toHaveText('−₽190')
 
   await page.getByTestId('filter-tags').click()
   await page.getByRole('button', { name: 'Vacation' }).click()
   await page.getByTestId('tag-filter-apply').click()
 
-  await expect(net).toHaveText('−150 ₽')
+  await expect(net).toHaveText('−₽150')
 })

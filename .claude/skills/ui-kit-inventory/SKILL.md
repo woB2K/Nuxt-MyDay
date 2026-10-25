@@ -41,7 +41,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | `UiSectionHeader` | `title`, `caption`; слот `action` | В `action` кладут «See all →», «+» и т.п. |
 | `UiEmptyState` | `icon`, `title`, `subtitle`; слот `action` | В `action` — например «Сбросить фильтры» |
 | `UiBadge` | `color` accent/success/danger/info/neutral/warning | |
-| `UiMoney` | `amount`, `sign` (`'+'`, `'-'`, `'−'`) | Любая сумма на экране. В privacy mode — плашка-скелетон и «₽», иначе `{sign}{сумма} ₽` одним текстом |
+| `UiMoney` | `amount`, `sign` (`'+'`, `'-'`, `'−'`) | Любая сумма на экране. Валюта — из `useCurrency()` (валюта семьи), формат — по языку интерфейса. В privacy mode — плашка-скелетон и символ валюты с его стороны, иначе `{sign}{сумма с символом}` одним текстом |
 | `UiAvatar` | `name`, `colorIndex` (0–3, `null` — ушедший автор), `size` (40), `dashed`, `ring` | Цвет участника — токены `m0…m3`. `ring` — цвет фона под аватаром: даёт и обводку, и непрозрачную подложку (иначе в стопке перекрытие просвечивает) |
 | `UiAvatarStack` | `members: { name, colorIndex }[]`, `size` (24), `ring` (`var(--c-bg)`) | Перекрытие −30% размера |
 | `UiIconDisc` | `icon`, `tone` accent/success/warning/danger/neutral, `size` (36) | Круг с иконкой: шапки шторок, последствия, пункты списков |
@@ -75,7 +75,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 - Переиспользуемое без бизнес-логики → `app/components/ui/UiX.vue`.
 - Экранное, знает про запросы и стор → `app/components/features/{finance,tasks,habits,auth,settings}/X.vue` без префикса.
 - Автоимпорт настроен с `pathPrefix: false`, поэтому имя файла = имя тега: `PeriodBar.vue` → `<PeriodBar />`.
-- Суммы на экране — только через `<UiMoney :amount :sign />`, а не `formatAmount(...) ₽` руками, иначе они не спрячутся в privacy mode (плашка-скелетон). `UiTxRow`, `UiCategoryBar`, `UiSavingsCard`, `TrashRow` уже так делают; для `aria-label` переключателя — `useMoney().toggleLabel()`. Поля ввода (`UiAmountInput`) и подсказки в шитах редактирования не прячем.
+- Суммы на экране — только через `<UiMoney :amount :sign />`, а не `formatAmount(...)` с символом руками, и без зашитого `₽`: символ и формат даёт `useCurrency()` (`money`, `affix` для полей ввода), иначе они не спрячутся в privacy mode (плашка-скелетон). `UiTxRow`, `UiCategoryBar`, `UiSavingsCard`, `TrashRow` уже так делают; для `aria-label` переключателя — `useMoney().toggleLabel()`. Поля ввода (`UiAmountInput`) и подсказки в шитах редактирования не прячем.
 - Цвета приоритета задач не хардкодим: `priorityBarClass` / `priorityTextClass` из `app/utils/priority.ts`.
 - Гайд установки PWA (`features/install/`): `InstallHint`, `InstallBanner`, `InstallSettingsCard` сами решают, показываться ли (`usePwaInstall`), и каждый держит свой `InstallSheet` — вставлять одной строкой без обёрток.
 - `features/settings/TrashRow.vue` — строка корзины (плитка-иконка, заголовок, подпись, сумма). Свайпы — снаружи, в `UiSwipeRow`. Фон плитки по умолчанию — `tileColor` + альфа `33`; для цвета из CSS-переменной передай готовый `tileSoft`.

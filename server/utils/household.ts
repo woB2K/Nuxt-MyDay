@@ -240,7 +240,7 @@ export async function detachMember(tx: Prisma.TransactionClient, householdId: st
   if (!member) throw createError({ statusCode: 404, message: 'Member not found' })
   if (household.members.length === 1) throw createError({ statusCode: 400, message: 'You are not in a family' })
 
-  const fresh = await tx.household.create({ data: {} })
+  const fresh = await tx.household.create({ data: { currency: household.currency } })
 
   const categories = await tx.category.findMany({ where: { householdId } })
   const categoryIds = new Map<string, string>()

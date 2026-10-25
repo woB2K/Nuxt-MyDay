@@ -45,7 +45,8 @@ export default defineEventHandler(async (event) => {
     return {
       user: toPublicUser({
         ...newUser,
-        settings: appSettings
+        settings: appSettings,
+        membership: { household }
       }),
       accessToken
     }

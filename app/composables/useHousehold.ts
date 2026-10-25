@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/vue-query'
-import type { GuestInvitePreviewResponse, HouseholdResponse, InviteCreatedResponse, InvitePreviewResponse, LeaveHouseholdInput } from '~~/shared/types'
+import type { GuestInvitePreviewResponse, HouseholdResponse, InviteCreatedResponse, InvitePreviewResponse, LeaveHouseholdInput, UpdateHouseholdInput } from '~~/shared/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { authorOf, othersOf } from '~/utils/family'
 import { queryKeys } from './queryKeys'
@@ -65,14 +65,14 @@ export function useUpdateHouseholdMutation() {
   const toast = useAppToast()
 
   return useMutation({
-    mutationFn: (shareSavings: boolean) =>
-      api<HouseholdResponse>('/api/household', { method: 'PATCH', body: { shareSavings } }),
+    mutationFn: (body: UpdateHouseholdInput) =>
+      api<HouseholdResponse>('/api/household', { method: 'PATCH', body }),
     onSuccess: (household) => {
       queryClient.setQueryData(queryKeys.household(), household)
       queryClient.invalidateQueries({ queryKey: ['savings'] })
       queryClient.invalidateQueries({ queryKey: queryKeys.goals() })
     },
-    onError: () => toast.error(t('toast.family.updateError'))
+    onError: (_error, body) => toast.error(t(body.currency ? 'toast.family.currencyError' : 'toast.family.updateError'))
   })
 }
 

@@ -1,13 +1,11 @@
-import { toPublicUser } from '~~/server/utils/mapper'
+import { publicUserInclude, toPublicUser } from '~~/server/utils/mapper'
 
 export default defineEventHandler(async (event) => {
   const userId = event.context.userId
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: {
-      settings: true
-    }
+    include: publicUserInclude
   })
 
   if (!user) {

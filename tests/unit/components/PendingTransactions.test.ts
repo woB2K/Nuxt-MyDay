@@ -17,7 +17,7 @@ const dictionary: Record<string, string> = {
   'categories.food': 'Еда'
 }
 
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => dictionary[key] ?? key }))
+mockNuxtImport('useI18n', () => () => ({ locale: { value: 'ru' }, t: (key: string) => dictionary[key] ?? key }))
 mockNuxtImport('useOutbox', () => () => ({ pending: computed(() => state.pending) }))
 mockNuxtImport('useCategoriesQuery', () => () => ({ data: ref(state.categories) }))
 mockNuxtImport('useFamily', () => () => ({ authorFor: () => undefined }))

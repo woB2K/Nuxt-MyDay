@@ -11,15 +11,15 @@ test('логин → добавление транзакции → баланс 
 
   await page.goto('/finance')
   const net = page.getByTestId('finance-net')
-  await expect(net).toHaveText('0 ₽')
+  await expect(net).toHaveText('₽0')
 
   await page.locator('button.fixed').click()
   await page.locator('input[inputmode="decimal"]').fill('150')
   await page.locator('button.border-2').first().click()
   await page.locator('button[type="submit"]').click()
 
-  await expect(net).toHaveText('−150 ₽')
-  await expect(page.getByText('-150 ₽')).toBeVisible()
+  await expect(net).toHaveText('−₽150')
+  await expect(page.getByText('-₽150')).toBeVisible()
 })
 
 // Баг 08.10.2026: на табе «Доходы» разбивка была пустой — сервер считал её только по расходам
@@ -72,6 +72,6 @@ test('стартовый остаток не пополнение: снятие 
   await page.locator('input[inputmode="decimal"]').fill('15000')
   await page.locator('button[type="submit"]').click()
 
-  await expect(page.getByText('230 000 ₽', { exact: true })).toBeVisible()
-  await expect(page.locator('span.rounded-full', { hasText: '−15 000 ₽' })).toBeVisible()
+  await expect(page.getByText('₽230,000', { exact: true })).toBeVisible()
+  await expect(page.locator('span.rounded-full', { hasText: '−₽15,000' })).toBeVisible()
 })

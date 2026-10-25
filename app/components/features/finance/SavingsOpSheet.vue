@@ -13,6 +13,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const { t } = useI18n()
+const { affix, amount: formatAmount, money } = useCurrency()
 const toast = useAppToast()
 
 const { mutate: addSavings, isPending: isAdding } = useAddSavingsMutation()
@@ -86,18 +87,19 @@ function submit() {
     <form class="flex flex-col gap-5" @submit.prevent="submit">
       <div class="flex flex-col items-center gap-1">
         <div class="flex max-w-full items-baseline justify-center gap-1.5">
+          <span v-if="affix.prefix" class="text-[34px] font-bold text-text-mute">{{ affix.prefix }}</span>
           <UiAmountInput
             v-model="amount"
             class="text-[48px] font-bold tracking-[-0.03em]"
             :class="current.color"
           />
-          <span class="text-[34px] font-bold text-text-mute">₽</span>
+          <span v-if="affix.suffix" class="text-[34px] font-bold text-text-mute">{{ affix.suffix }}</span>
         </div>
         <span v-if="isOpening" class="text-xs text-text-mute text-center text-balance">
           {{ t('finance.savings.openingHint') }}
         </span>
         <span v-else class="text-xs text-text-mute">
-          {{ t('finance.savings.available') }} · {{ formatAmount(available) }} ₽
+          {{ t('finance.savings.available') }} · {{ money(available) }}
         </span>
       </div>
 

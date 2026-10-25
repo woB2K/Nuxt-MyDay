@@ -27,6 +27,7 @@ const dictionary: Record<string, string> = {
 }
 
 mockNuxtImport('useI18n', () => () => ({
+  locale: { value: 'ru' },
   t: (key: string, params?: Record<string, unknown>) =>
     dictionary[key] ?? (params ? `${key}(${JSON.stringify(params)})` : key)
 }))

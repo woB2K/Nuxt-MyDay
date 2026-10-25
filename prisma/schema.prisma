@@ -32,6 +32,7 @@ model User {
 model Household {
   id           String   @id @default(cuid())
   shareSavings Boolean  @default(true)
+  currency     String   @default("RUB") @db.VarChar(3)
   nextColor    Int      @default(1)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

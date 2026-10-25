@@ -28,24 +28,24 @@ test('тап по балансу прячет суммы и помнит выб�
 
   const net = page.getByTestId('finance-net')
   const amounts = page.locator('body')
-  await expect(net).toHaveText('−150 ₽')
-  await expect(page.getByText('-150 ₽')).toBeVisible()
+  await expect(net).toHaveText('−₽150')
+  await expect(page.getByText('-₽150')).toBeVisible()
 
   await net.click()
 
   await expect(net.getByTestId('money-hidden')).toBeVisible()
   await expect(net).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByText('Amounts hidden')).toBeVisible()
-  await expect(amounts).not.toContainText(/\d\s₽/, { useInnerText: true })
+  await expect(amounts).not.toContainText(/₽\d/, { useInnerText: true })
 
   await page.reload()
 
   await expect(net.getByTestId('money-hidden')).toBeVisible()
-  await expect(amounts).not.toContainText(/\d\s₽/, { useInnerText: true })
+  await expect(amounts).not.toContainText(/₽\d/, { useInnerText: true })
 
   await net.click()
 
-  await expect(net).toHaveText('−150 ₽')
+  await expect(net).toHaveText('−₽150')
   await expect(net).toHaveAttribute('aria-pressed', 'false')
-  await expect(page.getByText('-150 ₽')).toBeVisible()
+  await expect(page.getByText('-₽150')).toBeVisible()
 })

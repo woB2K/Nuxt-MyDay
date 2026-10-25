@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import UiSavingsCard from '../../../app/components/ui/UiSavingsCard.vue'
 import { useUiStore } from '../../../app/stores/ui'
 
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useI18n', () => () => ({ locale: { value: 'ru' }, t: (key: string) => key }))
 
 beforeEach(() => {
   localStorage.clear()

@@ -1,6 +1,6 @@
 import { setRefreshCookie } from '~~/server/utils/authCookie'
 import { hashToken } from '~~/server/utils/jwt'
-import { toPublicUser } from '~~/server/utils/mapper'
+import { publicUserInclude, toPublicUser } from '~~/server/utils/mapper'
 import { loginSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const user = await prisma.user.findUnique({
     where: { email: body.email },
-    include: { settings: true }
+    include: publicUserInclude
   })
 
   if (!user)

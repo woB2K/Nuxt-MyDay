@@ -143,7 +143,7 @@ test('записи ушедшего помечены бывшим участни
   await loginViaUi(owner, ownerEmail)
   await owner.goto('/finance')
 
-  await expect(owner.getByText('-30 ₽')).toBeVisible()
+  await expect(owner.getByText('-₽30')).toBeVisible()
   await expect(owner.getByTestId('tx-author')).toHaveCount(1)
 
   await ownerContext.close()

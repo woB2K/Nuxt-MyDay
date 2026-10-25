@@ -1,4 +1,5 @@
 import type { z } from 'zod'
+import type { Currency } from '../currency'
 import type { loginSchema, oauthCallbackSchema, registerSchema } from '../schemas/auth'
 import type { UserSettings } from './settings'
 
@@ -10,5 +11,6 @@ export interface UserProfile {
   id: string
   name: string
   email: string | null
+  currency: Currency
   settings: UserSettings
 }

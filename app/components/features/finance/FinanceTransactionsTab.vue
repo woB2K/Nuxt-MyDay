@@ -7,6 +7,7 @@ const emit = defineEmits<{ edit: [transaction: TransactionItem] }>()
 
 const { t } = useI18n()
 const { hidden, toggleLabel, toggleHidden } = useMoney()
+const { money } = useCurrency()
 const { authorFor } = useFamily()
 const tagNamesOf = useFinanceTagNames()
 
@@ -27,7 +28,7 @@ const net = computed(() => summary.value?.networth ?? 0)
 const netSign = computed(() => net.value < 0 ? '−' : '')
 
 const netFontClass = computed(() => {
-  const len = hidden.value ? 0 : formatAmount(Math.abs(net.value)).length
+  const len = hidden.value ? 0 : money(Math.abs(net.value)).length
   if (len > 10) return 'text-[28px]'
   if (len > 7) return 'text-[36px]'
   return 'text-[44px]'

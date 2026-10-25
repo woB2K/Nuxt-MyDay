@@ -27,12 +27,12 @@ test('после выхода новый аккаунт не видит данн
   await loginViaUi(page, email)
 
   await page.getByRole('link', { name: 'Finance' }).click()
-  await expect(page.getByTestId('finance-net')).toHaveText('0 ₽')
+  await expect(page.getByTestId('finance-net')).toHaveText('₽0')
   await page.locator('button.fixed').click()
   await page.locator('input[inputmode="decimal"]').fill('150')
   await page.locator('button.border-2').first().click()
   await page.locator('button[type="submit"]').click()
-  await expect(page.getByText('-150 ₽')).toBeVisible()
+  await expect(page.getByText('-₽150')).toBeVisible()
 
   await page.getByRole('link', { name: 'Settings' }).click()
   await page.getByRole('button', { name: 'Sign out' }).click()
@@ -46,8 +46,8 @@ test('после выхода новый аккаунт не видит данн
   await page.waitForURL('**/today')
 
   await page.getByRole('link', { name: 'Finance' }).click()
-  await expect(page.getByTestId('finance-net')).toHaveText('0 ₽')
-  await expect(page.getByText('-150 ₽')).toHaveCount(0)
+  await expect(page.getByTestId('finance-net')).toHaveText('₽0')
+  await expect(page.getByText('-₽150')).toHaveCount(0)
 })
 
 test('выход в одной вкладке выводит из аккаунта и остальные', async ({ page, context, request }) => {

@@ -47,6 +47,7 @@ interface HouseholdDto {
   id: string
   role: 'OWNER' | 'MEMBER'
   shareSavings: boolean
+  currency: string
   removedNotice: boolean
   members: MemberDto[]
   invite: { expiresAt: string } | null
@@ -61,12 +62,14 @@ interface PreviewDto {
   inviterName: string
   members: Array<{ name: string, role: 'OWNER' | 'MEMBER', colorIndex: number }>
   shareSavings: boolean
+  currency: string
   state: 'ready' | 'alreadyMember' | 'mustLeave'
   own: boolean
   mine: {
     transactionCount: number
     matchingCategories: Array<{ name: string, key: string | null }>
     savingsBalance: number
+    currency: string
   }
 }
 
@@ -202,6 +205,7 @@ describe('household api', async () => {
       await expect(invite(member)).rejects.toMatchObject({ statusCode: 403 })
       await expect(send(member, '/api/household/invite', 'DELETE')).rejects.toMatchObject({ statusCode: 403 })
       await expect(send(member, '/api/household', 'PATCH', { shareSavings: false })).rejects.toMatchObject({ statusCode: 403 })
+      await expect(send(member, '/api/household', 'PATCH', { currency: 'USD' })).rejects.toMatchObject({ statusCode: 403 })
     })
 
     it('refuses to join the own household', async () => {
@@ -555,6 +559,54 @@ describe('household api', async () => {
 
       await send(member, '/api/household/notice', 'DELETE')
       expect((await household(member)).removedNotice).toBe(false)
+    })
+  })
+
+  describe('currency', () => {
+    const me = (user: User) => get<{ currency: string }>(user, '/api/users/me')
+
+    it('starts in rubles and keeps the amounts when the owner switches the currency', async () => {
+      const owner = await registerUser()
+      const created = await spend(owner, (await byKey(owner, 'food')).id, 150)
+
+      expect((await household(owner)).currency).toBe('RUB')
+      expect((await me(owner)).currency).toBe('RUB')
+
+      expect((await send<HouseholdDto>(owner, '/api/household', 'PATCH', { currency: 'EUR' })).currency).toBe('EUR')
+      expect((await me(owner)).currency).toBe('EUR')
+      expect((await household(owner)).shareSavings).toBe(true)
+      expect(await transactions(owner)).toEqual([expect.objectContaining({ id: created.id, amount: 150 })])
+    })
+
+    it('rejects a currency outside the list and an empty update', async () => {
+      const owner = await registerUser()
+
+      await expect(send(owner, '/api/household', 'PATCH', { currency: 'XXX' })).rejects.toMatchObject({ statusCode: 400 })
+      await expect(send(owner, '/api/household', 'PATCH', {})).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it('gives every member the family currency and the leaver keeps it', async () => {
+      const { owner, member } = await family()
+      await send(owner, '/api/household', 'PATCH', { currency: 'USD' })
+
+      expect((await me(member)).currency).toBe('USD')
+
+      await leave(member)
+
+      expect((await household(member)).currency).toBe('USD')
+      expect((await household(owner)).currency).toBe('USD')
+    })
+
+    it('shows both currencies in the invite preview', async () => {
+      const owner = await registerUser()
+      const guest = await registerUser()
+      await send(owner, '/api/household', 'PATCH', { currency: 'EUR' })
+      const { token } = await invite(owner)
+
+      const preview = await get<PreviewDto>(guest, '/api/household/join', { token })
+
+      expect(preview.currency).toBe('EUR')
+      expect(preview.mine.currency).toBe('RUB')
     })
   })
 })

@@ -1,4 +1,5 @@
 import type { HouseholdResponse } from '~~/shared/types'
+import { toCurrency } from '~~/shared/currency'
 
 interface SavingsRow {
   userId: string
@@ -42,6 +43,7 @@ export async function householdView(householdId: string, userId: string): Promis
     id: household.id,
     role: me?.role ?? 'MEMBER',
     shareSavings: household.shareSavings,
+    currency: toCurrency(household.currency),
     removedNotice: Boolean(me?.removedAt),
     members: household.members.map(member => ({
       userId: member.userId,

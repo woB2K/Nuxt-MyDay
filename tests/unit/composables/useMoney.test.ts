@@ -5,6 +5,7 @@ import { useMoney } from '../../../app/composables/useMoney'
 import { useUiStore } from '../../../app/stores/ui'
 
 mockNuxtImport('useI18n', () => () => ({
+  locale: { value: 'ru' },
   t: (key: string, params?: Record<string, string>) => params ? `${key}:${Object.values(params).join('|')}` : key
 }))
 
@@ -15,7 +16,7 @@ beforeEach(() => {
 
 describe('useMoney', () => {
   it('подпись переключателя называет сумму, пока режим выключен', () => {
-    expect(useMoney().toggleLabel(150, '−')).toBe('finance.privacy.toggle:−150 ₽')
+    expect(useMoney().toggleLabel(150, '−')).toMatch(/^finance\.privacy\.toggle:−150\s₽$/)
   })
 
   it('в скрытом режиме подпись не выдаёт сумму', () => {

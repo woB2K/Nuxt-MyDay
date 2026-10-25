@@ -12,6 +12,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const { t, locale } = useI18n()
+const { affix, money } = useCurrency()
 const toast = useAppToast()
 
 const { mutate: addGoal, isPending: isAdding } = useAddGoalMutation()
@@ -31,7 +32,7 @@ const preview = computed(() => {
 
   const { monthly } = goalProgress({ target: value, saved: props.goal?.saved ?? 0, deadline: deadline.value })
 
-  return monthly ? t('finance.goals.monthly', { amount: formatAmount(monthly) }) : ''
+  return monthly ? t('finance.goals.monthly', { amount: money(monthly) }) : ''
 })
 
 watch(() => props.open, (open) => {
@@ -88,8 +89,9 @@ function remove() {
       <div class="flex flex-col items-center gap-1">
         <span class="text-[13px] text-text-dim">{{ t('finance.goals.target') }}</span>
         <div class="flex max-w-full items-baseline justify-center gap-1.5">
+          <span v-if="affix.prefix" class="text-[30px] font-bold text-text-mute">{{ affix.prefix }}</span>
           <UiAmountInput v-model="target" class="text-[44px] font-bold tracking-[-0.03em] text-text" />
-          <span class="text-[30px] font-bold text-text-mute">₽</span>
+          <span v-if="affix.suffix" class="text-[30px] font-bold text-text-mute">{{ affix.suffix }}</span>
         </div>
       </div>
 

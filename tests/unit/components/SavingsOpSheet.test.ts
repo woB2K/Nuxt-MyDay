@@ -11,7 +11,7 @@ const { addMutate, updateMutate, toastError, goals } = vi.hoisted(() => ({
   toastError: vi.fn()
 }))
 
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useI18n', () => () => ({ locale: { value: 'ru' }, t: (key: string) => key }))
 mockNuxtImport('useAppToast', () => () => ({ success: () => {}, error: toastError, info: () => {} }))
 mockNuxtImport('useAddSavingsMutation', () => () => ({ mutate: addMutate, isPending: { value: false } }))
 mockNuxtImport('useUpdateSavingsMutation', () => () => ({ mutate: updateMutate, isPending: { value: false } }))

@@ -1,5 +1,6 @@
 import type { z } from 'zod'
 import type { HouseholdRole } from '~~/prisma/.generated/prisma'
+import type { Currency } from '../currency'
 import type { leaveHouseholdSchema, updateHouseholdSchema } from '../schemas/household'
 
 export type UpdateHouseholdInput = z.infer<typeof updateHouseholdSchema>
@@ -21,6 +22,7 @@ export interface HouseholdResponse {
   id: string
   role: HouseholdRole
   shareSavings: boolean
+  currency: Currency
   removedNotice: boolean
   members: HouseholdMemberItem[]
   invite: { expiresAt: Date } | null
@@ -43,12 +45,14 @@ export interface InvitePreviewResponse {
   inviterName: string
   members: InviteMember[]
   shareSavings: boolean
+  currency: Currency
   state: InviteState
   own: boolean
   mine: {
     transactionCount: number
     matchingCategories: Array<{ name: string, key: string | null }>
     savingsBalance: number
+    currency: Currency
   }
 }
 

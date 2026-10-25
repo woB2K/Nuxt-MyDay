@@ -1,8 +1,12 @@
 import type { AppSettings, Prisma } from '~~/prisma/.generated/prisma'
+import { toCurrency } from '~~/shared/currency'
 
-type UserWithSettings = Prisma.UserGetPayload<{
-  include: { settings: true }
-}>
+export const publicUserInclude = {
+  settings: true,
+  membership: { select: { household: { select: { currency: true } } } }
+} as const
+
+type UserWithSettings = Prisma.UserGetPayload<{ include: typeof publicUserInclude }>
 
 interface WithDecimal { amount: { toNumber: () => number } }
 type Mapped<T extends WithDecimal> = Omit<T, 'amount'> & { amount: number }
@@ -22,6 +26,7 @@ export function toPublicUser(user: UserWithSettings) {
     id: user.id,
     name: user.name,
     email: user.email,
+    currency: toCurrency(user.membership?.household.currency),
     settings: toPublicSettings(user.settings!)
   }
 }

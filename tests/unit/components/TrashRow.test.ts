@@ -11,7 +11,7 @@ function mountRow(props: Record<string, unknown> = {}) {
   })
 }
 
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useI18n', () => () => ({ locale: { value: 'ru' }, t: (key: string) => key }))
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -32,7 +32,7 @@ describe('trashRow', () => {
   it('рисует сумму в цвете строки', () => {
     const amount = mountRow({ amount: 1000, sign: '+', inkClass: 'text-success' }).find('span.ml-auto')
 
-    expect(amount.text()).toMatch(/^\+1\s000 ₽$/)
+    expect(amount.text()).toMatch(/^\+1\s000\s₽$/)
     expect(amount.classes()).toContain('text-success')
   })
 

@@ -6,8 +6,13 @@ const { t } = useI18n()
 const toast = useAppToast()
 useCategoriesQuery()
 
+const authStore = useAuthStore()
 const { data: household } = useHouseholdQuery()
 const { mutate: dismissNotice } = useDismissNoticeMutation()
+
+watch(() => household.value?.currency, (currency) => {
+  if (currency && authStore.user && authStore.user.currency !== currency) authStore.user.currency = currency
+}, { immediate: true })
 
 watch(() => household.value?.removedNotice, (removed) => {
   if (!removed) return

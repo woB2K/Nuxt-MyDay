@@ -42,7 +42,7 @@ function close() {
 async function create() {
   try {
     if (step.value === 'savings' && shareSavings.value !== props.household.shareSavings) {
-      await updateHousehold(shareSavings.value)
+      await updateHousehold({ shareSavings: shareSavings.value })
     }
 
     const created = await createInvite()
