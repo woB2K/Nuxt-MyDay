@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ChangeType, LangSetting } from '~~/shared/types'
 import { changelog } from '~~/shared/changelog'
+import { DONATE_LINKS, PROJECT_REPOSITORY } from '~~/shared/project'
 
 definePageMeta({ hideFab: true })
 
@@ -28,6 +29,30 @@ const typeClasses: Record<ChangeType, string> = {
       </h1>
       <span class="text-sm text-text-dim">{{ t('settings.changelog.current', { version: appVersion }) }}</span>
     </div>
+
+    <UiCard class="gap-3" data-testid="project-card">
+      <div class="flex flex-col gap-1">
+        <span class="text-[15px] font-semibold text-text">{{ t('settings.changelog.projectTitle') }}</span>
+        <span class="text-sm text-text-dim">{{ t(DONATE_LINKS.length ? 'settings.changelog.projectDonate' : 'settings.changelog.projectSub') }}</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <UiButton
+          v-for="link in DONATE_LINKS"
+          :key="link.url"
+          size="sm"
+          :to="link.url"
+          target="_blank"
+          data-testid="donate-link"
+        >
+          <UIcon name="i-lucide-heart" />
+          <span>{{ link.name }}</span>
+        </UiButton>
+        <UiButton size="sm" variant="secondary" :to="PROJECT_REPOSITORY" target="_blank">
+          <UIcon name="i-lucide-github" />
+          <span>{{ t('settings.changelog.source') }}</span>
+        </UiButton>
+      </div>
+    </UiCard>
 
     <UiCard
       v-for="release in changelog"

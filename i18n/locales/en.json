@@ -524,7 +524,11 @@
         "new": "New",
         "improved": "Improved",
         "fixed": "Fixed"
-      }
+      },
+      "projectTitle": "MyDay is open source",
+      "projectSub": "The code is free under AGPL-3.0. Found a bug or have an idea — open an issue on GitHub.",
+      "projectDonate": "The code is free under AGPL-3.0. If MyDay helps your family, you can support its development.",
+      "source": "Source code"
     },
     "currency": "Currency",
     "currencyOwnerOnly": "{name} · changed by the family owner",

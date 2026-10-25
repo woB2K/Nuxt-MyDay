@@ -1,17 +1,23 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { computed, ref } from 'vue'
 import LoginPage from '../../../app/pages/auth/login.vue'
 import RegisterPage from '../../../app/pages/auth/register.vue'
 
-const { store, navigate } = vi.hoisted(() => ({
+const { store, navigate, registration } = vi.hoisted(() => ({
   store: { register: vi.fn(), login: vi.fn() },
-  navigate: vi.fn()
+  navigate: vi.fn(),
+  registration: { open: true, invite: undefined as string | undefined }
 }))
 
 mockNuxtImport('useAuthStore', () => () => store)
 mockNuxtImport('navigateTo', () => navigate)
 mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useRegistration', () => () => ({
+  canRegister: computed(() => registration.open || Boolean(registration.invite)),
+  invite: ref(registration.invite)
+}))
 
 const UiInput = {
   props: ['modelValue', 'error', 'type', 'placeholder'],
@@ -23,6 +29,7 @@ const stubs = {
   UiInput,
   UiButton: { template: '<button type="submit"><slot /></button>' },
   UIcon: true,
+  ForgotPasswordSheet: true,
   NuxtLink: { template: '<a><slot /></a>' }
 }
 
@@ -45,6 +52,8 @@ async function submit(wrapper: ReturnType<typeof mount>) {
 }
 
 beforeEach(() => {
+  registration.open = true
+  registration.invite = undefined
   store.register.mockReset()
   store.login.mockReset()
   navigate.mockReset()
@@ -160,5 +169,35 @@ describe('форма входа', () => {
 
     expect(wrapper.text()).toContain(message)
     expect(navigate).not.toHaveBeenCalled()
+  })
+})
+
+describe('закрытая регистрация', () => {
+  it('без приглашения вместо формы объясняет, что пускают по приглашению', () => {
+    registration.open = false
+
+    const wrapper = mount(RegisterPage, { global: { stubs } })
+
+    expect(wrapper.find('[data-testid="registration-closed"]').exists()).toBe(true)
+    expect(wrapper.find('form').exists()).toBe(false)
+  })
+
+  it('с приглашением показывает форму и шлёт токен приглашения', async () => {
+    registration.open = false
+    registration.invite = 'invite-token'
+    store.register.mockResolvedValue(undefined)
+
+    const wrapper = mount(RegisterPage, { global: { stubs } })
+    await fill(wrapper, { 'auth.name': 'Анна', 'auth.email': 'anna@example.com', 'auth.password': 'password123' })
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(store.register).toHaveBeenCalledWith(expect.objectContaining({ inviteToken: 'invite-token' }))
+  })
+
+  it('на логине прячет ссылку на регистрацию', () => {
+    registration.open = false
+
+    expect(mount(LoginPage, { global: { stubs } }).text()).not.toContain('auth.createAccount')
   })
 })
