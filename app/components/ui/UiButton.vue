@@ -45,7 +45,7 @@ const sizes = {
     ]"
     :disabled="!to ? (props.disabled || props.loading) : undefined"
   >
-    <UIcon v-if="loading" name="i-heroicons-arrow-path" class="animate-spin" />
+    <UIcon v-if="loading" name="i-lucide-refresh-cw" class="animate-spin" />
     <slot v-else />
   </component>
 </template>

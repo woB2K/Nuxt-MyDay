@@ -15,9 +15,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{ close: [id: string] }>()
 
 const icons = {
-  success: 'i-heroicons-check-circle',
-  error: 'i-heroicons-x-circle',
-  info: 'i-heroicons-information-circle'
+  success: 'i-lucide-circle-check',
+  error: 'i-lucide-circle-x',
+  info: 'i-lucide-info'
 }
 
 const colors = {
@@ -64,7 +64,7 @@ function runAction() {
       class="flex-none flex text-text-mute hover:text-text transition-colors duration-fast"
       @click="emit('close', id)"
     >
-      <UIcon name="i-heroicons-x-mark" class="size-4" />
+      <UIcon name="i-lucide-x" class="size-4" />
     </button>
   </div>
 </template>

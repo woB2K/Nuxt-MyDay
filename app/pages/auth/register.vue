@@ -51,7 +51,7 @@ async function handleSubmit() {
 <template>
   <div class="flex flex-col flex-1 p-6">
     <NuxtLink to="/auth/welcome" class="text-text">
-      <UIcon name="i-heroicons-chevron-left" class="w-6 h-6" />
+      <UIcon name="i-lucide-chevron-left" class="w-6 h-6" />
     </NuxtLink>
 
     <div class="flex flex-col gap-2 mt-8">
@@ -66,17 +66,17 @@ async function handleSubmit() {
     <form class="flex flex-col gap-5 mt-8" @submit.prevent="handleSubmit">
       <UiInput v-model="name" :placeholder="t('auth.name')" type="text" :error="nameError">
         <template #icon>
-          <UIcon name="i-heroicons-user-circle" />
+          <UIcon name="i-lucide-circle-user" />
         </template>
       </UiInput>
       <UiInput v-model="email" :placeholder="t('auth.email')" type="email" :error="emailError">
         <template #icon>
-          <UIcon name="i-heroicons-envelope" />
+          <UIcon name="i-lucide-mail" />
         </template>
       </UiInput>
       <UiInput v-model="password" :placeholder="t('auth.password')" type="password" :error="passwordError">
         <template #icon>
-          <UIcon name="i-heroicons-lock-closed" />
+          <UIcon name="i-lucide-lock" />
         </template>
       </UiInput>
       <p v-if="formError" class="text-error text-sm">

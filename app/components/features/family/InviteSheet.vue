@@ -191,7 +191,7 @@ onUnmounted(() => clearTimeout(copiedTimer))
         </template>
 
         <div v-else class="flex h-40 items-center justify-center">
-          <UIcon name="i-heroicons-arrow-path" class="size-6 animate-spin text-text-mute" />
+          <UIcon name="i-lucide-refresh-cw" class="size-6 animate-spin text-text-mute" />
         </div>
       </div>
 

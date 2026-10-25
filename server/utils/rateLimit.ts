@@ -27,11 +27,21 @@ export function checkRateLimit(event: H3Event, key: string, maxAttempts: number,
   entry.count++
 }
 
-export function clientIp(event: H3Event): string | undefined {
-  const forwarded = getRequestHeader(event, 'x-forwarded-for')
-    ?.split(',')
-    .map(part => part.trim())
-    .filter(Boolean)
+export interface ProxyOptions {
+  proxyHops: number
+  clientIpHeader: string
+}
 
-  return forwarded?.at(-1) ?? getRequestIP(event)
+export function clientIp(event: H3Event, { proxyHops, clientIpHeader }: ProxyOptions): string | undefined {
+  const direct = clientIpHeader ? getRequestHeader(event, clientIpHeader)?.trim() : undefined
+  if (direct) return direct
+
+  const forwarded = proxyHops > 0
+    ? getRequestHeader(event, 'x-forwarded-for')
+        ?.split(',')
+        .map(part => part.trim())
+        .filter(Boolean)
+    : undefined
+
+  return forwarded?.at(-proxyHops) ?? getRequestIP(event)
 }

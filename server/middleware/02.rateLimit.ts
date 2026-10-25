@@ -8,7 +8,8 @@ export default defineEventHandler((event) => {
 
   if (!RATE_LIMITED_PATHS.includes(path)) return
 
-  const ip = clientIp(event)
+  const { proxyHops, clientIpHeader } = useRuntimeConfig(event)
+  const ip = clientIp(event, { proxyHops: Number(proxyHops), clientIpHeader })
 
   if (!ip)
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })

@@ -5,6 +5,29 @@ import pkg from './package.json'
 
 let built = false
 
+const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Content-Security-Policy': 'frame-ancestors \'none\'',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Strict-Transport-Security': 'max-age=31536000'
+}
+
+const contentSecurityPolicy = [
+  'default-src \'self\'',
+  'script-src \'self\' \'unsafe-inline\'',
+  'style-src \'self\' \'unsafe-inline\'',
+  'img-src \'self\' data: blob:',
+  'font-src \'self\' data:',
+  'connect-src \'self\'',
+  'worker-src \'self\'',
+  'manifest-src \'self\'',
+  'object-src \'none\'',
+  'base-uri \'self\'',
+  'form-action \'self\'',
+  'frame-ancestors \'none\''
+].join('; ')
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -13,6 +36,12 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     '@nuxtjs/i18n'
   ],
+
+  $development: {
+    routeRules: {
+      '/**': { headers: securityHeaders }
+    }
+  },
   ssr: false,
   components: [
     { path: '~/components', pathPrefix: false }
@@ -35,6 +64,9 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'MyDay' }
+      ],
+      script: [
+        { innerHTML: 'globalThis.__zod_globalConfig = { jitless: true }', tagPosition: 'head' }
       ]
     }
   },
@@ -49,6 +81,8 @@ export default defineNuxtConfig({
     googleClientId: '',
     googleClientSecret: '',
     passwordHashRounds: 12,
+    proxyHops: 1,
+    clientIpHeader: '',
     public: {
       appUrl: '',
       appVersion: pkg.version
@@ -57,15 +91,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/': { prerender: true },
-    '/**': {
-      headers: {
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'Content-Security-Policy': 'frame-ancestors \'none\'',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Strict-Transport-Security': 'max-age=31536000'
-      }
-    }
+    '/**': { headers: { ...securityHeaders, 'Content-Security-Policy': contentSecurityPolicy } }
   },
   future: {
     compatibilityVersion: 4
@@ -108,6 +134,14 @@ export default defineNuxtConfig({
       useCookie: true,
       cookieKey: 'i18n_locale',
       redirectOn: 'root'
+    }
+  },
+  icon: {
+    fallbackToApi: false,
+    serverBundle: { collections: ['lucide'] },
+    clientBundle: {
+      scan: { globInclude: ['app/**/*.{vue,ts}', 'shared/**/*.ts', 'prisma/seeds/**/*.ts'] },
+      sizeLimitKb: 512
     }
   },
 

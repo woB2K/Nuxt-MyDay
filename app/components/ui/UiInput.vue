@@ -60,7 +60,7 @@ const inputType = computed(() => {
         @blur="focused = false"
       >
       <button v-if="props.type === 'password'" type="button" class="flex items-center ml-auto" @click.prevent="showPassword = !showPassword">
-        <UIcon :name="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" />
+        <UIcon :name="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" />
       </button>
       <div v-else-if="$slots.trailing" class="flex items-center ml-auto">
         <slot name="trailing" />

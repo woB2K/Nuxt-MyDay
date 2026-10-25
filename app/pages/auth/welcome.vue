@@ -59,7 +59,7 @@ watch(inviteError, (error) => {
         {{ t('welcome.getStarted') }}
       </p>
       <UiButton variant="secondary" class="w-full" to="/auth/register">
-        <UIcon name="i-heroicons-envelope" class="text-accent" />
+        <UIcon name="i-lucide-mail" class="text-accent" />
         <span>{{ t('welcome.continueEmail') }}</span>
       </UiButton>
       <span class="text-text">{{ t('welcome.alreadyHaveAccount') }}
