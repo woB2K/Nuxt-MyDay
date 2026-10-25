@@ -4,7 +4,7 @@
 
 ## awesome-selfhosted
 
-Репозиторий `awesome-selfhosted/awesome-selfhosted-data`, одна запись — YAML-файл в `software/`. Требования: проект старше 4 месяцев с первого релиза, активная поддержка, рабочая инструкция по установке, свободная лицензия. Категория — **Personal Dashboards** или **Money, Budgeting & Management**; лучше вторая, там ищут.
+Репозиторий `awesome-selfhosted/awesome-selfhosted-data`, одна запись — YAML-файл в `software/`. Требования по памяти — заметный возраст с первого релиза (несколько месяцев), активная поддержка, рабочая инструкция по установке, свободная лицензия; перед подачей сверить с их актуальным `CONTRIBUTING.md`. Категория — **Personal Dashboards** или **Money, Budgeting & Management**; лучше вторая, там ищут.
 
 ```yaml
 name: "MyDay"
