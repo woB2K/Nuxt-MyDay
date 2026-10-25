@@ -82,6 +82,7 @@ export default defineNuxtConfig({
     googleClientSecret: '',
     passwordHashRounds: 12,
     proxyHops: 1,
+    allowRegistration: true,
     clientIpHeader: '',
     public: {
       appUrl: '',

@@ -14,6 +14,7 @@ const emailError = ref('')
 const passwordError = ref('')
 const formError = ref('')
 const forgotOpen = ref(false)
+const { canRegister } = useRegistration()
 
 async function handleSubmit() {
   emailError.value = ''
@@ -83,7 +84,7 @@ async function handleSubmit() {
 
     <div class="flex-1" />
 
-    <span class="text-text-dim w-full text-center">
+    <span v-if="canRegister" class="text-text-dim w-full text-center">
       {{ t('auth.dontHaveAccount') }}
       <NuxtLink class="text-accent cursor-pointer" to="/auth/register">{{ t('auth.createAccount') }}</NuxtLink>
     </span>

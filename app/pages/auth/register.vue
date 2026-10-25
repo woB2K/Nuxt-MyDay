@@ -6,6 +6,7 @@ definePageMeta({ layout: 'auth' })
 
 const { t } = useI18n()
 const authStore = useAuthStore()
+const { canRegister, invite } = useRegistration()
 
 const name = ref('')
 const email = ref('')
@@ -22,7 +23,7 @@ async function handleSubmit() {
   passwordError.value = ''
   formError.value = ''
 
-  const result = registerSchema.safeParse({ name: name.value, email: email.value, password: password.value })
+  const result = registerSchema.safeParse({ name: name.value, email: email.value, password: password.value, inviteToken: invite.value })
   if (!result.success) {
     for (const issue of result.error.issues) {
       if (issue.path[0] === 'name') nameError.value = t('auth.errorShortName')
@@ -40,6 +41,7 @@ async function handleSubmit() {
     const status = e?.statusCode ?? e?.data?.statusCode
 
     if (status === 409) emailError.value = t('auth.errorEmailTaken')
+    else if (status === 403) formError.value = t('auth.registrationClosed.formError')
     else if (status === 429) formError.value = t('auth.errorTooManyAttempts')
     else formError.value = t('auth.errorGeneric')
   } finally {
@@ -63,7 +65,16 @@ async function handleSubmit() {
       </p>
     </div>
 
-    <form class="flex flex-col gap-5 mt-8" @submit.prevent="handleSubmit">
+    <div v-if="!canRegister" class="flex flex-col gap-2 mt-8 rounded-xl border border-hairline bg-elev2 p-4" data-testid="registration-closed">
+      <p class="text-[15px] font-semibold text-text">
+        {{ t('auth.registrationClosed.title') }}
+      </p>
+      <p class="text-sm text-text-dim">
+        {{ t('auth.registrationClosed.body') }}
+      </p>
+    </div>
+
+    <form v-else class="flex flex-col gap-5 mt-8" @submit.prevent="handleSubmit">
       <UiInput v-model="name" :placeholder="t('auth.name')" type="text" :error="nameError">
         <template #icon>
           <UIcon name="i-lucide-circle-user" />

@@ -8,6 +8,8 @@ const { t } = useI18n()
 
 const inviteToken = ref<string>()
 const { data: invite, error: inviteError } = useGuestInviteQuery(inviteToken)
+const { data: registration } = useRegistration()
+const closed = computed(() => registration.value?.open === false && !invite.value)
 
 onMounted(() => {
   inviteToken.value = pendingInvite()
@@ -58,7 +60,10 @@ watch(inviteError, (error) => {
       <p v-else class="text-text text-xl">
         {{ t('welcome.getStarted') }}
       </p>
-      <UiButton variant="secondary" class="w-full" to="/auth/register">
+      <p v-if="closed" class="text-sm text-text-dim" data-testid="registration-closed">
+        {{ t('auth.registrationClosed.body') }}
+      </p>
+      <UiButton v-else variant="secondary" class="w-full" to="/auth/register">
         <UIcon name="i-lucide-mail" class="text-accent" />
         <span>{{ t('welcome.continueEmail') }}</span>
       </UiButton>

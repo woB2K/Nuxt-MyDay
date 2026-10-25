@@ -412,6 +412,11 @@
       "copy": "Copy command",
       "copied": "Command copied",
       "copyError": "Couldn’t copy — select the text by hand"
+    },
+    "registrationClosed": {
+      "title": "Registration is by invitation",
+      "body": "This MyDay server only lets in people its owner invites. Ask them for an invite link.",
+      "formError": "Registration on this server is by invitation only"
     }
   },
   "settings": {

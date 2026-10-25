@@ -6,7 +6,8 @@ export const baseAuthSchema = z.object({
 })
 
 export const registerSchema = baseAuthSchema.extend({
-  name: z.string().min(2).max(30)
+  name: z.string().min(2).max(30),
+  inviteToken: z.string().min(1).max(128).optional()
 })
 
 export const loginSchema = baseAuthSchema

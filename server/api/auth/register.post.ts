@@ -3,10 +3,13 @@ import { setRefreshCookie } from '~~/server/utils/authCookie'
 import { orConflict } from '~~/server/utils/dbError'
 import { hashToken } from '~~/server/utils/jwt'
 import { toPublicUser } from '~~/server/utils/mapper'
+import { requireRegistration } from '~~/server/utils/registration'
 import { registerSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, registerSchema.parse)
+
+  await requireRegistration(event, body.inviteToken)
 
   const hashedPassword = await hashPassword(body.password)
 
