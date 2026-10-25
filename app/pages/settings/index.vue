@@ -41,7 +41,9 @@ const { isOwner } = useFamily()
 const { data: instance } = useInstanceQuery()
 const currencySheetOpen = ref(false)
 
-const currencySub = computed(() => isOwner.value
+const canChangeCurrency = computed(() => isOwner.value && !instance.value?.demo)
+
+const currencySub = computed(() => canChangeCurrency.value || instance.value?.demo
   ? `${currencyName()} · ${currency.value}`
   : t('settings.currencyOwnerOnly', { name: currencyName() }))
 
@@ -146,7 +148,7 @@ async function signOut() {
         icon="i-lucide-coins"
         :label="t('settings.currency')"
         :sub="currencySub"
-        :clickable="isOwner"
+        :clickable="canChangeCurrency"
         data-testid="currency-row"
         @click="currencySheetOpen = true"
       />

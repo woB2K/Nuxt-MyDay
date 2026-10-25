@@ -89,7 +89,7 @@ watch(inviteError, (error) => {
       <p v-if="closed && !instance?.demo" class="text-sm text-text-dim" data-testid="registration-closed">
         {{ t('auth.registrationClosed.body') }}
       </p>
-      <UiButton v-else variant="secondary" class="w-full" to="/auth/register">
+      <UiButton v-else-if="!closed" variant="secondary" class="w-full" to="/auth/register">
         <UIcon name="i-lucide-mail" class="text-accent" />
         <span>{{ t('welcome.continueEmail') }}</span>
       </UiButton>

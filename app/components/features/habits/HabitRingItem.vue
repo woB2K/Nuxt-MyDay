@@ -15,6 +15,7 @@ const ring = computed(() => habitRing(props.habit, props.today))
 const stats = computed(() => habitStats(props.habit, props.today))
 
 const press = useLongPress(() => emit('open'))
+const { locale } = useI18n()
 </script>
 
 <template>
@@ -38,7 +39,7 @@ const press = useLongPress(() => emit('open'))
       :fx="props.fx"
       @toggle="emit('toggle')"
     />
-    <span class="mt-1.5 line-clamp-2 w-full text-center text-xs leading-[15px] font-medium break-words text-text-dim">
+    <span :lang="locale" class="mt-1.5 line-clamp-2 w-full text-center text-xs leading-[15px] font-medium break-words hyphens-auto text-text-dim">
       {{ props.habit.name }}
     </span>
     <span class="mt-auto box-border flex h-[17px] items-center pt-[3px]">

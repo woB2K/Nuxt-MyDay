@@ -56,9 +56,9 @@ const TASKS: Array<{ title: Text, due: number | null, done?: boolean, priority?:
 ]
 
 const HABITS: Array<{ name: Text, icon: string, color: string, perWeek: number | null, chance: number }> = [
-  { name: { ru: 'Вода 2 литра', en: 'Drink 2 litres of water' }, icon: 'droplet', color: 'blue', perWeek: null, chance: 0.85 },
+  { name: { ru: 'Вода 2 литра', en: 'Drink water' }, icon: 'droplet', color: 'blue', perWeek: null, chance: 0.85 },
   { name: { ru: 'Тренировка', en: 'Workout' }, icon: 'dumbbell', color: 'orange', perWeek: 3, chance: 0.45 },
-  { name: { ru: 'Читать 20 минут', en: 'Read for 20 minutes' }, icon: 'book-open', color: 'violet', perWeek: null, chance: 0.7 },
+  { name: { ru: 'Чтение', en: 'Reading' }, icon: 'book-open', color: 'violet', perWeek: null, chance: 0.7 },
   { name: { ru: 'Без сладкого', en: 'No sweets' }, icon: 'ban', color: 'pink', perWeek: null, chance: 0.6 }
 ]
 
@@ -77,7 +77,10 @@ function dayOffset(days: number, today = new Date()): Date {
 export async function resetDemo(prisma: PrismaClient, { lang = 'ru' as DemoLang, password = 'demo-family', rounds = 12, days = 92 } = {}): Promise<DemoAccount> {
   const next = random(20261025)
   const between = (min: number, max: number) => min + next() * (max - min)
-  const money = (rub: number) => Math.round(rub * RATE[lang] * (lang === 'ru' ? 1 : 100)) / (lang === 'ru' ? 1 : 100)
+  const money = (rub: number) => {
+    const value = rub * RATE[lang]
+    return lang === 'ru' || rub >= 9000 ? Math.round(value) : Math.round(value * 100) / 100
+  }
   const pick = <T>(list: T[]) => list[Math.floor(next() * list.length)]!
   const passwordHash = await bcrypt.hash(password, rounds)
 
