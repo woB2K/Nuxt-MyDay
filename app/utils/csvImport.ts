@@ -226,7 +226,7 @@ export function detectSource(header: string[]): ImportSource | null {
 function cell(row: string[], found: Columns, name: string): string {
   const index = found[name]
 
-  return index === undefined ? '' : (row[index] ?? '').trim()
+  return index === undefined ? '' : (row[index] ?? '').trim().replace(/^'(?=[=+\-@])/, '')
 }
 
 function mydayDraft(row: string[], found: Columns, line: number): Draft {
