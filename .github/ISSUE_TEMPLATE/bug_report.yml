@@ -1,0 +1,45 @@
+name: Bug report
+description: Something works wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Finance
+        2. Add an expense of 150
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Settings → What's new, or the image tag you run.
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Where
+      options:
+        - iPhone, installed on the home screen
+        - iPhone, in Safari
+        - Android, installed
+        - Android, in the browser
+        - Desktop browser
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Server logs (`docker compose logs app`) or a screenshot, without personal data.
