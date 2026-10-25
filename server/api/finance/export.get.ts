@@ -9,13 +9,11 @@ import { transactionFilterQuerySchema } from '~~/shared/schemas'
 
 const CATEGORY_NAMES: Record<'en' | 'ru', Record<string, string>> = { en: en.categories, ru: ru.categories }
 
-const exportQuerySchema = z.object({ lang: z.enum(['en', 'ru']).default('en') })
+const exportQuerySchema = transactionFilterQuerySchema.and(z.object({ lang: z.enum(['en', 'ru']).default('en') }))
 
 export default defineEventHandler(async (event) => {
   const household = await getHousehold(event)
-  const query = getQuery(event)
-  const filters = transactionFilterQuerySchema.parse(query)
-  const { lang } = exportQuerySchema.parse(query)
+  const { lang, ...filters } = await getValidatedQuery(event, exportQuerySchema.parse)
 
   const [transactions, { currency }] = await Promise.all([
     prisma.transaction.findMany({

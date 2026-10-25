@@ -43,5 +43,7 @@ describe('transaction export', async () => {
 
     expect(csv.trim().split('\r\n')).toHaveLength(1)
     await expect($fetch('/api/finance/export')).rejects.toMatchObject({ statusCode: 401 })
+    await expect($fetch('/api/finance/export', { headers: authHeaders(boris.token), query: { from: 'yesterday' } })).rejects.toMatchObject({ statusCode: 400 })
+    await expect($fetch('/api/finance/export', { headers: authHeaders(boris.token), query: { lang: 'de' } })).rejects.toMatchObject({ statusCode: 400 })
   })
 })
