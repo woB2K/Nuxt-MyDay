@@ -163,6 +163,15 @@ async function signOut() {
       />
 
       <UiSettingRow
+        icon="i-lucide-file-up"
+        :label="t('settings.import')"
+        :sub="t('settings.importSub')"
+        clickable
+        data-testid="import-row"
+        @click="navigateTo('/settings/import')"
+      />
+
+      <UiSettingRow
         icon="i-lucide-trash-2"
         :label="t('settings.trash')"
         :sub="t('settings.trashSub', { days: TRASH_RETENTION_DAYS })"

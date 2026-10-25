@@ -526,7 +526,48 @@
       "hint": "Amounts aren’t converted — only the currency sign changes.",
       "hintFamily": "One currency for the whole family. Amounts aren’t converted — only the currency sign changes.",
       "done": "Currency: {name}"
-    }
+    },
+    "importScreen": {
+      "title": "Import from CSV",
+      "subtitle": "Move your history from another app",
+      "intro": "Pick a CSV file exported from one of these apps. You’ll see what’s inside before anything is saved, and importing the same file twice adds nothing.",
+      "formats": {
+        "zenmoney": "Zenmoney",
+        "coinkeeper": "CoinKeeper",
+        "myday": "MyDay or any table"
+      },
+      "howTo": {
+        "zenmoney": "Export your transactions to CSV in the Zenmoney web app",
+        "coinkeeper": "Export your data to CSV from the app settings",
+        "myday": "Columns date, amount and, if you have them, type, category, tags, notes"
+      },
+      "pick": "Choose a file",
+      "change": "Another file",
+      "detected": "Format: {format}",
+      "unknown": "This file doesn’t look like an export from a supported app. Check that it’s a CSV with a header row.",
+      "skipped": {
+        "transfer": "Transfers between accounts: {count} — not moved over",
+        "date": "Rows without a valid date: {count}",
+        "amount": "Rows without an amount: {count}",
+        "type": "Rows with an unknown type: {count}"
+      },
+      "currencyWarning": "Amounts in the file are in {list}, the family uses {currency}. They’ll be imported as they are, without conversion.",
+      "categoriesTitle": "Categories",
+      "categoriesHint": "Match categories from the file with yours or create new ones",
+      "createNew": "New category",
+      "noCategory": "No category",
+      "income": "Income",
+      "expense": "Expense",
+      "submit": "Import {count}",
+      "importing": "Importing… {done} of {total}",
+      "doneTitle": "Done",
+      "doneBody": "Added: {created}. Already there: {existing}. New categories: {categories}, tags: {tags}.",
+      "toFinance": "Go to Finance",
+      "another": "Another file",
+      "error": "Couldn’t import the file — try again"
+    },
+    "import": "Import from CSV",
+    "importSub": "Zenmoney, CoinKeeper or a table"
   },
   "categories": {
     "food": "Food & Drink",

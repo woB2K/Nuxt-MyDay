@@ -1,9 +1,17 @@
 import type { z } from 'zod'
 import type { Budget, FinanceTag, SavingsEntry, SavingsGoal, Transaction } from '~~/prisma/.generated/prisma'
-import type { createBudgetSchema, createCategorySchema, createFinanceTagSchema, createSavingsGoalSchema, createSavingsSchema, createTransactionSchema, updateBudgetSchema, updateCategorySchema, updateFinanceTagSchema, updateSavingsGoalSchema, updateSavingsSchema, updateTransactionSchema } from '../schemas/finance'
+import type { createBudgetSchema, createCategorySchema, createFinanceTagSchema, createSavingsGoalSchema, createSavingsSchema, createTransactionSchema, importTransactionsSchema, updateBudgetSchema, updateCategorySchema, updateFinanceTagSchema, updateSavingsGoalSchema, updateSavingsSchema, updateTransactionSchema } from '../schemas/finance'
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>
+export type ImportTransactionsInput = z.input<typeof importTransactionsSchema>
+
+export interface ImportTransactionsResult {
+  created: number
+  existing: number
+  categories: number
+  tags: number
+}
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>
 export type CreateBudgetInput = z.infer<typeof createBudgetSchema>

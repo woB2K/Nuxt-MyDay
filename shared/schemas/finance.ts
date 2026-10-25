@@ -4,6 +4,10 @@ export const MAX_TRANSACTION_TAGS = 10
 export const MAX_AMOUNT = 9_999_999_999.99
 export const MAX_NOTES_LENGTH = 500
 export const MAX_NAME_LENGTH = 60
+export const MAX_TAG_NAME_LENGTH = 40
+export const MAX_IMPORT_ROWS = 500
+export const IMPORTED_CATEGORY_ICON = 'i-lucide-shapes'
+export const IMPORTED_CATEGORY_COLORS = ['#FB923C', '#60A5FA', '#F472B6', '#A78BFA', '#34D399', '#FBBF24', '#2DD4BF', '#F87171']
 
 const amount = z.number().positive().max(MAX_AMOUNT)
 const notes = z.string().max(MAX_NOTES_LENGTH)
@@ -107,8 +111,23 @@ export const createSavingsGoalSchema = z.object({
 export const updateSavingsGoalSchema = createSavingsGoalSchema.partial()
 
 export const createFinanceTagSchema = z.object({
-  name: z.string().trim().min(1).max(40),
+  name: z.string().trim().min(1).max(MAX_TAG_NAME_LENGTH),
   color: z.string().regex(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i).optional()
 })
 
 export const updateFinanceTagSchema = createFinanceTagSchema.partial()
+
+const importRowSchema = z.object({
+  fingerprint: z.string().min(1).max(1000),
+  type: transactionTypeEnum,
+  amount,
+  date: z.iso.date(),
+  notes: notes.optional(),
+  categoryId: z.string().min(1).max(64).optional(),
+  categoryName: z.string().trim().min(1).max(MAX_NAME_LENGTH).optional(),
+  tags: z.array(z.string().trim().min(1).max(MAX_TAG_NAME_LENGTH)).max(MAX_TRANSACTION_TAGS).default([])
+}).refine(row => Boolean(row.categoryId) !== Boolean(row.categoryName), 'Pass either categoryId or categoryName')
+
+export const importTransactionsSchema = z.object({
+  rows: z.array(importRowSchema).min(1).max(MAX_IMPORT_ROWS)
+})
