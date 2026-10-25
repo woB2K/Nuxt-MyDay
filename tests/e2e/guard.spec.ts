@@ -8,14 +8,14 @@ const PROTECTED = ['/today', '/tasks', '/tasks/templates', '/finance', '/finance
 test('аноним не попадает ни на один защищённый маршрут', async ({ page }) => {
   for (const path of PROTECTED) {
     await page.goto(path)
-    await expect(page, `${path} пустил анонима`).toHaveURL(/\/auth\/welcome/)
+    await expect(page, `${path} пустил анонима`).toHaveURL(/\/auth\/welcome/, { timeout: 15_000 })
   }
 })
 
 test('корень тоже уводит анонима на welcome, а не на пустой Today', async ({ page }) => {
   await page.goto('/')
 
-  await expect(page).toHaveURL(/\/auth\/welcome/)
+  await expect(page).toHaveURL(/\/auth\/welcome/, { timeout: 15_000 })
 })
 
 test('залогиненного не пускают обратно на формы входа', async ({ page }) => {

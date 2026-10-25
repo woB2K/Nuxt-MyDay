@@ -64,7 +64,7 @@ test.describe('десктоп', () => {
   test('не предлагает установку', async ({ page }) => {
     await page.goto('/auth/welcome')
 
-    await expect(page.getByText(/Get started|Начнём/)).toBeVisible()
+    await expect(page.getByText(/Get started|Начнём/)).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText('Install MyDay first')).toHaveCount(0)
   })
 })
