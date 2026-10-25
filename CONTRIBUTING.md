@@ -10,7 +10,7 @@ Thanks for wanting to help. MyDay is a small project with one maintainer, so a f
 
 ## Development setup
 
-You need Node.js 22, pnpm 10 and Docker (for the test database).
+You need Node.js 22 or newer, pnpm 10 and Docker (for the test database).
 
 ```bash
 pnpm install
