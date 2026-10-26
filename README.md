@@ -115,13 +115,13 @@ Everything is set in `.env` next to `docker-compose.yml`:
 
 ## Demo
 
-Want to look around first? In a folder prepared as in the quick start, download `docker-compose.demo.yml` next to `docker-compose.yml` and run the demo with a ready family and three months of history:
+Want to look around first? In a separate folder prepared as in the quick start, download `docker-compose.demo.yml` next to `docker-compose.yml` and run the demo with a ready family and three months of history:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d
 ```
 
-The welcome screen gets a **Try the demo** button. The demo resets every 24 hours (`DEMO_LANG=en` for an English family in dollars), and the PIN lock and family changes are turned off so one visitor can't spoil it for the next.
+The welcome screen gets a **Try the demo** button. The demo resets every 24 hours (`DEMO_LANG=en` for an English family in dollars), and the PIN lock and family changes are turned off so one visitor can't spoil it for the next. The demo runs as its own `myday-demo` project with its own database, and the reset refuses to touch a database that has any account besides the demo family.
 
 ## Development
 

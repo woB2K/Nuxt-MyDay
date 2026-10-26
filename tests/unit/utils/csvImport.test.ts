@@ -43,6 +43,10 @@ describe('parseDate', () => {
     expect(parseDate('5/10/26')).toBe('2026-10-05')
   })
 
+  it('читает месяц первым, когда его попросили', () => {
+    expect(parseDate('10/5/2026', true)).toBe('2026-10-05')
+  })
+
   it('отклоняет несуществующие даты', () => {
     expect(parseDate('31.02.2026')).toBeNull()
     expect(parseDate('вчера')).toBeNull()
@@ -73,6 +77,12 @@ describe('parseImport', () => {
       { date: '2026-10-02', type: 'EXPENSE', amount: 120.5, category: 'Transport', tags: [], notes: '' },
       { date: '2026-10-03', type: 'INCOME', amount: 50000, category: 'Salary', tags: [], notes: '' }
     ])
+  })
+
+  it('общий формат: американские даты месяц/день узнаёт по всему файлу', () => {
+    const parsed = parseImport(['date,amount', '10/5/2026,-100', '10/25/2026,-200'].join('\n'))!
+
+    expect(parsed.rows.map(row => row.date)).toEqual(['2026-10-05', '2026-10-25'])
   })
 
   it('дзен-мани: расход, доход и перевод между счетами, который пропускаем', () => {

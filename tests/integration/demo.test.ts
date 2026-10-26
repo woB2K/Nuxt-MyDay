@@ -1,6 +1,6 @@
 import type { ExtraServer } from './helpers'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { DEMO_EMAILS, resetDemo } from '../../scripts/admin/demo'
+import { DEMO_EMAILS, foreignAccounts, resetDemo } from '../../scripts/admin/demo'
 import { prisma, resetDb, setupApi, startExtraServer } from './helpers'
 
 describe('demo instance', async () => {
@@ -39,6 +39,14 @@ describe('demo instance', async () => {
     expect(await prisma.task.count()).toBeGreaterThan(5)
     expect(await prisma.habitMark.count()).toBeGreaterThan(20)
     expect(await prisma.savingsGoal.count()).toBe(1)
+  })
+
+  it('counts accounts that are not the demo family, so a reset never wipes a real install', async () => {
+    await resetDemo(prisma, { password: 'demo-pass-1', rounds: 4 })
+    expect(await foreignAccounts(prisma)).toBe(0)
+
+    await prisma.user.create({ data: { name: 'Real', email: 'real@example.com', passwordHash: 'x' } })
+    expect(await foreignAccounts(prisma)).toBe(1)
   })
 
   it('gives the same family every time it resets', async () => {

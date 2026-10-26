@@ -62,6 +62,10 @@ const HABITS: Array<{ name: Text, icon: string, color: string, perWeek: number |
   { name: { ru: 'Без сладкого', en: 'No sweets' }, icon: 'ban', color: 'pink', perWeek: null, chance: 0.6 }
 ]
 
+export async function foreignAccounts(prisma: PrismaClient): Promise<number> {
+  return prisma.user.count({ where: { email: { notIn: Object.values(DEMO_EMAILS) } } })
+}
+
 function random(seed: number) {
   let state = seed
   return () => {

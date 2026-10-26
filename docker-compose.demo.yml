@@ -1,3 +1,5 @@
+name: myday-demo
+
 services:
   app:
     environment:

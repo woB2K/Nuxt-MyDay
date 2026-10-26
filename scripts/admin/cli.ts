@@ -2,14 +2,14 @@ import process from 'node:process'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../../prisma/.generated/prisma/index.js'
 import { listUsers, resetPassword } from './admin'
-import { resetDemo } from './demo'
+import { foreignAccounts, resetDemo } from './demo'
 
 const USAGE = `Usage:
   pnpm admin users                              list accounts
   pnpm admin reset-password <email> [password]  set a new password and sign the user out everywhere;
                                                 without a password a random one is generated and printed
   pnpm admin demo-reset [ru|en]                 ERASE THE DATABASE and fill it with the demo family;
-                                                only runs with NUXT_DEMO=true, password from NUXT_DEMO_PASSWORD`
+                                                only runs with NUXT_DEMO=true and no other accounts, password from NUXT_DEMO_PASSWORD`
 
 async function main() {
   const [command, ...args] = process.argv.slice(2)
@@ -39,6 +39,8 @@ async function main() {
 
     if (command === 'demo-reset') {
       if (process.env.NUXT_DEMO !== 'true') throw new Error('demo-reset erases the database, so it only runs with NUXT_DEMO=true')
+      const foreign = await foreignAccounts(prisma)
+      if (foreign > 0) throw new Error(`demo-reset refused: the database has ${foreign} account(s) that are not the demo family. Run the demo with its own database (see docker-compose.demo.yml)`)
       const lang = args[0] === 'en' ? 'en' : 'ru'
       const rounds = Number(process.env.NUXT_PASSWORD_HASH_ROUNDS) || 12
       const account = await resetDemo(prisma, { lang, password: process.env.NUXT_DEMO_PASSWORD || undefined, rounds })

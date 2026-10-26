@@ -114,7 +114,7 @@ export function parseAmount(raw: string): number | null {
   return Number.isFinite(value) ? Math.round(value * 100) / 100 : null
 }
 
-export function parseDate(raw: string): string | null {
+export function parseDate(raw: string, monthFirst = false): string | null {
   const value = raw.trim()
   let match = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(value)
   let year: number, month: number, day: number
@@ -126,8 +126,8 @@ export function parseDate(raw: string): string | null {
   } else {
     match = /^(\d{1,2})[./](\d{1,2})[./](\d{2,4})/.exec(value)
     if (!match) return null
-    day = Number(match[1])
-    month = Number(match[2])
+    day = Number(match[monthFirst ? 2 : 1])
+    month = Number(match[monthFirst ? 1 : 2])
     year = Number(match[3])
     if (year < 100) year += 2000
   }
@@ -229,14 +229,20 @@ function cell(row: string[], found: Columns, name: string): string {
   return index === undefined ? '' : (row[index] ?? '').trim().replace(/^'(?=[=+\-@])/, '')
 }
 
-function mydayDraft(row: string[], found: Columns, line: number): Draft {
+function slashDatesMonthFirst(values: string[]): boolean {
+  const parts = values.map(value => /^(\d{1,2})\/(\d{1,2})\//.exec(value.trim())).filter(match => match !== null)
+
+  return parts.some(match => Number(match[2]) > 12) && !parts.some(match => Number(match[1]) > 12)
+}
+
+function mydayDraft(row: string[], found: Columns, line: number, monthFirst: boolean): Draft {
   const amount = parseAmount(cell(row, found, 'amount'))
   const rawType = cell(row, found, 'type')
   const signed = amount === null ? null : amount < 0 ? 'EXPENSE' : 'INCOME'
 
   return {
     line,
-    date: parseDate(cell(row, found, 'date')),
+    date: parseDate(cell(row, found, 'date'), monthFirst),
     type: rawType ? parseType(rawType) : signed,
     amount: amount === null ? null : Math.abs(amount),
     category: cell(row, found, 'category'),
@@ -275,7 +281,7 @@ function coinkeeperDraft(row: string[], found: Columns, line: number): Draft {
   }
 }
 
-const DRAFTS: Record<ImportSource, { aliases: Record<string, string[]>, draft: (row: string[], found: Columns, line: number) => Draft }> = {
+const DRAFTS: Record<ImportSource, { aliases: Record<string, string[]>, draft: (row: string[], found: Columns, line: number, monthFirst: boolean) => Draft }> = {
   myday: { aliases: MYDAY_COLUMNS, draft: mydayDraft },
   zenmoney: { aliases: ZENMONEY_COLUMNS, draft: zenmoneyDraft },
   coinkeeper: { aliases: COINKEEPER_COLUMNS, draft: coinkeeperDraft }
@@ -293,10 +299,11 @@ export function parseImport(text: string): ParsedImport | null {
   const rows: ImportRow[] = []
   const skipped: ImportSkip[] = []
   const seen = new Map<string, number>()
+  const monthFirst = source === 'myday' && slashDatesMonthFirst(body.map(cells => cell(cells, found, 'date')))
 
   body.forEach((cells, index) => {
     const line = index + 2
-    const item = draft(cells, found, line)
+    const item = draft(cells, found, line, monthFirst)
 
     if (item.type === 'TRANSFER') return skipped.push({ line, reason: 'transfer' })
     if (!item.date) return skipped.push({ line, reason: 'date' })
