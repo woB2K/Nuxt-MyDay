@@ -160,7 +160,7 @@ function remove() {
       <span class="mt-5 mb-2.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-text-dim">
         {{ t('habits.sheet.schedule') }}
       </span>
-      <div class="flex gap-1 rounded-xl border border-hairline bg-elev1 p-[3px]" role="radiogroup">
+      <div class="flex gap-1 rounded-md border border-hairline bg-elev1 p-[3px]" role="radiogroup">
         <button
           v-for="option in schedules"
           :key="String(option.weekly)"
