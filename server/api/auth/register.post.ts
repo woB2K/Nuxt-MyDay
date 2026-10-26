@@ -4,6 +4,7 @@ import { orConflict } from '~~/server/utils/dbError'
 import { hashToken } from '~~/server/utils/jwt'
 import { toPublicUser } from '~~/server/utils/mapper'
 import { requireRegistration } from '~~/server/utils/registration'
+import { currencyForLang } from '~~/shared/currency'
 import { registerSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -22,12 +23,13 @@ export default defineEventHandler(async (event) => {
       }
     })
     const household = await tx.household.create({
-      data: { members: { create: { userId: newUser.id, role: 'OWNER' } } }
+      data: { currency: currencyForLang(body.lang), members: { create: { userId: newUser.id, role: 'OWNER' } } }
     })
     await seedCategories(tx, household.id)
     const appSettings = await tx.appSettings.create({
       data: {
-        userId: newUser.id
+        userId: newUser.id,
+        ...(body.lang && { lang: body.lang })
       }
     })
 

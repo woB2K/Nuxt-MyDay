@@ -73,6 +73,16 @@ docker compose pull && docker compose up -d
 
 Database migrations run by themselves on every start. To stay on a version, set `MYDAY_VERSION=2.3.0` in `.env`; what changed is listed in **Settings → What's new** and on the GitHub releases page.
 
+### Upgrading an install that builds its own image
+
+If your server was set up when `docker-compose.yml` still had `build:` instead of `image:`, add to its `.env` before pulling the new compose file:
+
+```bash
+COMPOSE_PROFILES=backup        # the backup service now runs only with this profile; add caddy if you use the bundled one
+ALLOW_REGISTRATION=true        # only if strangers should still be able to sign up; closed is the new default
+COMPOSE_FILE=docker-compose.yml:docker-compose.build.yml   # keep building on the server instead of pulling images
+```
+
 ## Backups
 
 Your family's finances live in the `pgdata` Docker volume. The simplest backup is a dump you copy somewhere else:
@@ -115,13 +125,17 @@ Everything is set in `.env` next to `docker-compose.yml`:
 
 ## Demo
 
-Want to look around first? In a separate folder prepared as in the quick start, download `docker-compose.demo.yml` next to `docker-compose.yml` and run the demo with a ready family and three months of history:
+Want to look around first? Make a separate folder, prepare it as in the quick start but skip `docker compose up -d`, then add the demo override and tell compose to always use both files:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d
+curl -fsSLO https://raw.githubusercontent.com/woB2K/Nuxt-MyDay/main/docker-compose.demo.yml
+echo 'COMPOSE_FILE=docker-compose.yml:docker-compose.demo.yml' >> .env
+docker compose up -d
 ```
 
-The welcome screen gets a **Try the demo** button. The demo resets every 24 hours (`DEMO_LANG=en` for an English family in dollars), and the PIN lock and family changes are turned off so one visitor can't spoil it for the next. The demo runs as its own `myday-demo` project with its own database, and the reset refuses to touch a database that has any account besides the demo family.
+From then on every `docker compose` command in that folder, `down -v` included, touches only the demo: it runs as its own `myday-demo` project with its own database, a ready family and three months of history. If a real MyDay runs on the same server, also give the demo another `APP_PORT` and drop `caddy` from its `COMPOSE_PROFILES`.
+
+The welcome screen gets a **Try the demo** button. The demo resets every 24 hours (`DEMO_LANG=en` for an English family in dollars), and the PIN lock and family changes are turned off so one visitor can't spoil it for the next. The reset refuses to touch a database that has any account besides the demo family.
 
 ## Development
 

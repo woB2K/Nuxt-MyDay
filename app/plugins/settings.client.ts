@@ -29,6 +29,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   const colorMode = useColorMode()
   const i18n = nuxtApp.$i18n as { setLocale: (code: 'en' | 'ru') => Promise<void> }
 
+  let localeChange = Promise.resolve()
+
   ui.accent = readAccent()
 
   watch(() => ui.accent, writeAccent)
@@ -40,6 +42,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     ui.accent = toAccentName(settings.accent)
 
-    if (settings.lang === 'en' || settings.lang === 'ru') i18n.setLocale(settings.lang)
+    const lang = settings.lang
+    if (lang === 'en' || lang === 'ru') localeChange = localeChange.then(() => i18n.setLocale(lang), () => i18n.setLocale(lang))
   }, { immediate: true })
 })

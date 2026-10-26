@@ -6,9 +6,7 @@ import { IMPORTED_CATEGORY_COLORS, IMPORTED_CATEGORY_ICON, importTransactionsSch
 
 type TransactionType = 'INCOME' | 'EXPENSE'
 
-function importId(householdId: string, fingerprint: string): string {
-  return createHash('sha256').update(`${householdId}\n${fingerprint}`).digest('hex').slice(0, 32)
-}
+const digest = (value: string) => createHash('sha256').update(value).digest('hex').slice(0, 32)
 
 const nameKey = (name: string) => name.trim().toLocaleLowerCase()
 const categoryKey = (name: string, type: TransactionType) => `${type}:${nameKey(name)}`
@@ -66,16 +64,18 @@ export default defineEventHandler(async (event): Promise<ImportTransactionsResul
   const household = await getHousehold(event)
   const { rows } = await readValidatedBody(event, importTransactionsSchema.parse)
 
-  const withIds = rows.map(row => ({ ...row, id: importId(household.id, row.fingerprint) }))
+  const withIds = rows.map(row => ({ ...row, id: digest(`${household.id}\n${row.fingerprint}`), importKey: digest(row.fingerprint) }))
   const unique = [...new Map(withIds.map(row => [row.id, row])).values()]
 
   return prisma.$transaction(async (tx) => {
-    const present = new Set((await tx.transaction.findMany({
-      where: { id: { in: unique.map(row => row.id) } },
-      select: { id: true }
-    })).map(row => row.id))
+    const present = await tx.transaction.findMany({
+      where: { OR: [{ id: { in: unique.map(row => row.id) } }, { householdId: household.id, importKey: { in: unique.map(row => row.importKey) } }] },
+      select: { id: true, importKey: true }
+    })
+    const presentIds = new Set(present.map(row => row.id))
+    const presentKeys = new Set(present.map(row => row.importKey))
 
-    const fresh = unique.filter(row => !present.has(row.id))
+    const fresh = unique.filter(row => !presentIds.has(row.id) && !presentKeys.has(row.importKey))
     const categories = await resolveCategories(tx, household.id, fresh)
     const tags = await resolveTags(tx, household.id, fresh.flatMap(row => row.tags))
 
@@ -83,6 +83,7 @@ export default defineEventHandler(async (event): Promise<ImportTransactionsResul
       skipDuplicates: true,
       data: fresh.map(row => ({
         id: row.id,
+        importKey: row.importKey,
         householdId: household.id,
         userId,
         type: row.type,

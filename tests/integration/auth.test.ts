@@ -42,6 +42,17 @@ describe('auth api', async () => {
       expect(result.accessToken).toBeTruthy()
     })
 
+    it.each([
+      ['ru', 'ru', 'RUB'],
+      ['en', 'en', 'USD'],
+      [undefined, 'en', 'RUB']
+    ])('keeps the language %s of the sign-up form and starts the family in its currency', async (lang, savedLang, currency) => {
+      const result = await post('/api/auth/register', { ...valid, lang }) as { user: { settings: { lang: string }, currency: string } }
+
+      expect(result.user.settings.lang).toBe(savedLang)
+      expect(result.user.currency).toBe(currency)
+    })
+
     it('answers 409 to an email that is already taken', async () => {
       await post('/api/auth/register', valid)
 

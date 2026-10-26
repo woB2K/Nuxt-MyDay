@@ -4,7 +4,7 @@ import { homePath } from '~/utils/family'
 
 definePageMeta({ layout: 'auth' })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const { canRegister, invite } = useRegistration()
 
@@ -23,7 +23,7 @@ async function handleSubmit() {
   passwordError.value = ''
   formError.value = ''
 
-  const result = registerSchema.safeParse({ name: name.value, email: email.value, password: password.value, inviteToken: invite.value })
+  const result = registerSchema.safeParse({ name: name.value, email: email.value, password: password.value, inviteToken: invite.value, lang: locale.value })
   if (!result.success) {
     for (const issue of result.error.issues) {
       if (issue.path[0] === 'name') nameError.value = t('auth.errorShortName')

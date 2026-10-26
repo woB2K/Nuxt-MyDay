@@ -217,6 +217,7 @@ model Transaction {
   notes       String?
   date        DateTime        @db.Date
   deletedAt   DateTime?
+  importKey   String?         @db.VarChar(32)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -226,6 +227,7 @@ model Transaction {
   tags      TransactionTag[]
 
   @@index([householdId, deletedAt])
+  @@index([householdId, importKey])
   @@index([userId, deletedAt])
 }
 

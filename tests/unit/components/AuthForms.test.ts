@@ -13,7 +13,7 @@ const { store, navigate, registration } = vi.hoisted(() => ({
 
 mockNuxtImport('useAuthStore', () => () => store)
 mockNuxtImport('navigateTo', () => navigate)
-mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key }))
+mockNuxtImport('useI18n', () => () => ({ t: (key: string) => key, locale: ref('ru') }))
 mockNuxtImport('useRegistration', () => () => ({
   canRegister: computed(() => registration.open || Boolean(registration.invite)),
   invite: ref(registration.invite)
@@ -72,7 +72,7 @@ describe('форма регистрации', () => {
 
     await submit(wrapper)
 
-    expect(store.register).toHaveBeenCalledWith({ name: 'Max', email: 'max@test.local', password: 'password123' })
+    expect(store.register).toHaveBeenCalledWith({ name: 'Max', email: 'max@test.local', password: 'password123', lang: 'ru' })
     expect(navigate).toHaveBeenCalledWith('/today')
   })
 

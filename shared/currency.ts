@@ -30,6 +30,10 @@ export type Currency = typeof CURRENCIES[number]
 
 export const DEFAULT_CURRENCY: Currency = 'RUB'
 
+export function currencyForLang(lang: string | undefined): Currency {
+  return lang === 'en' ? 'USD' : DEFAULT_CURRENCY
+}
+
 export function toCurrency(value: string | null | undefined): Currency {
   return CURRENCIES.find(code => code === value) ?? DEFAULT_CURRENCY
 }

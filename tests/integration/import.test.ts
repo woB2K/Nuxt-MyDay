@@ -71,6 +71,19 @@ describe('transaction import', async () => {
     expect(await transactions(boris)).toHaveLength(1)
   })
 
+  it('does not duplicate a file imported before joining a family when it is imported again after', async () => {
+    const anna = await registerUser()
+    const boris = await registerUser()
+    await importRows(boris, [row('a'), row('b')])
+
+    const { token } = await $fetch<{ token: string }>('/api/household/invite', { method: 'POST', headers: authHeaders(anna.token) })
+    await $fetch('/api/household/join', { method: 'POST', headers: authHeaders(boris.token), body: { token } })
+
+    expect(await importRows(boris, [row('a'), row('b')])).toMatchObject({ created: 0, existing: 2 })
+    expect(await importRows(anna, [row('a')])).toMatchObject({ created: 0, existing: 1 })
+    expect(await transactions(anna)).toHaveLength(2)
+  })
+
   it('refuses a category of another family, a type mismatch and malformed rows', async () => {
     const anna = await registerUser()
     const boris = await registerUser()

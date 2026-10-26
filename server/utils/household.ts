@@ -172,8 +172,9 @@ async function copyTransactions(tx: Prisma.TransactionClient, fromId: string, to
     include: { tags: { select: { tagId: true } } }
   })
 
-  const copyOf = ({ type, amount, notes, date, categoryId }: typeof transactions[number]) => ({
+  const copyOf = ({ type, amount, notes, date, categoryId, importKey }: typeof transactions[number]) => ({
     householdId: toId,
+    importKey,
     userId,
     type,
     amount,

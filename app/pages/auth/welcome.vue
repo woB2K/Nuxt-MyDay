@@ -1,10 +1,14 @@
 <script lang="ts" setup>
+import { isThemePreference } from '~/composables/useTheme'
 import { clearPendingInvite, homePath, pendingInvite } from '~/utils/family'
 
 definePageMeta({
   layout: 'auth'
 })
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const colorMode = useColorMode()
+const ui = useUiStore()
+const updateSettings = useUpdateSettingsMutation()
 
 const inviteToken = ref<string>()
 const { data: invite, error: inviteError } = useGuestInviteQuery(inviteToken)
@@ -17,9 +21,16 @@ async function enterDemo() {
   const demo = instance.value?.demo
   if (!demo) return
 
+  const mine = {
+    lang: locale.value,
+    accent: ui.accent,
+    ...(isThemePreference(colorMode.preference) && { theme: colorMode.preference })
+  }
+
   enteringDemo.value = true
   try {
     await authStore.login(demo)
+    await updateSettings.mutateAsync(mine).catch(() => {})
     await navigateTo(homePath())
   } catch {
     useAppToast().error(t('welcome.demoError'))
