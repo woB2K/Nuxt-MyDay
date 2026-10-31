@@ -26,6 +26,16 @@ const {
 } = useTransactionPagesQuery(period, filters)
 
 const { mutate: deleteTransaction } = useDeleteTransactionMutation()
+const { exportCsv, exporting } = useTransactionExport()
+const toast = useAppToast()
+
+async function downloadCsv() {
+  try {
+    await exportCsv(financeStore.period, financeStore.filters)
+  } catch {
+    toast.error(t('finance.export.error'))
+  }
+}
 
 onBeforeRouteLeave(() => financeStore.leaveDrill())
 
@@ -85,9 +95,14 @@ function applyCategories(ids: string[]) {
 
 <template>
   <div class="flex flex-col p-4 gap-3">
-    <UiRoundBtn class="mb-1" @click="navigateTo('/finance')">
-      <UIcon name="i-lucide-chevron-left" class="w-4.5 h-4.5" />
-    </UiRoundBtn>
+    <div class="mb-1 flex items-center justify-between">
+      <UiRoundBtn @click="navigateTo('/finance')">
+        <UIcon name="i-lucide-chevron-left" class="w-4.5 h-4.5" />
+      </UiRoundBtn>
+      <UiRoundBtn :aria-label="t('finance.export.action')" :disabled="exporting" data-testid="export-csv" @click="downloadCsv">
+        <UIcon :name="exporting ? 'i-lucide-loader-circle' : 'i-lucide-download'" class="w-4.5 h-4.5" :class="{ 'animate-spin': exporting }" />
+      </UiRoundBtn>
+    </div>
 
     <div class="flex flex-col gap-1">
       <h1 class="text-3xl font-bold text-text">
