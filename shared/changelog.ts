@@ -2,6 +2,34 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.3.0',
+    date: '2026-11-01',
+    title: { en: 'Report Day', ru: 'День отчётов' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Export transactions to CSV from All transactions — the file keeps the selected period and filters and opens in Excel or Google Sheets',
+          ru: 'Выгрузка операций в CSV на экране «Все операции» — с выбранным периодом и фильтрами, файл открывается в Excel и Google Таблицах'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Tap a category in the Finance breakdown to see its transactions; going back brings the full breakdown back',
+          ru: 'Тап по категории в разбивке на «Финансах» открывает её операции, а при возврате назад разбивка снова полная'
+        }
+      },
+      {
+        type: 'fixed',
+        text: {
+          en: 'The schedule switch in the habit editor has neater rounded corners',
+          ru: 'У переключателя расписания в редакторе привычки — аккуратные скругления'
+        }
+      }
+    ]
+  },
+  {
     version: '2.2.0',
     date: '2026-10-15',
     title: { en: 'Day by Day', ru: 'День за днём' },

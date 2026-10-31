@@ -422,8 +422,9 @@ props:
   amount:      number
   maxAmount:   number   (для ширины бара относительно максимума)
   totalAmount: number   (для процента от общего)
+  clickable:   boolean  (вся строка — кнопка, справа шеврон; на «Финансах» открывает транзакции категории)
 
-layout: [icon 36px] [name + progress bar + %] [amount]
+layout: [icon 36px] [name + progress bar + %] [amount] [› если clickable]
 ```
 
 #### `UiSettingRow`

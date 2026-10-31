@@ -249,6 +249,10 @@
       "toggle": "{amount}, hide amounts",
       "show": "Amounts hidden, show them",
       "hiddenAmount": "amount hidden"
+    },
+    "export": {
+      "action": "Export to CSV",
+      "error": "Couldn’t export — try again"
     }
   },
   "tasks": {

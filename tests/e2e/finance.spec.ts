@@ -75,3 +75,41 @@ test('стартовый остаток не пополнение: снятие 
   await expect(page.getByText('230 000 ₽', { exact: true })).toBeVisible()
   await expect(page.locator('span.rounded-full', { hasText: '−15 000 ₽' })).toBeVisible()
 })
+
+test('тап по категории в разбивке открывает её транзакции, назад — разбивка снова полная', async ({ page, request }) => {
+  const email = uniqueEmail()
+  await registerViaApi(request, email)
+
+  const login = await request.post('/api/auth/login', {
+    headers: { 'x-forwarded-for': fakeIp() },
+    data: { email, password: PASSWORD }
+  })
+  const { accessToken } = await login.json()
+  const auth = { Authorization: `Bearer ${accessToken}` }
+
+  const categories = await (await request.get('/api/categories', { headers: auth })).json()
+  const [first, second] = categories.filter((c: { type: string }) => c.type === 'EXPENSE')
+  const date = new Date().toISOString().slice(0, 10)
+  for (const [category, amount] of [[first, 111], [second, 222]] as const) {
+    const created = await request.post('/api/finance/transactions', {
+      headers: auth,
+      data: { type: 'EXPENSE', amount, categoryId: category.id, date }
+    })
+    expect(created.ok()).toBe(true)
+  }
+
+  await loginViaUi(page, email)
+  await page.goto('/finance')
+
+  await page.getByRole('button').filter({ hasText: '33%' }).click()
+
+  await expect(page).toHaveURL(/\/finance\/transactions$/)
+  await expect(page.getByText('-111 ₽')).toBeVisible()
+  await expect(page.getByText('-222 ₽')).toBeHidden()
+
+  await page.goBack()
+
+  await expect(page).toHaveURL(/\/finance$/)
+  await expect(page.getByRole('button').filter({ hasText: '33%' })).toBeVisible()
+  await expect(page.getByRole('button').filter({ hasText: '67%' })).toBeVisible()
+})
