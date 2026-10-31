@@ -58,6 +58,11 @@ function applyFilters(next: TransactionFilters) {
 function applyCategories(ids: string[]) {
   financeStore.filters = { ...financeStore.filters, categoryIds: ids }
 }
+
+function openCategory(categoryId: string) {
+  financeStore.drillIntoCategory(categoryId)
+  navigateTo('/finance/transactions')
+}
 </script>
 
 <template>
@@ -144,6 +149,8 @@ function applyCategories(ids: string[]) {
           :max-amount="maxAmount"
           :amount="item.total"
           :category="item.category"
+          clickable
+          @click="openCategory(item.category.id)"
         />
       </UiCard>
 

@@ -27,6 +27,8 @@ const {
 
 const { mutate: deleteTransaction } = useDeleteTransactionMutation()
 
+onBeforeRouteLeave(() => financeStore.leaveDrill())
+
 const periodSheetOpen = ref(false)
 const categoriesSheetOpen = ref(false)
 const editSheetOpen = ref(false)

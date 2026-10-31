@@ -35,7 +35,7 @@ description: Что уже есть в app/components/ui/ проекта MyDay �
 | `UiTaskTemplateRow` | `template`; события `use`, `edit` | Тап по строке — `edit`, кнопка «Применить» — `use` (со `@click.stop`) |
 | `UiStatsCard` | `type` streak/progress, `value`, `total` (progress) | Подписи свои, через `t('tasks.stats.*')`; у стрика подпись «серия задач» — чтобы не путать с огнём привычек. Прогресс не уходит за 100% и не делит на ноль |
 | `UiCategoryTile` | `category`, `selected` | Плитка сетки категорий 4 в ряд |
-| `UiCategoryBar` | `category`, `amount`, `maxAmount`, `totalAmount` | Строка разбивки расходов с полосой и процентом |
+| `UiCategoryBar` | `category`, `amount`, `maxAmount`, `totalAmount`, `clickable`; событие `click` | Строка разбивки расходов с полосой и процентом. `clickable` — вся строка кнопка с шевроном, как `UiSettingRow` |
 | `UiSavingsCard` | `balance`, `delta`, `sharedWith` (участники — бейдж «Общая»); события `add`, `withdraw` | `balance` — всегда за всё время, `delta` — за выбранный период. Тап по балансу переключает privacy mode, как сумма в hero «Финансов» |
 | `UiCard` | `padding` (16), `hero`, `pressable` | Радиус фиксированный (`rounded-2xl`), фон `bg-elev2` или градиент при `hero`. Для списков `:padding="0"` + `class="overflow-hidden border border-hairline"` |
 | `UiSectionHeader` | `title`, `caption`; слот `action` | В `action` кладут «See all →», «+» и т.п. |

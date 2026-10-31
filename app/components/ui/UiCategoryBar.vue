@@ -7,19 +7,32 @@ interface Props {
   amount: number
   maxAmount: number
   totalAmount: number
+  clickable?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { clickable: false })
+
+const emit = defineEmits<{ click: [] }>()
 
 const { t } = useI18n()
 const label = computed(() => categoryLabel(props.category, t))
 
 const barWidth = computed(() => `${Math.round((props.amount / props.maxAmount) * 100)}%`)
 const percentage = computed(() => Math.round((props.amount / props.totalAmount) * 100))
+
+function onClick() {
+  if (props.clickable) emit('click')
+}
 </script>
 
 <template>
-  <div class="flex items-center gap-3 p-4 border-b border-hairline last:border-b-0">
+  <component
+    :is="props.clickable ? 'button' : 'div'"
+    class="flex w-full items-center gap-3 p-4 text-left border-b border-hairline last:border-b-0"
+    :class="props.clickable ? 'cursor-pointer transition-colors duration-fast active:bg-elev3' : ''"
+    :type="props.clickable ? 'button' : undefined"
+    @click="onClick"
+  >
     <div
       class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
       :style="{ backgroundColor: `${props.category.color}26` }"
@@ -47,5 +60,11 @@ const percentage = computed(() => Math.round((props.amount / props.totalAmount) 
     <span class="text-text text-sm font-semibold shrink-0 tabular-nums">
       <UiMoney :amount="props.amount" />
     </span>
-  </div>
+
+    <UIcon
+      v-if="props.clickable"
+      name="i-lucide-chevron-right"
+      class="-ml-1 size-4 shrink-0 text-text-mute"
+    />
+  </component>
 </template>
