@@ -20,6 +20,16 @@ const {
 
 const { mutate: deleteEntry } = useDeleteSavingsMutation()
 const { data: goals } = useGoalsQuery()
+const { exportCsv, exporting } = useSavingsExport()
+const toast = useAppToast()
+
+async function downloadCsv() {
+  try {
+    await exportCsv(financeStore.period)
+  } catch {
+    toast.error(t('finance.export.error'))
+  }
+}
 
 const goalNames = computed(() => new Map((goals.value ?? []).map(goal => [goal.id, goal.name])))
 
@@ -94,7 +104,19 @@ function applyPeriod(next: Period) {
         @open-sheet="periodSheetOpen = true"
       />
 
-      <UiSectionHeader :title="t('finance.savings.history')" :caption="`${summary.total}`" />
+      <UiSectionHeader :title="t('finance.savings.history')" :caption="`${summary.total}`">
+        <template v-if="summary.total" #action>
+          <UiRoundBtn
+            :size="32"
+            :aria-label="t('finance.savings.export')"
+            :disabled="exporting"
+            data-testid="savings-export-csv"
+            @click="downloadCsv"
+          >
+            <UIcon :name="exporting ? 'i-lucide-loader-circle' : 'i-lucide-download'" class="w-4 h-4" :class="{ 'animate-spin': exporting }" />
+          </UiRoundBtn>
+        </template>
+      </UiSectionHeader>
 
       <UiEmptyState
         v-if="entries.length === 0"
