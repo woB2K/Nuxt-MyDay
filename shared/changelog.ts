@@ -2,6 +2,20 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.3.1',
+    date: '2026-11-05',
+    title: { en: 'Cleanup Day', ru: 'День уборки' },
+    changes: [
+      {
+        type: 'improved',
+        text: {
+          en: 'Export savings to CSV from the Savings tab — the file keeps the selected period, with goal, note and author for every entry',
+          ru: 'Выгрузка копилки в CSV на вкладке «Копилка» — за выбранный период, с целью, заметкой и автором каждой записи'
+        }
+      }
+    ]
+  },
+  {
     version: '2.3.0',
     date: '2026-11-01',
     title: { en: 'Report Day', ru: 'День отчётов' },

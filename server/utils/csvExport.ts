@@ -1,4 +1,5 @@
 export const EXPORT_HEADER = ['date', 'type', 'amount', 'currency', 'category', 'tags', 'notes', 'author']
+export const SAVINGS_EXPORT_HEADER = ['date', 'type', 'amount', 'currency', 'goal', 'notes', 'author']
 
 export function categoryName(category: { name: string, key: string | null }, names: Record<string, string>): string {
   return (category.key && names[category.key]) || category.name

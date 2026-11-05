@@ -176,7 +176,8 @@
       "opening": "Opening balance",
       "setOpening": "Set opening balance",
       "startPoint": "Starting point",
-      "openingHint": "What you have saved already. It counts toward the balance, but not as a deposit — gains and losses are measured from it."
+      "openingHint": "What you have saved already. It counts toward the balance, but not as a deposit — gains and losses are measured from it.",
+      "export": "Export savings to CSV"
     },
     "netPeriod": "Net this period",
     "period": {
