@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { MAX_NAME_LENGTH } from './finance'
+import { reminderTimeSchema } from './push'
 
 export const HABIT_MARK_WINDOW_DAYS = 7
 export const MIN_PER_WEEK = 1
@@ -33,11 +34,13 @@ const habitFields = z.object({
   name: z.string().trim().min(1).max(MAX_NAME_LENGTH),
   icon: habitIconSchema,
   color: habitColorSchema,
-  perWeek: perWeekSchema
+  perWeek: perWeekSchema,
+  reminderAt: reminderTimeSchema.nullable()
 })
 
 export const createHabitSchema = habitFields.extend({
-  perWeek: perWeekSchema.default(null)
+  perWeek: perWeekSchema.default(null),
+  reminderAt: reminderTimeSchema.nullable().default(null)
 })
 
 export const updateHabitSchema = habitFields.partial()

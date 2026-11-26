@@ -13,7 +13,11 @@ export function toPublicSettings(settings: AppSettings) {
     accent: settings.accent,
     lang: settings.lang,
     pinEnabled: settings.pinEnabled,
-    habitsOnToday: settings.habitsOnToday
+    habitsOnToday: settings.habitsOnToday,
+    hideAmounts: settings.hideAmounts,
+    timezone: settings.timezone,
+    remindFinanceAt: settings.remindFinanceAt,
+    remindTasksAt: settings.remindTasksAt
   }
 }
 

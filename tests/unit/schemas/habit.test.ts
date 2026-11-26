@@ -12,7 +12,7 @@ const valid = { name: '  Медитация  ', icon: 'leaf', color: 'green' }
 
 describe('createHabitSchema', () => {
   it('trims the name and makes the habit daily by default', () => {
-    expect(createHabitSchema.parse(valid)).toEqual({ name: 'Медитация', icon: 'leaf', color: 'green', perWeek: null })
+    expect(createHabitSchema.parse(valid)).toEqual({ name: 'Медитация', icon: 'leaf', color: 'green', perWeek: null, reminderAt: null })
   })
 
   it('accepts 1 to 6 times a week', () => {
@@ -41,6 +41,12 @@ describe('updateHabitSchema', () => {
 
   it('rejects an empty body', () => {
     expect(updateHabitSchema.safeParse({}).success).toBe(false)
+  })
+
+  it('sets and clears the reminder time', () => {
+    expect(updateHabitSchema.safeParse({ reminderAt: '08:05' }).success).toBe(true)
+    expect(updateHabitSchema.safeParse({ reminderAt: null }).success).toBe(true)
+    expect(updateHabitSchema.safeParse({ reminderAt: '8:00' }).success).toBe(false)
   })
 })
 

@@ -15,18 +15,20 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  oauthAccounts OAuthAccount[]
-  refreshTokens RefreshToken[]
-  settings      AppSettings?
-  tasks         Task[]
-  habits        Habit[]
-  templates     TaskTemplate[]
-  tags          Tag[]
-  transactions  Transaction[]
-  savings       SavingsEntry[]
-  goals         SavingsGoal[]
-  membership    HouseholdMember?
-  invites       HouseholdInvite[]
+  oauthAccounts     OAuthAccount[]
+  refreshTokens     RefreshToken[]
+  settings          AppSettings?
+  tasks             Task[]
+  habits            Habit[]
+  templates         TaskTemplate[]
+  tags              Tag[]
+  transactions      Transaction[]
+  savings           SavingsEntry[]
+  goals             SavingsGoal[]
+  membership        HouseholdMember?
+  invites           HouseholdInvite[]
+  pushSubscriptions PushSubscription[]
+  notificationLogs  NotificationLog[]
 }
 
 model Household {
@@ -86,6 +88,32 @@ model OAuthAccount {
   @@unique([provider, providerAccountId])
 }
 
+model PushSubscription {
+  id            String    @id @default(cuid())
+  userId        String
+  endpoint      String    @unique
+  p256dh        String
+  auth          String
+  userAgent     String?
+  lastSuccessAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model NotificationLog {
+  userId    String
+  key       String
+  localDate DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, key, localDate])
+}
+
 model RefreshToken {
   id        String   @id @default(cuid())
   userId    String
@@ -97,16 +125,20 @@ model RefreshToken {
 }
 
 model AppSettings {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  theme         String   @default("dark")
-  accent        String   @default("#A78BFA")
-  lang          String   @default("en")
-  pinEnabled    Boolean  @default(false)
-  pinHash       String?
-  habitsOnToday Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  theme           String   @default("dark")
+  accent          String   @default("#A78BFA")
+  lang            String   @default("en")
+  pinEnabled      Boolean  @default(false)
+  pinHash         String?
+  habitsOnToday   Boolean  @default(true)
+  hideAmounts     Boolean  @default(false)
+  timezone        String   @default("UTC")
+  remindFinanceAt String?
+  remindTasksAt   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id])
 }
@@ -131,16 +163,17 @@ model Task {
 }
 
 model Habit {
-  id        String    @id @default(cuid())
-  userId    String
-  name      String
-  icon      String
-  color     String
-  perWeek   Int?
-  sortOrder Int       @default(0)
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  userId     String
+  name       String
+  icon       String
+  color      String
+  perWeek    Int?
+  reminderAt String?
+  sortOrder  Int       @default(0)
+  deletedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   user  User        @relation(fields: [userId], references: [id])
   marks HabitMark[]
