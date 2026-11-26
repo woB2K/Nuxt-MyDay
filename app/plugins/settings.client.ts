@@ -41,5 +41,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     ui.accent = toAccentName(settings.accent)
 
     if (settings.lang === 'en' || settings.lang === 'ru') i18n.setLocale(settings.lang)
+
+    if (typeof settings.hideAmounts === 'boolean') ui.setAmountsHidden(settings.hideAmounts)
   }, { immediate: true })
 })
