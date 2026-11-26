@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { pushSubscriptionSchema, pushUnsubscribeSchema, reminderTimeSchema, timezoneSchema } from '../../../shared/schemas/push'
+import { isPushServiceEndpoint, pushSubscriptionSchema, pushUnsubscribeSchema, reminderTimeSchema, timezoneSchema } from '../../../shared/schemas/push'
 import { updateSettingsSchema } from '../../../shared/schemas/settings'
 
 const subscription = {
@@ -42,6 +42,27 @@ describe('pushSubscriptionSchema', () => {
   it('accepts only https endpoints', () => {
     expect(pushSubscriptionSchema.safeParse({ ...subscription, endpoint: 'http://push.example/abc' }).success).toBe(false)
     expect(pushUnsubscribeSchema.safeParse({ endpoint: 'javascript:alert(1)' }).success).toBe(false)
+  })
+
+  it('accepts only the browsers’ push services, so the server never calls an arbitrary host', () => {
+    for (const endpoint of [
+      'https://fcm.googleapis.com/fcm/send/abc',
+      'https://updates.push.services.mozilla.com/wpush/v2/abc',
+      'https://web.push.apple.com/QGx',
+      'https://wns2-par02p.notify.windows.com/w/?token=abc'
+    ]) expect(isPushServiceEndpoint(endpoint), endpoint).toBe(true)
+
+    for (const endpoint of [
+      'https://127.0.0.1/abc',
+      'https://10.0.0.5/push',
+      'https://fcm.googleapis.com.evil.example/abc',
+      'https://evilnotify.windows.com/abc',
+      'https://fcm.googleapis.com:8443/abc',
+      'https://user:pass@fcm.googleapis.com/abc',
+      'http://fcm.googleapis.com/abc'
+    ]) expect(isPushServiceEndpoint(endpoint), endpoint).toBe(false)
+
+    expect(pushSubscriptionSchema.safeParse({ ...subscription, endpoint: 'https://169.254.169.254/latest' }).success).toBe(false)
   })
 
   it('requires both keys', () => {

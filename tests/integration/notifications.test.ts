@@ -12,7 +12,7 @@ interface Sent {
   payload: PushPayload
 }
 
-const endpoint = (name: string) => `https://push.example/${name}`
+const endpoint = (name: string) => `https://fcm.googleapis.com/fcm/send/${name}`
 const keys = { p256dh: 'p256dh-key', auth: 'auth-key' }
 
 const evening = new Date('2026-11-26T21:05:00Z')
@@ -87,7 +87,8 @@ describe('notifications', async () => {
     it('rejects non-https endpoints and anonymous calls', async () => {
       const user = await registerUser()
 
-      expect(await status(() => send(user, '/api/push/subscriptions', 'POST', { endpoint: 'http://push.example/x', keys }))).toBe(400)
+      expect(await status(() => send(user, '/api/push/subscriptions', 'POST', { endpoint: 'http://fcm.googleapis.com/x', keys }))).toBe(400)
+      expect(await status(() => send(user, '/api/push/subscriptions', 'POST', { endpoint: 'https://10.0.0.5/x', keys }))).toBe(400)
       expect(await status(() => $fetch('/api/push/subscriptions', { method: 'POST', body: { endpoint: endpoint('x'), keys } }))).toBe(401)
     })
 

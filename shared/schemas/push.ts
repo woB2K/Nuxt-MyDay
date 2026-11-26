@@ -19,7 +19,34 @@ export const timezoneSchema = z.string().min(1).max(64).transform((value, ctx) =
   }
 })
 
-const endpointSchema = z.url({ protocol: /^https$/ }).max(MAX_ENDPOINT_LENGTH)
+const PUSH_SERVICE_HOSTS = new Set([
+  'fcm.googleapis.com',
+  'android.googleapis.com',
+  'updates.push.services.mozilla.com',
+  'web.push.apple.com'
+])
+
+const PUSH_SERVICE_SUFFIXES = ['.notify.windows.com']
+
+export function isPushServiceEndpoint(endpoint: string): boolean {
+  let url: URL
+
+  try {
+    url = new URL(endpoint)
+  } catch {
+    return false
+  }
+
+  if (url.protocol !== 'https:' || url.port !== '' || url.username || url.password) return false
+
+  const host = url.hostname.toLowerCase()
+
+  return PUSH_SERVICE_HOSTS.has(host) || PUSH_SERVICE_SUFFIXES.some(suffix => host.endsWith(suffix))
+}
+
+const endpointSchema = z.url({ protocol: /^https$/ })
+  .max(MAX_ENDPOINT_LENGTH)
+  .refine(isPushServiceEndpoint, { message: 'Unsupported push service' })
 
 export const pushSubscriptionSchema = z.object({
   endpoint: endpointSchema,
