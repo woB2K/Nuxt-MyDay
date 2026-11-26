@@ -107,7 +107,7 @@ jobs:
   e2e:
     name: e2e
     if: github.event_name == 'workflow_dispatch' || github.base_ref == 'main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5434/myday_test?schema=public
