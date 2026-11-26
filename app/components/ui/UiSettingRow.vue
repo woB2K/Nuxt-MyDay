@@ -5,12 +5,14 @@ interface Props {
   sub?: string
   last?: boolean
   clickable?: boolean
+  wrapSub?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   sub: '',
   last: false,
-  clickable: false
+  clickable: false,
+  wrapSub: false
 })
 
 const emit = defineEmits<{ click: [] }>()
@@ -37,7 +39,7 @@ function onClick() {
 
     <span class="flex min-w-0 flex-1 flex-col">
       <span class="truncate text-[15px] font-medium text-text">{{ props.label }}</span>
-      <span v-if="props.sub" class="truncate text-xs text-text-mute">{{ props.sub }}</span>
+      <span v-if="props.sub" class="text-xs text-text-mute" :class="props.wrapSub ? 'leading-4' : 'truncate'">{{ props.sub }}</span>
     </span>
 
     <slot name="trailing">

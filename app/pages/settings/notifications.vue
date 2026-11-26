@@ -86,7 +86,7 @@ async function runTest() {
     </div>
 
     <UiCard :padding="0">
-      <UiSettingRow icon="i-lucide-bell" :label="t('notifications.device')" :sub="deviceHint" last>
+      <UiSettingRow icon="i-lucide-bell" :label="t('notifications.device')" :sub="deviceHint" wrap-sub last>
         <template #trailing>
           <UiSwitch
             v-if="availability !== 'unsupported'"
@@ -110,6 +110,7 @@ async function runTest() {
           :icon="reminder.icon"
           :label="t(`notifications.${reminder.key}.label`)"
           :sub="t(`notifications.${reminder.key}.sub`)"
+          wrap-sub
         >
           <template #trailing>
             <UiSwitch
@@ -141,6 +142,7 @@ async function runTest() {
         icon="i-lucide-flame"
         :label="t('notifications.habits.label')"
         :sub="t('notifications.habits.sub')"
+        wrap-sub
         clickable
         last
         @click="navigateTo('/habits')"
