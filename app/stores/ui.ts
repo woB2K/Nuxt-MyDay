@@ -45,9 +45,13 @@ export const useUiStore = defineStore('ui', () => {
     queue.value = queue.value.filter(toast => toast.id !== id)
   }
 
+  function setAmountsHidden(hidden: boolean) {
+    amountsHidden.value = hidden
+    writeAmountsHidden(hidden)
+  }
+
   function toggleAmountsHidden() {
-    amountsHidden.value = !amountsHidden.value
-    writeAmountsHidden(amountsHidden.value)
+    setAmountsHidden(!amountsHidden.value)
   }
 
   return {
@@ -60,6 +64,7 @@ export const useUiStore = defineStore('ui', () => {
     amountsHidden,
     addToast,
     removeToast,
+    setAmountsHidden,
     toggleAmountsHidden
   }
 })
