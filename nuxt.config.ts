@@ -49,6 +49,9 @@ export default defineNuxtConfig({
     googleClientId: '',
     googleClientSecret: '',
     passwordHashRounds: 12,
+    vapidPublicKey: '',
+    vapidPrivateKey: '',
+    vapidSubject: '',
     public: {
       appUrl: '',
       appVersion: pkg.version
@@ -72,6 +75,15 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-01-15',
+
+  nitro: {
+    experimental: {
+      tasks: true
+    },
+    scheduledTasks: {
+      '*/5 * * * *': ['notifications:tick']
+    }
+  },
 
   vite: {
     optimizeDeps: {
@@ -136,7 +148,7 @@ export default defineNuxtConfig({
       navigateFallback: '/',
       navigateFallbackDenylist: [/^\/api\//],
       cleanupOutdatedCaches: true,
-      importScripts: ['/sw-outbox.js'],
+      importScripts: ['/sw-outbox.js', '/sw-push.js'],
       runtimeCaching: [
         {
           urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/'),
