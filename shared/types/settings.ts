@@ -30,4 +30,8 @@ export interface UserSettings {
   lang: string
   pinEnabled: boolean
   habitsOnToday: boolean
+  hideAmounts: boolean
+  timezone: string
+  remindFinanceAt: string | null
+  remindTasksAt: string | null
 }

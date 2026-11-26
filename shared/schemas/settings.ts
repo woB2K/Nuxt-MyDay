@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { reminderTimeSchema, timezoneSchema } from './push'
 
 export const themeSchema = z.enum(['light', 'dark', 'system'])
 export const accentSchema = z.enum(['violet', 'teal', 'amber', 'sky', 'rose'])
@@ -8,7 +9,11 @@ export const updateSettingsSchema = z.object({
   theme: themeSchema.optional(),
   accent: accentSchema.optional(),
   lang: langSchema.optional(),
-  habitsOnToday: z.boolean().optional()
+  habitsOnToday: z.boolean().optional(),
+  hideAmounts: z.boolean().optional(),
+  timezone: timezoneSchema.optional(),
+  remindFinanceAt: reminderTimeSchema.nullable().optional(),
+  remindTasksAt: reminderTimeSchema.nullable().optional()
 }).refine(body => Object.keys(body).length > 0, { message: 'No settings to update' })
 
 export const pinLength = 4
