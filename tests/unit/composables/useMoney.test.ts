@@ -1,14 +1,21 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useMoney } from '../../../app/composables/useMoney'
+import { useAuthStore } from '../../../app/stores/auth'
 import { useUiStore } from '../../../app/stores/ui'
+
+const { apiMock } = vi.hoisted(() => ({ apiMock: vi.fn() }))
+
+mockNuxtImport('useApi', () => () => apiMock)
 
 mockNuxtImport('useI18n', () => () => ({
   t: (key: string, params?: Record<string, string>) => params ? `${key}:${Object.values(params).join('|')}` : key
 }))
 
 beforeEach(() => {
+  apiMock.mockReset()
+  apiMock.mockResolvedValue({})
   localStorage.clear()
   setActivePinia(createPinia())
 })
@@ -39,5 +46,21 @@ describe('useMoney', () => {
 
     expect(hidden.value).toBe(false)
     expect(ui.queue.at(-1)?.message).toBe('toast.privacy.visible')
+  })
+
+  it('сохраняет скрытие сумм в аккаунт, чтобы пуши тоже шли без сумм', () => {
+    const auth = useAuthStore()
+    auth.user = { id: 'u1', name: 'Max', email: null, settings: { hideAmounts: false } as never }
+
+    useMoney().toggleHidden()
+
+    expect(auth.user.settings.hideAmounts).toBe(true)
+    expect(apiMock).toHaveBeenCalledWith('/api/settings', { method: 'PATCH', body: { hideAmounts: true } })
+  })
+
+  it('без входа ничего не отправляет на сервер', () => {
+    useMoney().toggleHidden()
+
+    expect(apiMock).not.toHaveBeenCalled()
   })
 })
