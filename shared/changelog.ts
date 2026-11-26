@@ -2,6 +2,34 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.5.0',
+    date: '2026-11-26',
+    title: { en: 'Reminder Day', ru: 'День напоминаний' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Notifications: in the evening MyDay reminds you to add today’s spending, and in the morning shows your plan for the day. Turn them on and pick the time in Settings → Notifications. On iPhone they work once MyDay is added to the Home Screen',
+          ru: 'Уведомления: вечером MyDay напомнит внести траты за день, а утром покажет план на сегодня. Включить и выбрать время — в «Настройки → Уведомления». На iPhone они работают, когда MyDay добавлен на экран Домой'
+        }
+      },
+      {
+        type: 'new',
+        text: {
+          en: 'Habit reminders: set a time for each habit and get a nudge only if it isn’t checked off yet',
+          ru: 'Напоминания о привычках: у каждой привычки своё время, и напоминание придёт, только если она ещё не отмечена'
+        }
+      },
+      {
+        type: 'improved',
+        text: {
+          en: 'Hidden amounts now stay hidden on all your devices, and notifications don’t show sums while they’re hidden',
+          ru: 'Скрытые суммы теперь скрыты на всех твоих устройствах, а уведомления в этом режиме приходят без сумм'
+        }
+      }
+    ]
+  },
+  {
     version: '2.4.0',
     date: '2026-11-26',
     title: { en: 'Reconciliation Day', ru: 'День сверки' },
