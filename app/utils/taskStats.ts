@@ -1,7 +1,7 @@
-import type { TaskItem, TaskPriority } from '~~/shared/types'
+import type { TaskOrderKey } from '~~/shared/taskOrder'
+import type { TaskItem } from '~~/shared/types'
+import { compareTaskOrder } from '~~/shared/taskOrder'
 import { toDateString, toLocalDate } from './formatDate'
-
-const PRIORITY_WEIGHT: Record<TaskPriority, number> = { HIGH: 3, MEDIUM: 2, LOW: 1, NONE: 0 }
 
 export function taskDay(value: Date | string): string {
   return toDateString(toLocalDate(value))
@@ -38,24 +38,17 @@ export function completionStreak(tasks: TaskItem[], today: Date = new Date()): n
   return streak
 }
 
+function orderKey(task: TaskItem): TaskOrderKey {
+  return {
+    done: task.done,
+    priority: task.priority,
+    dueDay: task.dueDate ? taskDay(task.dueDate) : null,
+    createdAt: new Date(task.createdAt).getTime()
+  }
+}
+
 export function sortTasks(tasks: TaskItem[]): TaskItem[] {
-  return [...tasks].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1
-
-    const byPriority = PRIORITY_WEIGHT[b.priority] - PRIORITY_WEIGHT[a.priority]
-    if (byPriority !== 0) return byPriority
-
-    const dueA = a.dueDate ? taskDay(a.dueDate) : ''
-    const dueB = b.dueDate ? taskDay(b.dueDate) : ''
-    if (dueA !== dueB) {
-      if (!dueA) return 1
-      if (!dueB) return -1
-
-      return dueA < dueB ? -1 : 1
-    }
-
-    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  })
+  return [...tasks].sort((a, b) => compareTaskOrder(orderKey(a), orderKey(b)))
 }
 
 export function focusTask(tasks: TaskItem[]): TaskItem | null {
