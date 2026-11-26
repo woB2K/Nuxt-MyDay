@@ -70,23 +70,25 @@ myday/
 │   ├── components/
 │   │   ├── ui/                        # UiButton, UiInput, UiCard... — без бизнес-логики
 │   │   └── features/{auth,tasks,habits,finance,settings,family}/
-│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useHabits.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useOutbox.ts, useAppToast.ts, useMoney.ts
-│   ├── plugins/                       # errorHandler.ts, vue-query.ts, outbox.client.ts, session.client.ts
+│   ├── composables/                   # queryKeys.ts, useApi.ts, useFinance.ts, useTasks.ts, useHabits.ts, useCategories.ts, useTrash.ts, useHousehold.ts, useFinanceTags.ts, useGoals.ts, useOutbox.ts, usePush.ts, useAppToast.ts, useMoney.ts
+│   ├── plugins/                       # errorHandler.ts, vue-query.ts, outbox.client.ts, session.client.ts, push.client.ts
 │   ├── layouts/                       # default.vue (TabBar+FAB), auth.vue
 │   ├── middleware/                    # auth.global.ts, lock.global.ts — оба глобальные, на страницах не объявляются
 │   ├── pages/
 │   ├── stores/                        # ТОЛЬКО client state — см. «Pinia vs TanStack» ниже
-│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, trash.ts, habits.ts, family.ts, clipboard.ts, goals.ts, privacy.ts, routes.ts, outbox.ts, network.ts, sessionMemory.ts
+│   └── utils/                         # чистые функции, автоимпорт: formatDate.ts, formatAmount.ts, period.ts, transactionFilters.ts, transactionGroups.ts, trash.ts, habits.ts, family.ts, clipboard.ts, goals.ts, privacy.ts, routes.ts, outbox.ts, network.ts, sessionMemory.ts, push.ts
 │
 ├── server/
 │   ├── api/                           # REST-роуты по Nuxt-конвенции (см. «API endpoints»)
 │   ├── middleware/                    # 01.auth.ts, 02.rateLimit.ts — нумерация = порядок выполнения
-│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts, habits.ts, household.ts, householdView.ts, invite.ts, financeTags.ts, savingsGoals.ts
+│   ├── tasks/                         # Nitro scheduledTasks: notifications/tick.ts (каждые 5 минут)
+│   └── utils/                         # jwt.ts, password.ts, pin.ts, authCookie.ts, mapper.ts, rateLimit.ts, prisma.ts, dbError.ts, transactionWhere.ts, dateRange.ts, trash.ts, habits.ts, household.ts, householdView.ts, invite.ts, financeTags.ts, savingsGoals.ts, push.ts, notifications/ (clock, plan, messages, tick, webPush)
 │
 ├── shared/                            # изоморфный слой (client + server)
 │   ├── types/                         # singular: task.ts, tag.ts, habit.ts, finance.ts, household.ts
 │   ├── schemas/                       # Zod — одна схема на клиент и сервер
 │   ├── calendarDay.ts                 # арифметика календарных дней YYYY-MM-DD (неделя с понедельника)
+│   ├── taskOrder.ts, money.ts         # порядок задач и формат сумм — общие для клиента и пушей
 │   └── changelog.ts                   # patch notes en/ru — пишет скилл /release
 │
 ├── scripts/release/                   # pnpm release:status|check|notes — сбор коммитов и чек в CI
@@ -97,7 +99,7 @@ myday/
 │   ├── seed.ts
 │   └── seeds/                         # categories.ts, users.ts
 │
-├── i18n/locales/{en,ru}.json
+├── i18n/locales/{en,ru}.json, i18n/push.ts   # push.ts — тексты пушей (сервер)
 │
 ├── tests/
 │   ├── unit/                          # vitest: schemas, server utils, stores, composables
