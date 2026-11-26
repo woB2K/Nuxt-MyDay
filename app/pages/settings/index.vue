@@ -130,6 +130,15 @@ async function signOut() {
       </UiSettingRow>
 
       <UiSettingRow
+        icon="i-lucide-bell"
+        :label="t('settings.notifications')"
+        :sub="t('settings.notificationsSub')"
+        clickable
+        data-settings-notifications
+        @click="navigateTo('/settings/notifications')"
+      />
+
+      <UiSettingRow
         icon="i-lucide-shapes"
         :label="t('settings.categories')"
         :sub="t('settings.categoriesSub')"

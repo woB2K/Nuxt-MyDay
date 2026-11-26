@@ -6,7 +6,7 @@ const modelValue = defineModel<boolean>({ default: false })
   <button
     role="switch"
     :aria-checked="modelValue"
-    class="relative inline-flex items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+    class="relative inline-flex items-center rounded-full transition-colors duration-200 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
     :class="modelValue ? 'bg-accent' : 'bg-elev3'"
     style="width: 51px; height: 31px;"
     @click="modelValue = !modelValue"

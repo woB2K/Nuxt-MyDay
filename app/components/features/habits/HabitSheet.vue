@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { HabitColor, HabitIcon, HabitItem } from '~~/shared/types'
-import { habitColors, habitIcons, MAX_NAME_LENGTH, MAX_PER_WEEK, MIN_PER_WEEK } from '~~/shared/schemas'
+import { DEFAULT_HABIT_REMINDER, habitColors, habitIcons, MAX_NAME_LENGTH, MAX_PER_WEEK, MIN_PER_WEEK } from '~~/shared/schemas'
 import { defaultHabitColor, defaultHabitIcon, defaultPerWeek, habitColor, habitIconName, habitSoft } from '~/utils/habits'
 
 const props = defineProps<{
@@ -22,6 +22,7 @@ const icon = ref<HabitIcon>(defaultHabitIcon)
 const color = ref<HabitColor>(defaultHabitColor)
 const weekly = ref(false)
 const perWeek = ref(defaultPerWeek)
+const reminderAt = ref<string | null>(null)
 
 const isEdit = computed(() => !!props.habit)
 const isPending = computed(() => isAdding.value || isUpdating.value)
@@ -40,6 +41,7 @@ function reset() {
   color.value = habit?.color ?? defaultHabitColor
   weekly.value = habit ? habit.perWeek !== null : false
   perWeek.value = habit?.perWeek ?? defaultPerWeek
+  reminderAt.value = habit?.reminderAt ?? null
 }
 
 watch(() => props.open, (open) => {
@@ -62,7 +64,8 @@ function submit() {
     name: trimmed,
     icon: icon.value,
     color: color.value,
-    perWeek: weekly.value ? perWeek.value : null
+    perWeek: weekly.value ? perWeek.value : null,
+    reminderAt: reminderAt.value
   }
 
   if (props.habit) {
@@ -189,6 +192,28 @@ function remove() {
         </div>
         <span class="mt-2 text-xs leading-4 text-text-mute">{{ t('habits.sheet.scheduleHint') }}</span>
       </template>
+
+      <span class="mt-5 mb-2.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-text-dim">
+        {{ t('habits.sheet.reminderSection') }}
+      </span>
+      <div class="flex h-14 items-center gap-2.5 rounded-lg border border-hairline bg-elev1 pr-2.5 pl-4" data-reminder>
+        <UIcon name="i-lucide-bell" class="size-4.5 shrink-0 text-text-dim" />
+        <span class="flex-1 text-[15px] font-medium text-text">{{ t('habits.sheet.reminder') }}</span>
+        <UiTimeInput
+          v-if="reminderAt"
+          :model-value="reminderAt"
+          :label="t('habits.sheet.reminder')"
+          data-reminder-time
+          @update:model-value="reminderAt = $event"
+        />
+        <UiSwitch
+          :model-value="reminderAt !== null"
+          :aria-label="t('habits.sheet.reminder')"
+          data-reminder-switch
+          @update:model-value="reminderAt = $event ? DEFAULT_HABIT_REMINDER : null"
+        />
+      </div>
+      <span class="mt-2 text-xs leading-4 text-text-mute">{{ t('habits.sheet.reminderHint') }}</span>
 
       <UiButton class="mt-6 w-full" type="submit" :disabled="!canSave" :loading="isPending">
         {{ isEdit ? t('habits.sheet.save') : t('habits.sheet.create') }}
