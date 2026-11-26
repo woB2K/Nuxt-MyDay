@@ -156,7 +156,7 @@
 - [x] **6.1** `Dockerfile` — multi-stage `deps → migrate / build → runtime`
 - [x] **6.2** `docker-compose.yml` — `db` + `migrate` + `app`
 - [x] **6.3** Деплой на сервер (`docker compose up -d --build`)
-- [ ] **6.4** Бэкап БД: сервис `backup` — `pg_dump` → restic → Google Drive (rclone), ротация, healthchecks, `restore check|apply`
+- [x] **6.4** Бэкап БД: сервис `backup` — `pg_dump` → restic → Google Drive (rclone), ротация, healthchecks, `restore check|apply`
 
 ---
 
@@ -169,8 +169,8 @@ Budgets и Notifications вынесены за MVP (решение 28.07.2026). 
 - [ ] **7.1** Budgets — модель: помесячная (`Budget.month`) vs повторяющийся лимит на категорию; делать после 7.6
 - [ ] **7.2** Budgets UI: `FinanceBudgetsTab` + `BudgetEditSheet`, вернуть таб `budgets`
 - [ ] **7.3** *(Claude пишет)* Интеграционные тесты budgets: spent по периоду, перерасход, upsert
-- [ ] **7.4** Notifications — Web Push (`PushSubscription`, VAPID, тумблер в Settings); iOS только для установленной PWA ≥ 16.4
-- [ ] **7.5** Планировщик Nitro (`scheduledTasks`) — идемпотентный и догоняющий, одна реплика
+- [x] **7.4** Notifications — Web Push (`PushSubscription`, VAPID, тумблер в Settings); iOS только для установленной PWA ≥ 16.4
+- [x] **7.5** Планировщик Nitro (`scheduledTasks`) — идемпотентный и догоняющий, одна реплика
 - [ ] **7.6** Повторяющиеся операции: `RecurringTransaction` → материализация в `Transaction` планировщиком; до 7.1
 - [ ] **7.7** Повторяющиеся задачи: правило повтора на `TaskTemplate`
 - [ ] **7.8** Связь задач и финансов: сумма на задаче → транзакция при выполнении; траты дня на Today
@@ -197,7 +197,7 @@ Budgets и Notifications вынесены за MVP (решение 28.07.2026). 
 - [x] **8.9** Цели накоплений (B.13): `SavingsGoal` (название, сумма, дедлайн), прогресс и «откладывать X ₽ в месяц»
 - [x] **8.10** Privacy mode (B.20): тап по балансу прячет суммы (плашка-скелетон), состояние на клиенте
 - [x] **8.12** *(Claude пишет)* E2E: приглашение в семью
-- [ ] **8.13** Релиз v2.0.0 через `/release`
+- [x] **8.13** Релиз v2.0.0 через `/release`
 
 ---
 
