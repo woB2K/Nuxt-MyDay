@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import type { InviteState } from '~~/shared/types'
 import { getHousehold, matchCategory } from '~~/server/utils/household'
 import { hashToken } from '~~/server/utils/jwt'
+import { savingsBalanceOf } from '~~/server/utils/savingsBalance'
 
 export async function findValidInvite(token: string) {
   const invite = await prisma.householdInvite.findUnique({
@@ -29,9 +30,7 @@ async function savingsBalance(householdId: string): Promise<number> {
     _sum: { amount: true }
   })
 
-  const sum = (type: string) => rows.find(row => row.type === type)?._sum.amount?.toNumber() ?? 0
-
-  return sum('OPENING') + sum('DEPOSIT') - sum('WITHDRAWAL')
+  return savingsBalanceOf(rows)
 }
 
 export async function previewInvite(event: H3Event, token: string) {

@@ -98,6 +98,11 @@ export const createSavingsSchema = z.object({
 
 export const updateSavingsSchema = createSavingsSchema.pick({ amount: true, notes: true, goalId: true }).partial()
 
+export const reconcileSavingsSchema = z.object({
+  actual: z.number().min(0).max(MAX_AMOUNT),
+  notes: notes.optional()
+})
+
 export const createSavingsGoalSchema = z.object({
   name: z.string().trim().min(1).max(MAX_NAME_LENGTH),
   target: amount,

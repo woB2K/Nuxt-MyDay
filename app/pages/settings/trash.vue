@@ -3,7 +3,7 @@ import type { TrashKind } from '~~/shared/types'
 import { TRASH_RETENTION_DAYS } from '~~/shared/schemas'
 import { categoryLabel } from '~/utils/categoryLabel'
 import { habitColor, habitIconName, habitSoft } from '~/utils/habits'
-import { savingsEntryLooks } from '~/utils/savingsLooks'
+import { savingsEntryLook } from '~/utils/savingsLooks'
 import { trashDaysLeft, trashSize } from '~/utils/trash'
 
 definePageMeta({ hideFab: true })
@@ -95,7 +95,7 @@ const sections = computed(() => {
   })
 
   const savings: Row[] = trash.value.savings.map((entry) => {
-    const looks = savingsEntryLooks[entry.type]
+    const looks = savingsEntryLook(entry)
 
     return {
       kind: 'savings',
@@ -105,7 +105,7 @@ const sections = computed(() => {
       inkClass: looks.ink,
       title: entry.notes || t(looks.title),
       caption: daysLeft(entry.deletedAt),
-      amount: entry.amount,
+      amount: looks.amount,
       sign: looks.sign
     }
   })

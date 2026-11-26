@@ -31,7 +31,7 @@ const amount = ref('')
 const note = ref('')
 const goalId = ref<string | null>(null)
 
-const type = computed(() => props.entry?.type ?? props.mode)
+const type = computed<SavingsMode>(() => props.entry && props.entry.type !== 'ADJUSTMENT' ? props.entry.type : props.mode)
 const current = computed(() => modes[type.value])
 const isOpening = computed(() => type.value === 'OPENING')
 const isEditing = computed(() => !!props.entry)

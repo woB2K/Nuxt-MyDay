@@ -267,6 +267,26 @@ export function useAddSavingsMutation() {
   })
 }
 
+export function useReconcileSavingsMutation() {
+  const api = useApi()
+  const queryClient = useQueryClient()
+  const { t } = useI18n()
+  const toast = useAppToast()
+
+  return useMutation({
+    mutationFn: (data: ReconcileSavingsInput) =>
+      api<SavingsEntryItem>('/api/finance/savings/reconcile', { method: 'POST', body: data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['savings'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.household() })
+      toast.success(t('toast.savings.reconcileSuccess'))
+    },
+    onError: () => {
+      toast.error(t('toast.savings.reconcileError'))
+    }
+  })
+}
+
 export function useUpdateSavingsMutation() {
   const api = useApi()
   const queryClient = useQueryClient()

@@ -1,6 +1,6 @@
 import type { z } from 'zod'
 import type { Budget, FinanceTag, SavingsEntry, SavingsGoal, Transaction } from '~~/prisma/.generated/prisma'
-import type { createBudgetSchema, createCategorySchema, createFinanceTagSchema, createSavingsGoalSchema, createSavingsSchema, createTransactionSchema, updateBudgetSchema, updateCategorySchema, updateFinanceTagSchema, updateSavingsGoalSchema, updateSavingsSchema, updateTransactionSchema } from '../schemas/finance'
+import type { createBudgetSchema, createCategorySchema, createFinanceTagSchema, createSavingsGoalSchema, createSavingsSchema, createTransactionSchema, reconcileSavingsSchema, updateBudgetSchema, updateCategorySchema, updateFinanceTagSchema, updateSavingsGoalSchema, updateSavingsSchema, updateTransactionSchema } from '../schemas/finance'
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>
@@ -10,6 +10,7 @@ export type CreateBudgetInput = z.infer<typeof createBudgetSchema>
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>
 export type CreateSavingsSchema = z.infer<typeof createSavingsSchema>
 export type UpdateSavingsInput = z.infer<typeof updateSavingsSchema>
+export type ReconcileSavingsInput = z.infer<typeof reconcileSavingsSchema>
 export type CreateFinanceTagInput = z.infer<typeof createFinanceTagSchema>
 export type UpdateFinanceTagInput = z.infer<typeof updateFinanceTagSchema>
 export type FinanceTagItem = FinanceTag
@@ -30,6 +31,7 @@ export interface TransactionListResponse {
 export type SavingsEntryItem = WithNumberAmount<SavingsEntry>
 export interface SavingsResponse {
   balance: number
+  own: number
   delta: number
   opening: number | null
   entries: SavingsEntryItem[]

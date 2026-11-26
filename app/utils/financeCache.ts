@@ -49,6 +49,7 @@ export function dropSavingsEntry(cache: SavingsCache, id: string): SavingsCache 
   if (!entry) return cache
 
   const isOpening = entry.type === 'OPENING'
+  const inDelta = entry.type === 'DEPOSIT' || entry.type === 'WITHDRAWAL'
   const shift = entry.type === 'WITHDRAWAL' ? entry.amount : -entry.amount
 
   return {
@@ -57,7 +58,7 @@ export function dropSavingsEntry(cache: SavingsCache, id: string): SavingsCache 
       ...page,
       entries: page.entries.filter(item => item.id !== id),
       balance: page.balance + shift,
-      delta: isOpening ? page.delta : page.delta + shift,
+      delta: inDelta ? page.delta + shift : page.delta,
       opening: isOpening ? null : page.opening,
       total: page.total - 1
     }))

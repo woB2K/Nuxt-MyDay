@@ -1,13 +1,11 @@
+import type { SavingsSumRow } from '~~/server/utils/savingsBalance'
 import type { HouseholdResponse } from '~~/shared/types'
+import { savingsBalanceOf } from '~~/server/utils/savingsBalance'
 
-interface SavingsRow {
+interface SavingsRow extends SavingsSumRow {
   userId: string
-  type: string
   _count: { _all: number }
-  _sum: { amount: { toNumber: () => number } | null }
 }
-
-const SAVINGS_SIGN: Record<string, number> = { OPENING: 1, DEPOSIT: 1, WITHDRAWAL: -1 }
 
 function countBy(rows: Array<{ userId: string, _count: { _all: number } }>, userId: string): number {
   return rows
@@ -15,10 +13,8 @@ function countBy(rows: Array<{ userId: string, _count: { _all: number } }>, user
     .reduce((sum, row) => sum + row._count._all, 0)
 }
 
-function savingsBalanceOf(rows: SavingsRow[], userId: string): number {
-  return rows
-    .filter(row => row.userId === userId)
-    .reduce((sum, row) => sum + (SAVINGS_SIGN[row.type] ?? 0) * (row._sum.amount?.toNumber() ?? 0), 0)
+function memberSavings(rows: SavingsRow[], userId: string): number {
+  return savingsBalanceOf(rows.filter(row => row.userId === userId))
 }
 
 export async function householdView(householdId: string, userId: string): Promise<HouseholdResponse> {
@@ -52,7 +48,7 @@ export async function householdView(householdId: string, userId: string): Promis
       joinedAt: member.joinedAt,
       transactionCount: countBy(transactions, member.userId),
       savingsCount: countBy(savings, member.userId),
-      savingsBalance: household.shareSavings ? savingsBalanceOf(savings, member.userId) : null
+      savingsBalance: household.shareSavings ? memberSavings(savings, member.userId) : null
     })),
     invite: household.invites[0] ? { expiresAt: household.invites[0].expiresAt } : null
   }

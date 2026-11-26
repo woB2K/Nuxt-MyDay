@@ -1,17 +1,13 @@
 import type { Prisma } from '~~/prisma/.generated/prisma'
+import type { SavingsSumRow } from '~~/server/utils/savingsBalance'
 import { timestampRange } from '~~/server/utils/dateRange'
 import { getHousehold, savingsScope } from '~~/server/utils/household'
 import { mapAmount } from '~~/server/utils/mapper'
+import { roundMoney, savingsBalanceOf, sumOfType } from '~~/server/utils/savingsBalance'
 import { savingsQuerySchema } from '~~/shared/schemas'
 
-type SumRows = Array<{ type: string, _sum: { amount: Prisma.Decimal | null } }>
-
-function sumOf(rows: SumRows, type: string): number | null {
-  return rows.find(row => row.type === type)?._sum.amount?.toNumber() ?? null
-}
-
-function net(rows: SumRows): number {
-  return (sumOf(rows, 'DEPOSIT') ?? 0) - (sumOf(rows, 'WITHDRAWAL') ?? 0)
+function net(rows: SavingsSumRow[]): number {
+  return roundMoney((sumOfType(rows, 'DEPOSIT') ?? 0) - (sumOfType(rows, 'WITHDRAWAL') ?? 0))
 }
 
 export default defineEventHandler(async (event) => {
@@ -25,7 +21,7 @@ export default defineEventHandler(async (event) => {
 
   const [allTime, inPeriod, entries, total] = await Promise.all([
     prisma.savingsEntry.groupBy({
-      by: ['type'],
+      by: ['userId', 'type'],
       where: { ...scope, deletedAt: null },
       _sum: { amount: true }
     }),
@@ -45,12 +41,11 @@ export default defineEventHandler(async (event) => {
     prisma.savingsEntry.count({ where })
   ])
 
-  const opening = sumOf(allTime, 'OPENING')
-
   return {
-    balance: (opening ?? 0) + net(allTime),
+    balance: savingsBalanceOf(allTime),
+    own: savingsBalanceOf(allTime.filter(row => row.userId === userId)),
     delta: net(inPeriod ?? allTime),
-    opening,
+    opening: sumOfType(allTime, 'OPENING'),
     entries: entries.map(e => mapAmount(e)),
     total,
     page,

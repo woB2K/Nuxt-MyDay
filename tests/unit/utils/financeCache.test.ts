@@ -38,7 +38,7 @@ function entry(id: string, type: SavingsEntryItem['type'], amount: number): Savi
 }
 
 function savings(entries: SavingsEntryItem[], balance: number, delta: number, opening: number | null = null): SavingsResponse {
-  return { balance, delta, opening, entries, total: entries.length, page: 1, limit: 20 }
+  return { balance, own: balance, delta, opening, entries, total: entries.length, page: 1, limit: 20 }
 }
 
 describe('cachedTransactions', () => {
@@ -172,5 +172,18 @@ describe('dropSavingsEntry', () => {
     expect(next.pages[0]!.balance).toBe(-5000)
     expect(next.pages[0]!.delta).toBe(-5000)
     expect(next.pages[0]!.opening).toBeNull()
+  })
+
+  it('снятая сверка возвращает баланс к прежнему, но не трогает дельту', () => {
+    const withAdjustment: SavingsCache = {
+      pages: [savings([entry('s-0', 'ADJUSTMENT', -860000), entry('s-1', 'DEPOSIT', 5000)], 380000, 5000, 1235000)],
+      pageParams: [1]
+    }
+
+    const next = dropSavingsEntry(withAdjustment, 's-0')
+
+    expect(next.pages[0]!.balance).toBe(1240000)
+    expect(next.pages[0]!.delta).toBe(5000)
+    expect(next.pages[0]!.opening).toBe(1235000)
   })
 })
