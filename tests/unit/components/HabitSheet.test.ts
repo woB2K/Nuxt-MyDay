@@ -59,7 +59,7 @@ describe('шторка привычки', () => {
 
     await wrapper.find('form').trigger('submit')
 
-    expect(addMutate.mock.calls[0]![0]).toEqual({ name: 'Чтение', icon: 'book-open', color: 'amber', perWeek: null })
+    expect(addMutate.mock.calls[0]![0]).toEqual({ name: 'Чтение', icon: 'book-open', color: 'amber', perWeek: null, reminderAt: null })
   })
 
   it('быстрого старта нет', () => {
@@ -104,7 +104,7 @@ describe('шторка привычки', () => {
     await wrapper.find('[data-schedule="daily"]').trigger('click')
     await wrapper.find('form').trigger('submit')
 
-    expect(updateMutate.mock.calls[0]![0]).toEqual({ id: 'h-1', name: 'Спортзал', icon: 'biceps-flexed', color: 'red', perWeek: null })
+    expect(updateMutate.mock.calls[0]![0]).toEqual({ id: 'h-1', name: 'Спортзал', icon: 'biceps-flexed', color: 'red', perWeek: null, reminderAt: null })
   })
 
   it('удаление закрывает шторку и отправляет привычку в корзину', async () => {
@@ -114,6 +114,33 @@ describe('шторка привычки', () => {
 
     expect(wrapper.emitted('update:open')).toEqual([[false]])
     expect(deleteMutate).toHaveBeenCalledWith({ id: 'h-1', name: 'Спортзал' })
+  })
+
+  it('напоминание включается на 08:00 и время можно поменять', async () => {
+    const wrapper = mountSheet()
+    await wrapper.findComponent({ name: 'UiInput' }).setValue('Бег')
+
+    expect(wrapper.find('[data-reminder-time]').exists()).toBe(false)
+    await wrapper.find('[data-reminder-switch]').trigger('click')
+
+    const time = wrapper.find('[data-reminder-time]')
+    expect((time.element as HTMLInputElement).value).toBe('08:00')
+
+    await time.setValue('07:32')
+    await time.trigger('change')
+    await wrapper.find('form').trigger('submit')
+
+    expect(addMutate.mock.calls[0]![0]).toMatchObject({ name: 'Бег', reminderAt: '07:30' })
+  })
+
+  it('правка показывает сохранённое напоминание и снимает его', async () => {
+    const wrapper = mountSheet({ ...existing, reminderAt: '21:15' } as HabitItem)
+
+    expect((wrapper.find('[data-reminder-time]').element as HTMLInputElement).value).toBe('21:15')
+    await wrapper.find('[data-reminder-switch]').trigger('click')
+    await wrapper.find('form').trigger('submit')
+
+    expect(updateMutate.mock.calls[0]![0]).toMatchObject({ reminderAt: null })
   })
 
   it('у новой привычки удаления нет', () => {

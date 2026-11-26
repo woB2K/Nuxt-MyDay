@@ -26,5 +26,6 @@ const fabAction = provideFabAction()
     </main>
     <UiFab v-if="!route.meta.hideFab" @click="fabAction?.()" />
     <UiTabBar />
+    <NotificationsPrompt />
   </div>
 </template>

@@ -21,6 +21,16 @@ function openSheet(transaction: TransactionItem | null = null) {
 }
 
 useFabAction(() => openSheet())
+
+const route = useRoute()
+
+onMounted(() => {
+  if (route.query.new !== 'transaction') return
+
+  financeStore.activeTab = 'transactions'
+  openSheet()
+  navigateTo({ query: {} }, { replace: true })
+})
 </script>
 
 <template>
