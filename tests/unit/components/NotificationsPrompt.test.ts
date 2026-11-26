@@ -41,7 +41,6 @@ function mountPrompt() {
       stubs: {
         UiSheet: { props: ['open'], emits: ['update:open'], template: '<div v-if="open" data-sheet><slot /></div>' },
         UiButton: { template: '<button type="button" v-bind="$attrs"><slot /></button>' },
-        InstallSheet: { props: ['open'], template: '<div v-if="open" data-install-sheet />' },
         UIcon: true
       }
     }
@@ -108,14 +107,10 @@ describe('окно «Появились уведомления»', () => {
     expect(push.navigate).toHaveBeenCalledWith('/settings/notifications')
   })
 
-  it('на iPhone в Safari-вкладке предлагает установить приложение', async () => {
+  it('на iPhone в Safari-вкладке не показывается — установку предлагает баннер на Today', () => {
     signIn()
     push.availability.value = 'needsInstall'
-    const wrapper = mountPrompt()
 
-    expect(wrapper.find('[data-push-enable]').exists()).toBe(false)
-    await wrapper.find('[data-push-install]').trigger('click')
-
-    expect(wrapper.find('[data-install-sheet]').exists()).toBe(true)
+    expect(mountPrompt().find('[data-push-prompt]').exists()).toBe(false)
   })
 })

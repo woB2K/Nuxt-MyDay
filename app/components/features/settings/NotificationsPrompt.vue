@@ -10,13 +10,9 @@ const { enableDefaults } = useReminderDefaults()
 
 const seen = ref(readPushPromptSeen())
 const open = ref(false)
-const installOpen = ref(false)
-
-const installVariant = computed(() => availability.value === 'needsInstall')
 
 const due = computed(() => {
   if (seen.value || !ready.value || !authStore.accessToken || !authStore.user || ui.isLocked) return false
-  if (installVariant.value) return true
 
   return availability.value === 'ready' && permission.value === 'default' && !subscribed.value
 })
@@ -54,11 +50,6 @@ function configure() {
   close()
   navigateTo('/settings/notifications')
 }
-
-function showInstall() {
-  close()
-  installOpen.value = true
-}
 </script>
 
 <template>
@@ -72,13 +63,10 @@ function showInstall() {
         {{ t('notifications.prompt.title') }}
       </h2>
       <p class="mt-2 text-[15px] leading-5 text-text-dim">
-        {{ installVariant ? t('notifications.prompt.installBody') : t('notifications.prompt.body') }}
+        {{ t('notifications.prompt.body') }}
       </p>
 
-      <UiButton v-if="installVariant" class="mt-6 w-full" data-push-install @click="showInstall">
-        {{ t('notifications.prompt.install') }}
-      </UiButton>
-      <UiButton v-else class="mt-6 w-full" :loading="busy" data-push-enable @click="turnOn">
+      <UiButton class="mt-6 w-full" :loading="busy" data-push-enable @click="turnOn">
         {{ t('notifications.prompt.enable') }}
       </UiButton>
 
@@ -86,15 +74,11 @@ function showInstall() {
         <button class="h-11 px-3 text-text-dim" type="button" data-push-later @click="close">
           {{ t('notifications.prompt.later') }}
         </button>
-        <template v-if="!installVariant">
-          <span class="text-text-mute">·</span>
-          <button class="h-11 px-3 text-accent" type="button" data-push-configure @click="configure">
-            {{ t('notifications.prompt.configure') }}
-          </button>
-        </template>
+        <span class="text-text-mute">·</span>
+        <button class="h-11 px-3 text-accent" type="button" data-push-configure @click="configure">
+          {{ t('notifications.prompt.configure') }}
+        </button>
       </div>
     </div>
   </UiSheet>
-
-  <InstallSheet v-model:open="installOpen" context="today" />
 </template>
