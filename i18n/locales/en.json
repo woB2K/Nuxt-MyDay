@@ -45,7 +45,9 @@
       "deleteError": "Failed to delete savings entry",
       "restoreSuccess": "Savings entry restored",
       "restoreError": "Failed to restore savings entry",
-      "restoreOpeningConflict": "Delete the current opening balance first"
+      "restoreOpeningConflict": "Delete the current opening balance first",
+      "reconcileSuccess": "Balance reconciled",
+      "reconcileError": "Failed to reconcile balance"
     },
     "budgets": {
       "saveSuccess": "Budget saved",
@@ -177,7 +179,18 @@
       "setOpening": "Set opening balance",
       "startPoint": "Starting point",
       "openingHint": "What you have saved already. It counts toward the balance, but not as a deposit — gains and losses are measured from it.",
-      "export": "Export savings to CSV"
+      "export": "Export savings to CSV",
+      "adjustment": "Balance reconciliation",
+      "adjustmentCaption": "Reconciliation",
+      "reconcile": "Reconcile balance",
+      "reconcileTitle": "Reconcile balance",
+      "reconcileActual": "How much you actually have now",
+      "reconcileInApp": "In the app now",
+      "reconcileOwnShare": "Your share in the app",
+      "reconcileDifference": "Difference",
+      "reconcileMatches": "The balance already matches",
+      "reconcileHint": "The difference is recorded as a separate entry. History stays as is, and it doesn't count as a deposit or withdrawal.",
+      "reconcileSubmit": "Reconcile"
     },
     "netPeriod": "Net this period",
     "period": {

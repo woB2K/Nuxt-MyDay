@@ -23,6 +23,8 @@ describe('savings export', async () => {
     await add('2026-10-03T12:00:00Z', { amount: 40, type: 'WITHDRAWAL', notes: '=1+1' })
     await add('2026-10-01T12:00:00Z', { amount: 100.5, type: 'DEPOSIT', goalId: goal.id, notes: 'Премия, часть' })
     const removed = await add('2026-10-02T12:00:00Z', { amount: 7, type: 'DEPOSIT' })
+    const adjustment = await $fetch<{ id: string }>('/api/finance/savings/reconcile', { method: 'POST', headers, body: { actual: 60 } })
+    await prisma.savingsEntry.update({ where: { id: adjustment.id }, data: { createdAt: new Date('2026-10-04T12:00:00Z') } })
     await $fetch(`/api/finance/savings/${removed.id}`, { method: 'DELETE', headers })
 
     const csv = await $fetch<string>('/api/finance/savings/export', { headers, query: { from: '2026-10-01', to: '2026-10-31' }, responseType: 'text' })
@@ -30,7 +32,8 @@ describe('savings export', async () => {
     expect(csv.replace(/^\uFEFF/, '').trim().split('\r\n')).toEqual([
       'date,type,amount,currency,goal,notes,author',
       '2026-10-01,deposit,100.5,RUB,Отпуск,"Премия, часть",Test User',
-      '2026-10-03,withdrawal,40,RUB,,\'=1+1,Test User'
+      '2026-10-03,withdrawal,40,RUB,,\'=1+1,Test User',
+      '2026-10-04,adjustment,-507.5,RUB,,,Test User'
     ])
   })
 

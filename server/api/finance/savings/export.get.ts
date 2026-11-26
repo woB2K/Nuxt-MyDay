@@ -24,10 +24,8 @@ export default defineEventHandler(async (event) => {
     entry.type.toLowerCase(),
     exportAmount(entry.amount.toNumber()),
     CURRENCY,
-    entry.goal?.name ?? '',
-    entry.notes ?? '',
-    entry.user.name
-  ].map(safeText))
+    ...[entry.goal?.name ?? '', entry.notes ?? '', entry.user.name].map(safeText)
+  ])
 
   const name = ['myday-savings', from, to].filter(Boolean).join('-')
 

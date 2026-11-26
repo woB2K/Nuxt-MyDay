@@ -19,7 +19,7 @@ FROM deps AS build
 ARG BUILD_MEMORY_MB=4096
 ENV NODE_OPTIONS=--max-old-space-size=${BUILD_MEMORY_MB}
 COPY . .
-RUN DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm prisma generate \
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build PRISMA_SCHEMA_ENGINE_BINARY=/bin/true pnpm prisma generate \
     && pnpm build
 
 FROM node:24-slim AS runtime

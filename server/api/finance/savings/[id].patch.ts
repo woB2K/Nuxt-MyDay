@@ -10,6 +10,9 @@ export default defineEventHandler(async (event) => {
   const savingsId = getRouterParam(event, 'id')
   const body = await readValidatedBody(event, updateSavingsSchema.parse)
 
+  const adjustment = await prisma.savingsEntry.count({ where: { ...savingsScope(userId, household), id: savingsId, type: 'ADJUSTMENT' } })
+  if (adjustment > 0) throw createError({ statusCode: 400, message: 'Balance adjustment cannot be edited' })
+
   await assertGoal(body.goalId, userId, household)
 
   if (body.goalId) {

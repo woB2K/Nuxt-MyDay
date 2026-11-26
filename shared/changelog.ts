@@ -2,6 +2,20 @@ import type { Release } from './types/changelog'
 
 export const changelog: Release[] = [
   {
+    version: '2.4.0',
+    date: '2026-11-26',
+    title: { en: 'Reconciliation Day', ru: 'День сверки' },
+    changes: [
+      {
+        type: 'new',
+        text: {
+          en: 'Reconcile your savings: enter how much you actually have and the difference is saved as a separate entry. History stays as it was, and it doesn’t count as a deposit or withdrawal. In shared family savings you reconcile only your own share',
+          ru: 'Сверка копилки: вводишь, сколько у тебя по факту, и разница записывается отдельной строкой. История остаётся как была, а пополнением или снятием это не считается. В общей семейной копилке сверяешь только свою часть'
+        }
+      }
+    ]
+  },
+  {
     version: '2.3.1',
     date: '2026-11-05',
     title: { en: 'Cleanup Day', ru: 'День уборки' },

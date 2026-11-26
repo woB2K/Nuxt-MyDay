@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { Period } from '~/utils/period'
-import { savingsEntryLooks } from '~/utils/savingsLooks'
+import { savingsEntryLook } from '~/utils/savingsLooks'
 
 const { t } = useI18n()
 
@@ -41,12 +41,13 @@ function openGoal(goal: SavingsGoalItem | null) {
   goalSheetOpen.value = true
 }
 
-type SavingsMode = SavingsEntryItem['type']
+type SavingsMode = Exclude<SavingsEntryItem['type'], 'ADJUSTMENT'>
 
 const sheetOpen = ref(false)
 const sheetMode = ref<SavingsMode>('DEPOSIT')
 const editing = ref<SavingsEntryItem | null>(null)
 const periodSheetOpen = ref(false)
+const reconcileOpen = ref(false)
 
 const summary = computed(() => pages.value?.pages[0])
 const entries = computed(() => pages.value?.pages.flatMap(page => page.entries) ?? [])
@@ -57,7 +58,13 @@ function openSheet(mode: SavingsMode) {
   sheetOpen.value = true
 }
 
+function looksOf(entry: SavingsEntryItem) {
+  return savingsEntryLook(entry)
+}
+
 function openEdit(entry: SavingsEntryItem) {
+  if (entry.type === 'ADJUSTMENT') return
+
   editing.value = entry
   sheetOpen.value = true
 }
@@ -95,6 +102,17 @@ function applyPeriod(next: Period) {
         {{ t('finance.savings.setOpening') }}
       </button>
 
+      <button
+        v-else
+        class="flex items-center justify-center gap-1.5 py-2 text-sm font-semibold text-accent"
+        type="button"
+        data-testid="savings-reconcile"
+        @click="reconcileOpen = true"
+      >
+        <UIcon name="i-lucide-scale" class="w-4 h-4" />
+        {{ t('finance.savings.reconcile') }}
+      </button>
+
       <GoalsSection @edit="openGoal" />
 
       <PeriodBar
@@ -128,15 +146,20 @@ function applyPeriod(next: Period) {
         <template v-for="(entry, index) in entries" :key="entry.id">
           <div v-if="index > 0" class="h-px ml-[66px] bg-hairline" />
           <UiSwipeRow @delete="deleteEntry(entry.id)">
-            <div class="flex items-center gap-3 p-4 cursor-pointer" @click="openEdit(entry)">
+            <div
+              class="flex items-center gap-3 p-4"
+              :class="{ 'cursor-pointer': entry.type !== 'ADJUSTMENT' }"
+              :data-testid="`savings-entry-${entry.type}`"
+              @click="openEdit(entry)"
+            >
               <div
                 class="relative w-10 h-10 rounded-md flex items-center justify-center shrink-0"
-                :class="savingsEntryLooks[entry.type].tile"
+                :class="looksOf(entry).tile"
               >
                 <UIcon
-                  :name="savingsEntryLooks[entry.type].icon"
+                  :name="looksOf(entry).icon"
                   class="w-5 h-5"
-                  :class="savingsEntryLooks[entry.type].ink"
+                  :class="looksOf(entry).ink"
                 />
                 <UiAvatar
                   v-if="authorFor(entry.userId)"
@@ -150,10 +173,10 @@ function applyPeriod(next: Period) {
 
               <div class="flex flex-col gap-0.5 flex-1 min-w-0">
                 <span class="text-text text-sm font-semibold truncate">
-                  {{ entry.notes || t(savingsEntryLooks[entry.type].title) }}
+                  {{ entry.notes || t(looksOf(entry).title) }}
                 </span>
                 <span class="text-text-dim text-xs">
-                  {{ t(savingsEntryLooks[entry.type].caption) }} ·
+                  {{ t(looksOf(entry).caption) }} ·
                   <template v-if="entry.goalId && goalNames.get(entry.goalId)">{{ goalNames.get(entry.goalId) }} · </template>
                   {{ formatDay(entry.createdAt) }}
                 </span>
@@ -161,9 +184,9 @@ function applyPeriod(next: Period) {
 
               <span
                 class="ml-auto text-sm font-semibold shrink-0"
-                :class="savingsEntryLooks[entry.type].ink"
+                :class="looksOf(entry).ink"
               >
-                <UiMoney :amount="entry.amount" :sign="savingsEntryLooks[entry.type].sign" />
+                <UiMoney :amount="looksOf(entry).amount" :sign="looksOf(entry).sign" />
               </span>
             </div>
           </UiSwipeRow>
@@ -187,6 +210,12 @@ function applyPeriod(next: Period) {
       :mode="sheetMode"
       :entry="editing"
       :balance="summary?.balance ?? 0"
+    />
+
+    <SavingsReconcileSheet
+      v-model:open="reconcileOpen"
+      :own="summary?.own ?? 0"
+      :shared="!!sharedWith"
     />
 
     <GoalSheet v-model:open="goalSheetOpen" :goal="editingGoal" />

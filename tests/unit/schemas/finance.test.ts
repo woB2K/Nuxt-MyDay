@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { clientIdSchema, createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, savingsQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateSavingsSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
+import { clientIdSchema, createBudgetSchema, createCategorySchema, createSavingsSchema, createTransactionSchema, dateRangeQuerySchema, reconcileSavingsSchema, savingsQuerySchema, transactionFilterQuerySchema, transactionQuerySchema, updateBudgetSchema, updateSavingsSchema, updateTransactionSchema } from '../../../shared/schemas/finance'
 
 describe('createTransactionSchema', () => {
   const valid = {
@@ -398,5 +398,23 @@ describe('updateBudgetSchema', () => {
   it('still rejects invalid amount if provided', () => {
     const result = updateBudgetSchema.safeParse({ amount: -1 })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('reconcileSavingsSchema', () => {
+  it('принимает ноль и сумму с копейками', () => {
+    expect(reconcileSavingsSchema.safeParse({ actual: 0 }).success).toBe(true)
+    expect(reconcileSavingsSchema.safeParse({ actual: 380000.5, notes: 'после продажи машины' }).success).toBe(true)
+  })
+
+  it('отклоняет отрицательную сумму и сумму выше лимита', () => {
+    expect(reconcileSavingsSchema.safeParse({ actual: -1 }).success).toBe(false)
+    expect(reconcileSavingsSchema.safeParse({ actual: 10_000_000_000 }).success).toBe(false)
+  })
+})
+
+describe('createSavingsSchema: сверка', () => {
+  it('не даёт создать сверку обычной записью', () => {
+    expect(createSavingsSchema.safeParse({ amount: 10, type: 'ADJUSTMENT' }).success).toBe(false)
   })
 })
