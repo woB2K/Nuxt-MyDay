@@ -1,5 +1,6 @@
 import type { PushPayload } from './messages'
 import webpush from 'web-push'
+import { isPushServiceEndpoint } from '~~/shared/schemas/push'
 
 export type PushOutcome = 'ok' | 'gone' | 'error'
 
@@ -29,6 +30,8 @@ export function createWebPushSender(vapid: VapidConfig): PushSender | null {
   }
 
   return async (target, payload) => {
+    if (!isPushServiceEndpoint(target.endpoint)) return 'gone'
+
     try {
       await webpush.sendNotification(
         { endpoint: target.endpoint, keys: { p256dh: target.p256dh, auth: target.auth } },
