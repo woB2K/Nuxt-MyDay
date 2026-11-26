@@ -40,4 +40,5 @@ TAILWIND.md
 
 # Working context / session notes (not part of codebase)
 context/
+docs/superpowers/
 .claude/settings.local.json
