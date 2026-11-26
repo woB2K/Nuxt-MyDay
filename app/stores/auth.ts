@@ -1,4 +1,5 @@
 import type { UserProfile } from '~~/shared/types'
+import { releasePushDevice } from '~/composables/usePush'
 import { useUiStore } from '~/stores/ui'
 import { statusOf } from '~/utils/httpStatus'
 import { isOnline } from '~/utils/network'
@@ -143,6 +144,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     const userId = user.value?.id
+
+    await releasePushDevice(accessToken.value)
 
     await $fetch('/api/auth/logout', {
       method: 'POST'

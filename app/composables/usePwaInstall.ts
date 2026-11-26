@@ -40,7 +40,7 @@ function writeMemory(value: InstallMemory) {
   } catch {}
 }
 
-function isStandalone() {
+export function isStandalone() {
   const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true
 
   return iosStandalone || window.matchMedia('(display-mode: standalone)').matches

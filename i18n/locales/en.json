@@ -399,7 +399,10 @@
       "scheduleHint": "Mark on any day. The streak grows while every week hits the plan.",
       "create": "Add habit",
       "save": "Save",
-      "delete": "Delete habit"
+      "delete": "Delete habit",
+      "reminder": "Remind me",
+      "reminderHint": "Only if the habit isn't checked off yet",
+      "reminderSection": "Reminder"
     }
   },
   "auth": {
@@ -521,7 +524,9 @@
         "improved": "Improved",
         "fixed": "Fixed"
       }
-    }
+    },
+    "notifications": "Notifications",
+    "notificationsSub": "Spending, tasks and habit reminders"
   },
   "categories": {
     "food": "Food & Drink",
@@ -848,5 +853,50 @@
   "outbox": {
     "title": "Waiting to sync",
     "hint": "Will be sent once you're back online"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Reminders arrive only when there is something to do",
+    "device": "Push on this device",
+    "hint": {
+      "on": "Reminders will arrive on this device",
+      "off": "Turn on to get reminders here",
+      "needsInstall": "Add MyDay to your Home Screen — on iPhone notifications only work this way",
+      "denied": "Notifications are blocked in the browser settings",
+      "unsupported": "This browser doesn't support notifications",
+      "unconfigured": "Notifications are not set up on this server"
+    },
+    "types": "Reminders",
+    "typesHint": "Shared across all your devices",
+    "finance": {
+      "label": "Evening spending",
+      "sub": "Reminds you to add today's expenses"
+    },
+    "tasks": {
+      "label": "Daily plan",
+      "sub": "Today's tasks or a nudge to plan the day"
+    },
+    "habits": {
+      "label": "Habits",
+      "sub": "Set a time on each habit"
+    },
+    "time": "Time",
+    "test": "Send a test push",
+    "testSent": "Sent to {count} device | Sent to {count} devices",
+    "testNone": "No device received it — turn push on above",
+    "testError": "Couldn't send a test push",
+    "enabled": "Notifications are on",
+    "denied": "Notifications are blocked in the browser settings",
+    "failed": "Couldn't turn on notifications",
+    "disableError": "Couldn't turn off notifications",
+    "prompt": {
+      "title": "MyDay can now remind you",
+      "body": "Spending in the evening, the plan in the morning, habits at their own time.",
+      "enable": "Turn on",
+      "later": "Later",
+      "configure": "Customize",
+      "installBody": "Add MyDay to your Home Screen to get notifications.",
+      "install": "How to install"
+    }
   }
 }
